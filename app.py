@@ -61,7 +61,8 @@ if st.button("SPRAWDŹ CENY I ZAMÓW"):
                         {
                             "Firma": "Ryba Taxi 🐟", 
                             "Cena": f"{ryba_base:.2f} - {ryba_base*1.2:.2f} PLN", 
-                            "Link": "https://pasażer.ryba-taxi.pl/", 
+                            # Ten link próbuje otworzyć zainstalowaną aplikację Ryba Taxi
+                            "Link": "https://rybataxi.itaxi.pl/pax/", 
                             "Val": ryba_base
                         },
                         {
