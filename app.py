@@ -66,15 +66,14 @@ if st.button("SPRAWDŹ CENY I TRASĘ"):
                         {
                             "Firma": "UberX 🚗", 
                             "Cena": f"~{8.0 + km*2.5:.2f} PLN", 
-                            "Link": f"https://m.uber.com/ul/?action=setPickup&pickup[latitude]={l1.latitude}&pickup[longitude]={l1.longitude}&pickup[nickname]={q_start}&dropoff[latitude]={l2.latitude}&dropoff[longitude]={l2.longitude}&dropoff[nickname]={q_cel}", 
+                            "Link": f"https://m.uber.com/ul/?action=setPickup&pickup[latitude]={l1.latitude}&pickup[longitude]={l1.longitude}&pickup[nickname]={q_start_name}&dropoff[latitude]={l2.latitude}&dropoff[longitude]={l2.longitude}&dropoff[nickname]={q_cel_name}", 
                             "Val": 8.0 + km*2.5
                         },
                         {
-                            "Firma": "Ryba Taxi 🐟", 
-                            "Cena": f"{ryba_min:.2f} - {ryba_max:.2f} PLN", 
-                            "Link": "https://ryba-taxi.pl/", 
-                            "Val": ryba_min,
-                            "Note": f"Cel do wklejenia: {l2.address.split(',')[0]}"
+                            "Firma": "iTaxi 🚕", 
+                            "Cena": f"~{7.0 + km*3.0:.2f} PLN", # iTaxi ma zazwyczaj taryfę ok. 3zł/km
+                            "Link": f"https://itaxi.pl/zamow-przejazd/?address_from={q_start_name}&address_to={q_cel_name}", 
+                            "Val": 7.0 + km*3.0
                         },
                         {
                             "Firma": "Bolt ⚡", 
