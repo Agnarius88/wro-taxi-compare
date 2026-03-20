@@ -1,4 +1,3 @@
-openrouteservice
-geopy
+openrouteservice==2.3.3
+geopy==2.4.1
 pandas
-streamlit
