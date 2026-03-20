@@ -46,14 +46,36 @@ if st.button("POKAŻ NAJTAŃSZĄ OPCJĘ"):
                     ryba_base = 20.0 + (math.ceil(km - 4) * 2.5 if km > 4 else 0)
                     if any(x in (start_adr+cel_adr).lower() for x in ["lotnisko", "airport"]): ryba_base += 5.0
                     
-                    q = urllib.parse.quote(cel_adr)
+                   # Przygotowanie bezpiecznych linków
+                    q_adr = urllib.parse.quote(cel_adr)
                     
-                    # Dane do tabeli
                     dane = [
-                        {"Firma": "Ryba Taxi 🐟", "Cena": f"{ryba_base:.2f} - {ryba_base*1.2:.2f} PLN", "Link": "https://ryba-taxi.pl/zamow-online/", "Val": ryba_base},
-                        {"Firma": "UberX 🚗", "Cena": f"~{8.0 + km*2.5:.2f} PLN", "Link": f"uber://?action=setPickup&pickup=my_location&dropoff[formatted_address]={q}", "Val": 8.0 + km*2.5},
-                        {"Firma": "Bolt ⚡", "Cena": f"~{6.5 + km*2.8:.2f} PLN", "Link": f"bolt://", "Val": 6.5 + km*2.8},
-                        {"Firma": "FreeNow 🚕", "Cena": f"~{9.0 + km*2.3:.2f} PLN", "Link": "freenow://", "Val": 9.0 + km*2.3}
+                        {
+                            "Firma": "Ryba Taxi 🐟", 
+                            "Cena": f"{ryba_base:.2f} - {ryba_base*1.2:.2f} PLN", 
+                            "Link": "https://ryba-taxi.pl/zamow-online/", 
+                            "Val": ryba_base
+                        },
+                        {
+                            "Firma": "UberX 🚗", 
+                            "Cena": f"~{8.0 + km*2.5:.2f} PLN", 
+                            # Ten link na 100% otwiera apkę Ubera z celem:
+                            "Link": f"https://m.uber.com/ul/?action=setPickup&pickup=my_location&dropoff[formatted_address]={q_adr}", 
+                            "Val": 8.0 + km*2.5
+                        },
+                        {
+                            "Firma": "Bolt ⚡", 
+                            "Cena": f"~{6.5 + km*2.8:.2f} PLN", 
+                            # Bolt często ignoruje adres, ale ten link chociaż otworzy apkę:
+                            "Link": "bolt://ride", 
+                            "Val": 6.5 + km*2.8
+                        },
+                        {
+                            "Firma": "FreeNow 🚕", 
+                            "Cena": f"~{9.0 + km*2.3:.2f} PLN", 
+                            "Link": "freenow://", 
+                            "Val": 9.0 + km*2.3
+                        }
                     ]
                     
                     st.success(f"Dystans: {km:.2f} km | Czas: ~{minuty} min")
