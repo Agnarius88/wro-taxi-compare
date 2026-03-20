@@ -67,7 +67,8 @@ if st.button("SPRAWDŹ CENY I ZAMÓW"):
                         {
                             "Firma": "UberX 🚗", 
                             "Cena": f"~{8.0 + km*2.5:.2f} PLN", 
-                            "Link": f"https://m.uber.com/ul/?action=setPickup&pickup=my_location&dropoff[latitude]={lat_cel}&dropoff[longitude]={lon_cel}&dropoff[nickname]={q_nick}", 
+                            # Używamy teraz współrzędnych startu (pickup) I mety (dropoff)
+                            "Link": f"https://m.uber.com/ul/?action=setPickup&pickup[latitude]={l1.latitude}&pickup[longitude]={l1.longitude}&pickup[nickname]={urllib.parse.quote(start_adr)}&dropoff[latitude]={lat_cel}&dropoff[longitude]={lon_cel}&dropoff[nickname]={q_nick}", 
                             "Val": 8.0 + km*2.5
                         },
                         {
