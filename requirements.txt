@@ -1,1 +1,4 @@
-
+openrouteservice
+geopy
+pandas
+streamlit
