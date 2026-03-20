@@ -65,7 +65,7 @@ if st.button("SPRAWDŹ CENY"):
                         {
                             "Firma": "Ryba Taxi 🐟", 
                             "Cena": f"{ryba_min:.2f} - {ryba_max:.2f} PLN", 
-                            "Link": "https://rybataxi.pl/kontakt/", 
+                            "Link": "https://rybataxi.pl/app/", 
                             "Val": ryba_min
                         },
                         {
