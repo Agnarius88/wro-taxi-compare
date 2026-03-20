@@ -5,10 +5,9 @@ import pandas as pd
 import math
 import urllib.parse
 
-# 1. Konfiguracja strony pod telefon
-st.set_page_config(page_title="WroTaxi Compare", page_icon="🚕")
+# 1. Konfiguracja strony
+st.set_page_config(page_title="WroTaxi", page_icon="🚕")
 
-# Stylizacja przycisków (żeby były duże i wygodne na smartfonie)
 st.markdown("""
     <style>
     .stButton>button { width: 100%; border-radius: 10px; height: 3.5em; background-color: #3498db; color: white; font-weight: bold; }
@@ -16,92 +15,70 @@ st.markdown("""
     """, unsafe_allow_html=True)
 
 st.title("🚕 WroTaxi Compare")
-st.caption("Wrocław: Porównywarka Uber, Bolt, FreeNow i Ryba Taxi")
 
-# --- KONFIGURACJA KLUCZY ---
-# Twój klucz ORS (zostawiamy ten, który działa)
+# KLUCZ ORS (Jeśli nadal masz błąd, wygeneruj nowy na openrouteservice.org)
 ORS_KEY = 'eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6Ijc2N2YwMmI0Y2M2OTRkMjE5MDk5MDU4ZTg3NzMxYjYzIiwiaCI6Im11cm11cjY0In0='
-client = openrouteservice.Client(key=ORS_KEY)
-geolocator = Nominatim(user_agent="wro_taxi_final_v3")
 
-# --- POLA WPISYWANIA ---
-start_adr = st.text_input("📍 Skąd (Lokalizacja)?", placeholder="np. Dworzec Główny, Wrocław")
-cel_adr = st.text_input("🏁 Dokąd jedziemy?", placeholder="np. Magnolia Park, Wrocław")
+try:
+    client = openrouteservice.Client(key=ORS_KEY)
+    geolocator = Nominatim(user_agent="wro_taxi_final_v5")
+except Exception:
+    st.error("Problem z połączeniem z serwerem map. Spróbuj za chwilę.")
 
-if st.button("SPRAWDŹ CENY I ZAMÓW"):
+start_adr = st.text_input("📍 Skąd?", placeholder="np. Dworzec Główny, Wrocław")
+cel_adr = st.text_input("🏁 Dokąd?", placeholder="np. Magnolia Park, Wrocław")
+
+if st.button("SPRAWDŹ CENY"):
     if start_adr and cel_adr:
-        with st.spinner("Szukam najlepszej trasy we Wrocławiu..."):
+        with st.spinner("Liczenie trasy..."):
             try:
-                # Geolokalizacja (zamiana tekstu na współrzędne)
-                l1 = geolocator.geocode(start_adr if "Wrocław" in start_adr else f"{start_adr}, Wrocław")
-                l2 = geolocator.geocode(cel_adr if "Wrocław" in cel_adr else f"{cel_adr}, Wrocław")
+                # Geo-kodowanie
+                l1 = geolocator.geocode(f"{start_adr}, Wrocław" if "Wrocław" not in start_adr else start_adr)
+                l2 = geolocator.geocode(f"{cel_adr}, Wrocław" if "Wrocław" not in cel_adr else cel_adr)
                 
-                if not l1 or not l2:
-                    st.error("Nie znalazłem jednego z adresów. Spróbuj dopisać nazwę ulicy.")
-                else:
-                    # Pobranie trasy z OpenRouteService
+                if l1 and l2:
                     coords = ((l1.longitude, l1.latitude), (l2.longitude, l2.latitude))
                     route = client.directions(coordinates=coords, profile='driving-car', format='geojson')
                     
                     km = route['features'][0]['properties']['summary']['distance'] / 1000
                     minuty = round(route['features'][0]['properties']['summary']['duration'] / 60)
                     
-                    # --- OBLICZENIA CEN ---
-                    
-                    # 1. Ryba Taxi (Cennik wrocławski)
+                    # Obliczenia
                     ryba_base = 20.0 + (math.ceil(km - 4) * 2.5 if km > 4 else 0)
-                    
-                    # 2. Przygotowanie danych do Ubera (dokładna pinezka GPS)
-                    lat_cel = l2.latitude
-                    lon_cel = l2.longitude
-                    q_nick = urllib.parse.quote(cel_adr)
+                    q_start = urllib.parse.quote(l1.address)
+                    q_cel = urllib.parse.quote(l2.address)
 
-                    # --- LISTA WYNIKÓW ---
                     dane = [
-                        {
-                            "Firma": "Ryba Taxi 🐟", 
-                            "Cena": f"{ryba_base:.2f} - {ryba_base*1.2:.2f} PLN", 
-                            # Ten link próbuje otworzyć zainstalowaną aplikację Ryba Taxi
-                            "Link": "https://rybataxi.itaxi.pl/pax/", 
-                            "Val": ryba_base
-                        },
                         {
                             "Firma": "UberX 🚗", 
                             "Cena": f"~{8.0 + km*2.5:.2f} PLN", 
-                            # Używamy teraz współrzędnych startu (pickup) I mety (dropoff)
-                            "Link": f"https://m.uber.com/ul/?action=setPickup&pickup[latitude]={l1.latitude}&pickup[longitude]={l1.longitude}&pickup[nickname]={urllib.parse.quote(start_adr)}&dropoff[latitude]={lat_cel}&dropoff[longitude]={lon_cel}&dropoff[nickname]={q_nick}", 
+                            "Link": f"https://m.uber.com/ul/?action=setPickup&pickup[latitude]={l1.latitude}&pickup[longitude]={l1.longitude}&pickup[nickname]={q_start}&dropoff[latitude]={l2.latitude}&dropoff[longitude]={l2.longitude}&dropoff[nickname]={q_cel}", 
                             "Val": 8.0 + km*2.5
+                        },
+                        {
+                            "Firma": "Ryba Taxi 🐟", 
+                            "Cena": f"{ryba_base:.2f} PLN", 
+                            "Link": "https://rybataxi.itaxi.pl/pax/", 
+                            "Val": ryba_base
                         },
                         {
                             "Firma": "Bolt ⚡", 
                             "Cena": f"~{6.5 + km*2.8:.2f} PLN", 
                             "Link": "bolt://ride", 
                             "Val": 6.5 + km*2.8
-                        },
-                        {
-                            "Firma": "FreeNow 🚕", 
-                            "Cena": f"~{9.0 + km*2.3:.2f} PLN", 
-                            "Link": "freenow://", 
-                            "Val": 9.0 + km*2.3
                         }
                     ]
                     
-                    st.success(f"🛣️ Dystans: {km:.2f} km | ⌛ Czas: ok. {minuty} min")
-                    st.write("---")
+                    st.success(f"🛣️ {km:.2f} km | ⌛ {minuty} min")
                     
-                    # Sortowanie po cenie (od najtańszej)
                     for item in sorted(dane, key=lambda x: x['Val']):
-                        col1, col2 = st.columns([2, 1])
-                        with col1:
-                            st.markdown(f"**{item['Firma']}**")
-                            st.markdown(f"### {item['Cena']}")
-                        with col2:
-                            st.link_button("ZAMÓW", item['Link'])
+                        c1, c2 = st.columns([2, 1])
+                        with c1: st.markdown(f"**{item['Firma']}**\n### {item['Cena']}")
+                        with c2: st.link_button("ZAMÓW", item['Link'])
                         st.write("---")
-                        
+                else:
+                    st.error("Nie znalazłem adresów. Spróbuj podać dokładniejszą ulicę.")
             except Exception as e:
-                st.error(f"Wystąpił błąd: {e}")
+                st.error("Błąd serwera map (ORS). Prawdopodobnie przekroczono limit zapytań. Spróbuj za 5 minut.")
     else:
-        st.warning("Uzupełnij oba pola tekstowe!")
-
-st.caption("Uwaga: Ceny aplikacji (Uber/Bolt/FreeNow) są szacunkowe i zależą od popytu.")
+        st.warning("Wpisz oba adresy!")
