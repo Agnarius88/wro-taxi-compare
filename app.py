@@ -36,19 +36,19 @@ if st.button("POKAŻ NAJTAŃSZĄ OPCJĘ"):
                 if not l1 or not l2:
                     st.error("Nie znalazłem adresu. Dodaj 'Wrocław' na końcu.")
                 else:
-                    # Logika trasy
+                    # Pobieramy dokładne koordynaty celu wyliczone przez geolocator
+                    lat_cel = l2.latitude
+                    lon_cel = l2.longitude
+                    cel_nazwa = urllib.parse.quote(l2.address) # Pełna nazwa z geolocatora
+
+                    # Logika trasy (bez zmian)
                     coords = ((l1.longitude, l1.latitude), (l2.longitude, l2.latitude))
                     route = client.directions(coordinates=coords, profile='driving-car', format='geojson')
                     km = route['features'][0]['properties']['summary']['distance'] / 1000
                     minuty = round(route['features'][0]['properties']['summary']['duration'] / 60)
                     
-                    # Ryba Taxi Wrocław (Twoje dane)
-                    ryba_base = 20.0 + (math.ceil(km - 4) * 2.5 if km > 4 else 0)
-                    if any(x in (start_adr+cel_adr).lower() for x in ["lotnisko", "airport"]): ryba_base += 5.0
-                    
-                   # Przygotowanie bezpiecznych linków
-                    q_adr = urllib.parse.quote(cel_adr)
-                    
+                    # ... (tu zachowaj swoją logikę obliczania ceny Ryba Taxi) ...
+
                     dane = [
                         {
                             "Firma": "Ryba Taxi 🐟", 
@@ -59,14 +59,13 @@ if st.button("POKAŻ NAJTAŃSZĄ OPCJĘ"):
                         {
                             "Firma": "UberX 🚗", 
                             "Cena": f"~{8.0 + km*2.5:.2f} PLN", 
-                            # Ten link na 100% otwiera apkę Ubera z celem:
-                            "Link": f"https://m.uber.com/ul/?action=setPickup&pickup=my_location&dropoff[formatted_address]={q_adr}", 
+                            # NOWY LINK: Używamy współrzędnych lat/lon zamiast tekstu!
+                            "Link": f"https://m.uber.com/ul/?action=setPickup&pickup=my_location&dropoff[latitude]={lat_cel}&dropoff[longitude]={lon_cel}&dropoff[nickname]={cel_nazwa}", 
                             "Val": 8.0 + km*2.5
                         },
                         {
                             "Firma": "Bolt ⚡", 
                             "Cena": f"~{6.5 + km*2.8:.2f} PLN", 
-                            # Bolt często ignoruje adres, ale ten link chociaż otworzy apkę:
                             "Link": "bolt://ride", 
                             "Val": 6.5 + km*2.8
                         },
