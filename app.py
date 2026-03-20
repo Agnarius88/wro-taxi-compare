@@ -85,11 +85,16 @@ if st.button("SPRAWDŹ CENY"):
                     st.success(f"🛣️ {km:.2f} km | ⌛ {minuty} min")
                     
                     # Sortowanie od najtańszej opcji
-                    for item in sorted(dane, key=lambda x: x['Val']):
+                   for item in sorted(dane, key=lambda x: x['Val']):
                         c1, c2 = st.columns([2, 1])
                         with c1: 
                             st.markdown(f"**{item['Firma']}**")
                             st.markdown(f"### {item['Cena']}")
+                            
+                            # Dodatek dla Ryba Taxi - ułatwienie kopiowania
+                            if "Ryba" in item['Firma']:
+                                st.info(f"Skopiuj cel: {cel_adr}")
+                        
                         with c2: 
                             st.link_button("ZAMÓW", item['Link'])
                         st.write("---")
