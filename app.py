@@ -72,9 +72,10 @@ if st.button("SPRAWDŹ CENY"):
                         {
                             "Firma": "iTaxi 🚕", 
                             "Cena": f"~{7.0 + km*3.0:.2f} PLN", 
-                            # Deep Link bezpośrednio do aplikacji iTaxi
                             "Link": f"itaxi://order?address_from_name={q_start}&address_to_name={q_cel}", 
-                            "Val": 7.0 + km*3.0, "Active": True
+                            "Val": 7.0 + km*3.0, 
+                            "Active": True,
+                            "Download": "https://itaxi.pl/pobierz/" # Link zapasowy
                         },
                         {
                             "Firma": "Ryba Taxi 🐟", 
