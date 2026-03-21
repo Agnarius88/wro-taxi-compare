@@ -45,17 +45,18 @@ if st.button("SPRAWDŹ CENY"):
                     q_start = urllib.parse.quote(l1.address.split(',')[0])
                     q_cel = urllib.parse.quote(l2.address.split(',')[0])
 
-                  # --- OBLICZENIA PO KALIBRACJI ---
-                    # iTaxi: Podbita stawka, by przy 10km wyszło ~52zł
+                 # 1. iTaxi: 9zł start + (km * 4.30) -> Daje ~52.13 PLN przy 10.03 km
                     itaxi_val = 9.0 + (km * 4.30)
                     
-                    # Ryba: Twój złoty standard (bez zmian)
-                    ryba_val = 20.50 + (math.ceil(km - 4) * 2.50 if km > 4 else 0)
+                    # 2. Ryba Taxi: 20.50zł baza + 2.50zł/km powyżej 4km
+                    ryba_min = 20.50 + (math.ceil(km - 4) * 2.50 if km > 4 else 0)
+                    # Korekta Max: Dodajemy +2.00 PLN do górnej granicy zgodnie z Twoją obserwacją
+                    ryba_max = (ryba_min * 1.15) + 2.00
 
                     dane = [
                         {"Firma": "UberX 🚗", "Cena": f"~{8.0 + km*2.5:.2f} PLN", "Link": f"https://m.uber.com/ul/?action=setPickup&pickup[latitude]={l1.latitude}&pickup[longitude]={l1.longitude}&pickup[nickname]={q_start}&dropoff[latitude]={l2.latitude}&dropoff[longitude]={l2.longitude}&dropoff[nickname]={q_cel}", "Val": 8.0 + km*2.5, "Active": True},
                         {"Firma": "iTaxi 🚕", "Cena": f"~{itaxi_val:.2f} PLN", "Link": "", "Val": itaxi_val, "Active": False},
-                        {"Firma": "Ryba Taxi 🐟", "Cena": f"{ryba_val:.2f} - {ryba_val*1.15:.2f} PLN", "Link": "", "Val": ryba_val, "Active": False},
+                        {"Firma": "Ryba Taxi 🐟", "Cena": f"{ryba_min:.2f} - {ryba_max:.2f} PLN", "Link": "", "Val": ryba_min, "Active": False},
                         {"Firma": "Bolt ⚡", "Cena": f"~{6.5 + km*2.8:.2f} PLN", "Link": "bolt://ride", "Val": 6.5 + km*2.8, "Active": True},
                         {"Firma": "FreeNow 🚕", "Cena": f"~{9.0 + km*2.3:.2f} PLN", "Link": "freenow://", "Val": 9.0 + km*2.3, "Active": True}
                     ]
