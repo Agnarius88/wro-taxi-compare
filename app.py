@@ -58,7 +58,8 @@ if st.button("SPRAWDŹ CENY"):
                         {"Firma": "iTaxi 🚕", "Cena": f"~{itaxi_val:.2f} PLN", "Link": "", "Val": itaxi_val, "Active": False},
                         {"Firma": "Ryba Taxi 🐟", "Cena": f"{ryba_min:.2f} - {ryba_max:.2f} PLN", "Link": "", "Val": ryba_min, "Active": False},
                         {"Firma": "Bolt ⚡", "Cena": f"~{6.5 + km*2.8:.2f} PLN", "Link": "bolt://ride", "Val": 6.5 + km*2.8, "Active": True},
-                        {"Firma": "FreeNow 🚕", "Cena": f"~{9.0 + km*2.3:.2f} PLN", "Link": "freenow://", "Val": 9.0 + km*2.3, "Active": True}
+                        {"Firma": "FreeNow 🚕", "Cena": f"~{5.0 + km*2.8:.2f} PLN", "Link": f"https://www.free-now.com/pl/zamow-taksowke/?pickupLat={l1.latitude}&pickupLng={l1.longitude}&dropOffLat={l2.latitude}&dropOffLng={l2.longitude}", "Val": 5.0 + km*2.8, "Active": True
+                        },
                     ]
                     
                     st.success(f"🛣️ Dystans trasy: {km:.2f} km")
