@@ -72,8 +72,8 @@ if st.button("SPRAWDŹ CENY"):
                         {
                             "Firma": "iTaxi 🚕", 
                             "Cena": f"~{7.0 + km*3.0:.2f} PLN", 
-                            # Ten link próbuje otworzyć apkę, a jak jej nie ma - wysyła do sklepu
-                            "Link": f"https://itaxi.pl/zamow-przejazd/?address_from_name={q_start}&address_to_name={q_cel}", 
+                            # Deep Link bezpośrednio do aplikacji iTaxi
+                            "Link": f"itaxi://order?address_from_name={q_start}&address_to_name={q_cel}", 
                             "Val": 7.0 + km*3.0, "Active": True
                         },
                         {
