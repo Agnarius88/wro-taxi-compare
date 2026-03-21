@@ -72,7 +72,7 @@ if st.button("SPRAWDŹ CENY"):
                         {
                             "Firma": "iTaxi 🚕", 
                             "Cena": f"~{7.0 + km*3.0:.2f} PLN", 
-                            "Link": f"https://itaxi.pl/zamow-przejazd/?address_from={q_start}&address_to={q_cel}", 
+                            "Link": f"itaxi://order?address_from_name={q_start}&address_to_name={q_cel}", 
                             "Val": 7.0 + km*3.0, "Active": True
                         },
                         {
