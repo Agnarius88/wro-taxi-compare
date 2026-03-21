@@ -10,18 +10,20 @@ st.markdown("""
     <style>
     .stButton>button { width: 100%; border-radius: 10px; height: 3.5em; font-weight: bold; }
     .stTextInput>div>div>input { border-radius: 10px; }
+    .sub-link { font-size: 0.8em; text-align: center; display: block; margin-top: -10px; color: #7f8c8d; text-decoration: none; }
     </style>
     """, unsafe_allow_html=True)
 
 st.title("🚕 WroTaxi Compare")
-st.caption("Wrocław: Ryba (Standard) | iTaxi (Korekta korkowa) | Reszta (Dynamiczne)")
+st.caption("Wrocław: Kalibracja iTaxi (~52zł) | Ryba (Idealna) | Fix Link FreeNow")
 
+# --- KLUCZ API ---
 ORS_KEY = 'eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6Ijc2N2YwMmI0Y2M2OTRkMjE5MDk5MDU4ZTg3NzMxYjYzIiwiaCI6Im11cm11cjY0In0='
 
 def init_services():
     try:
         client = openrouteservice.Client(key=ORS_KEY)
-        geolocator = Nominatim(user_agent="wro_taxi_final_v20")
+        geolocator = Nominatim(user_agent="wro_taxi_final_v23")
         return client, geolocator
     except: return None, None
 
@@ -32,7 +34,7 @@ cel_adr = st.text_input("🏁 Dokąd?", placeholder="np. Celtycka 1")
 
 if st.button("SPRAWDŹ CENY"):
     if start_adr and cel_adr:
-        with st.spinner("Synchronizacja taryf..."):
+        with st.spinner("Łączenie z korporacjami..."):
             try:
                 s_full = f"{start_adr}, Wrocław"; c_full = f"{cel_adr}, Wrocław"
                 l1 = geolocator.geocode(s_full); l2 = geolocator.geocode(c_full)
@@ -45,24 +47,46 @@ if st.button("SPRAWDŹ CENY"):
                     q_start = urllib.parse.quote(l1.address.split(',')[0])
                     q_cel = urllib.parse.quote(l2.address.split(',')[0])
 
-                 # 1. iTaxi: 9zł start + (km * 4.30) -> Daje ~52.13 PLN przy 10.03 km
+                    # --- TWOJE IDEALNE TARYFY ---
                     itaxi_val = 9.0 + (km * 4.30)
-                    
-                    # 2. Ryba Taxi: 20.50zł baza + 2.50zł/km powyżej 4km
                     ryba_min = 20.50 + (math.ceil(km - 4) * 2.50 if km > 4 else 0)
-                    # Korekta Max: Dodajemy +2.00 PLN do górnej granicy zgodnie z Twoją obserwacją
                     ryba_max = (ryba_min * 1.15) + 2.00
 
                     dane = [
-                        {"Firma": "UberX 🚗", "Cena": f"~{8.0 + km*2.5:.2f} PLN", "Link": f"https://m.uber.com/ul/?action=setPickup&pickup[latitude]={l1.latitude}&pickup[longitude]={l1.longitude}&pickup[nickname]={q_start}&dropoff[latitude]={l2.latitude}&dropoff[longitude]={l2.longitude}&dropoff[nickname]={q_cel}", "Val": 8.0 + km*2.5, "Active": True},
-                        {"Firma": "iTaxi 🚕", "Cena": f"~{itaxi_val:.2f} PLN", "Link": "", "Val": itaxi_val, "Active": False},
-                        {"Firma": "Ryba Taxi 🐟", "Cena": f"{ryba_min:.2f} - {ryba_max:.2f} PLN", "Link": "", "Val": ryba_min, "Active": False},
-                        {"Firma": "Bolt ⚡", "Cena": f"~{6.5 + km*2.8:.2f} PLN", "Link": "bolt://ride", "Val": 6.5 + km*2.8, "Active": True},
-                        {"Firma": "FreeNow 🚕", "Cena": f"~{5.0 + km*2.8:.2f} PLN", "Link": f"https://www.free-now.com/pl/zamow-taksowke/?pickupLat={l1.latitude}&pickupLng={l1.longitude}&dropOffLat={l2.latitude}&dropOffLng={l2.longitude}", "Val": 5.0 + km*2.8, "Active": True
+                        {
+                            "Firma": "UberX 🚗", 
+                            "Cena": f"~{8.0 + km*2.5:.2f} PLN", 
+                            "Link": f"https://m.uber.com/ul/?action=setPickup&pickup[latitude]={l1.latitude}&pickup[longitude]={l1.longitude}&pickup[nickname]={q_start}&dropoff[latitude]={l2.latitude}&dropoff[longitude]={l2.longitude}&dropoff[nickname]={q_cel}", 
+                            "Val": 8.0 + km*2.5, "Active": True
                         },
+                        {
+                            "Firma": "iTaxi 🚕", 
+                            "Cena": f"~{itaxi_val:.2f} PLN", 
+                            "Link": "", "Val": itaxi_val, "Active": False
+                        },
+                        {
+                            "Firma": "Ryba Taxi 🐟", 
+                            "Cena": f"{ryba_min:.2f} - {ryba_max:.2f} PLN", 
+                            "Link": "", "Val": ryba_min, "Active": False
+                        },
+                        {
+                            "Firma": "Bolt ⚡", 
+                            "Cena": f"~{6.5 + km*2.8:.2f} PLN", 
+                            "Link": "bolt://ride", 
+                            "Val": 6.5 + km*2.8, "Active": True
+                        },
+                        {
+                            "Firma": "FreeNow 🚕", 
+                            "Cena": f"~{5.0 + km*2.8:.2f} PLN", 
+                            # Próba bezpośredniego wywołania aplikacji (Deep Link)
+                            "Link": f"freenow://short-order?pickupLat={l1.latitude}&pickupLng={l1.longitude}&destinationLat={l2.latitude}&destinationLng={l2.longitude}", 
+                            "Val": 5.0 + km*2.8, 
+                            "Active": True,
+                            "Fallback": f"https://www.free-now.com/pl/zamow-taksowke/?pickupLat={l1.latitude}&pickupLng={l1.longitude}&dropOffLat={l2.latitude}&dropOffLng={l2.longitude}"
+                        }
                     ]
                     
-                    st.success(f"🛣️ Dystans trasy: {km:.2f} km")
+                    st.success(f"🛣️ Dystans: {km:.2f} km")
                     st.write("---")
                     
                     posortowane = sorted(dane, key=lambda x: x['Val'])
@@ -81,10 +105,10 @@ if st.button("SPRAWDŹ CENY"):
                                 st.write("")
                                 if item['Active']:
                                     st.link_button("ZAMÓW", item['Link'], type="primary" if najtaniej else "secondary")
+                                    if "Fallback" in item:
+                                        st.markdown(f'<a href="{item["Fallback"]}" target="_blank" class="sub-link">Nie działa? Kliknij tutaj</a>', unsafe_allow_html=True)
                                 else:
                                     st.button("INFO", disabled=True, key=item['Firma'])
                             st.write("---")
-                else: st.error("Nie znaleziono adresu.")
+                else: st.error("Nie znaleziono lokalizacji.")
             except Exception as e: st.error(f"Błąd: {e}")
-
-st.caption("iTaxi uwzględnia przewidywany czas postoju w korkach. Ryba Taxi oparta na czystym dystansie.")
