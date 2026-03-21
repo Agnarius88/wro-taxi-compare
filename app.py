@@ -56,8 +56,10 @@ if st.button("SPRAWDŹ CENY"):
                     q_cel = urllib.parse.quote(l2.address)
 
                     # --- OBLICZENIA STAWEK ---
-                    # Ryba Taxi: baza 20zł (do 4km), potem 2.5zł/km
-                    ryba_min = 20.0 + (math.ceil(km - 4) * 2.5 if km > 4 else 0)
+                    # Ryba Taxi: baza 20zł (do 4km) + 0.50 PLN korekty, potem 2.5zł/km
+                    ryba_raw = 20.0 + (math.ceil(km - 4) * 2.5 if km > 4 else 0)
+                    ryba_min = ryba_raw + 0.50  # DODANO 50 GROSZY DO MINIMUM
+                    ryba_max = (ryba_raw * 1.2) + 0.50 # DODANO 50 GROSZY DO MAKSIMUM
                     
                     # Dane wszystkich firm
                     dane = [
