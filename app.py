@@ -45,11 +45,16 @@ if st.button("SPRAWDŹ CENY"):
                     q_start = urllib.parse.quote(l1.address.split(',')[0])
                     q_cel = urllib.parse.quote(l2.address.split(',')[0])
 
-                    # --- OBLICZENIA ---
-                    # iTaxi: 9zł + (km * 2.70) + Bufor na korki/czas (0.90zł/km)
-                    itaxi_val = 9.0 + (km * 2.70) + (km * 0.95)
+                   # --- PRECYZYJNY TUNING TARYF ---
+                    # Dystans z mapy (zostawiamy, bo dla Ryby jest IDEALNY)
+                    km = raw_km 
+
+                    # 1. iTaxi: 9zł start + (km * 4.30) 
+                    # Taki przelicznik przy 10km daje ~52.00 PLN. 
+                    # To uwzględnia realny koszt przejazdu iTaxi we Wrocławiu z korkami.
+                    itaxi_val = 9.0 + (km * 4.30)
                     
-                    # Ryba: (Bez zmian, bo pisałeś że jest idealnie)
+                    # 2. Ryba Taxi: (ZOSTAJE BEZ ZMIAN - Twój ideał)
                     ryba_val = 20.50 + (math.ceil(km - 4) * 2.50 if km > 4 else 0)
 
                     dane = [
