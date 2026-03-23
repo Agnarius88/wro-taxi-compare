@@ -117,13 +117,13 @@ if st.button("PORÓWNAJ CENY"):
                             "Firma": "Bolt ⚡", 
                             "Cena": f"~{(6.5 + km*2.8) * uber_surge:.2f} PLN", 
                             "Val": (6.5 + km*2.8) * uber_surge, "Type": "link",
-                            "Link": "bolt://ride?pickup_lat={lat1}&pickup_lng={lng1}&dropoff_lat={lat2}&dropoff_lng={lng2}"
+                            "Link": f"https://bolt.eu/ride/?pickup_lat={l1.latitude}&pickup_lng={l1.longitude}&dropoff_lat={l2.latitude}&dropoff_lng={l2.longitude}"
                         },
                         {
                             "Firma": "FreeNow 🚕", 
                             "Cena": f"~{(5.0 + km*3.0) * mnoznik:.2f} PLN", 
                             "Val": (5.0 + km*3.0) * mnoznik, "Type": "link",
-                            "Link": "https://www.free-now.com/pl/"
+                            "Link": f"https://www.free-now.com/pl/?pickup_lat={l1.latitude}&pickup_lng={l1.longitude}&dropoff_lat={l2.latitude}&dropoff_lng={l2.longitude}"
                         }
                     ]
                     
