@@ -31,6 +31,17 @@ st.markdown("""
         margin-top: 5px;
         border-left: 3px solid #ffa502;
     }
+    .uber-variant {
+        font-size: 0.82em;
+        color: #333;
+        background-color: #f8f9fa;
+        padding: 5px 12px;
+        border-radius: 8px;
+        margin-top: 4px;
+        border: 1px solid #eee;
+        display: flex;
+        justify-content: space-between;
+    }
     .disclaimer {
         font-size: 0.75em;
         color: #95a5a6;
@@ -68,7 +79,7 @@ ORS_KEY = 'eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6Ijc2N2YwMmI0Y2M2O
 def init_services():
     try:
         client = openrouteservice.Client(key=ORS_KEY)
-        geolocator = Nominatim(user_agent="wro_taxi_clean_v31")
+        geolocator = Nominatim(user_agent="wro_taxi_hybrid_v36")
         return client, geolocator
     except: return None, None
 
@@ -89,29 +100,36 @@ if st.button("PORÓWNAJ CENY"):
                     route = client.directions(coordinates=coords, profile='driving-car', format='geojson')
                     km = route['features'][0]['properties']['summary']['distance'] / 1000
                     
-                    # KALIBRACJA CEN
+                    # KALIBRACJA CEN BAZOWYCH
+                    u_x = (8.0 + km*2.5) * uber_surge
                     itaxi_v = 9.0 + (km * 4.30 * mnoznik)
                     ryba_min = 20.50 + (math.ceil(km - 4) * (2.50 * mnoznik) if km > 4 else 0)
                     ryba_max = (ryba_min * 1.15) + 2.00
                     
                     dane = [
                         {
-                            "Firma": "UberX 🚗", 
-                            "Cena": f"~{(8.0 + km*2.5) * uber_surge:.2f} PLN", 
-                            "Val": (8.0 + km*2.5) * uber_surge, "Type": "link",
-                            "Link": f"https://m.uber.com/ul/?action=setPickup&pickup[latitude]={l1.latitude}&pickup[longitude]={l1.longitude}&dropoff[latitude]={l2.latitude}&dropoff[longitude]={l2.longitude}"
+                            "Firma": "Uber (Warianty) 🚗", 
+                            "Cena": f"~{u_x:.2f} PLN", 
+                            "Val": u_x, "Type": "link",
+                            "Link": f"https://m.uber.com/ul/?action=setPickup&pickup[latitude]={l1.latitude}&pickup[longitude]={l1.longitude}&dropoff[latitude]={l2.latitude}&dropoff[longitude]={l2.longitude}",
+                            "Variants": [
+                                {"name": "📉 Saver", "price": u_x * 0.88},
+                                {"name": "🔋 Hybrid", "price": u_x * 1.12},
+                                {"name": "⚡ Priority", "price": u_x * 1.25},
+                                {"name": "✨ Comfort", "price": u_x * 1.30}
+                            ]
                         },
                         {
                             "Firma": "iTaxi 🚕", 
                             "Cena": f"~{itaxi_v:.2f} PLN", 
                             "Val": itaxi_v, "Type": "call",
-                            "Link": "tel:737737737", "Info": "⚠️ iTaxi miewa problemy z linkami. Zalecamy kontakt telefoniczny."
+                            "Link": "tel:737737737", "Info": "⚠️ iTaxi miewa problemy z linkami. Zalecamy telefon."
                         },
                         {
                             "Firma": "Ryba Taxi 🐟", 
                             "Cena": f"{ryba_min:.2f} - {ryba_max:.2f} PLN", 
                             "Val": ryba_min, "Type": "call",
-                            "Link": "tel:713441515", "Info": "⚠️ Zamówienie tylko telefoniczne lub przez aplikację Ryba Taxi."
+                            "Link": "tel:713441515", "Info": "⚠️ Zamówienie telefoniczne lub przez apkę."
                         },
                         {
                             "Firma": "Bolt ⚡", 
@@ -138,20 +156,27 @@ if st.button("PORÓWNAJ CENY"):
                             with c1:
                                 st.markdown(f"**{item['Firma']}**")
                                 st.markdown(f"### {item['Cena']}")
+                                
+                                if "Variants" in item:
+                                    for v in item['Variants']:
+                                        st.markdown(f"""
+                                            <div class='uber-variant'>
+                                                <span>{v['name']}</span>
+                                                <b>{v['price']:.2f} PLN</b>
+                                            </div>
+                                        """, unsafe_allow_html=True)
+                                        
                             with c2:
+                                st.write("")
                                 if item['Type'] == "link":
                                     st.link_button("ZAMÓW", item['Link'])
                                 else:
                                     st.link_button("ZADZWOŃ", item['Link'], type="secondary")
+                            
                             if "Info" in item:
                                 st.markdown(f"<div class='info-box'>{item['Info']}</div>", unsafe_allow_html=True)
                             st.write("---")
 
-                    st.markdown("""
-                        <div class='disclaimer'>
-                            <b>Ważna informacja:</b> Powyższe ceny są szacunkowe i nie uwzględniają Twoich indywidualnych rabatów, 
-                            kodów promocyjnych oraz dynamicznych zmian stawek (surge) dostępnych wyłącznie w oficjalnych aplikacjach.
-                        </div>
-                    """, unsafe_allow_html=True)
+                    st.markdown("<div class='disclaimer'><b>Ważna informacja:</b> Ceny wariantów Ubera są szacowane na podstawie średnich rynkowych mnożników.</div>", unsafe_allow_html=True)
 
-            except Exception as e: st.error(f"Wystąpił błąd: {e}")
+            except Exception as e: st.error(f"Błąd: {e}")
