@@ -34,14 +34,6 @@ st.markdown("""
         justify-content: space-between;
         box-shadow: 1px 1px 3px rgba(0,0,0,0.05);
     }
-    .disclaimer {
-        font-size: 0.75em;
-        color: #95a5a6;
-        text-align: center;
-        margin-top: 30px;
-        padding: 15px;
-        border-top: 1px solid #eee;
-    }
     </style>
     """, unsafe_allow_html=True)
 
@@ -70,13 +62,13 @@ ORS_KEY = 'eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6Ijc2N2YwMmI0Y2M2O
 def init_services():
     try:
         client = openrouteservice.Client(key=ORS_KEY)
-        geolocator = Nominatim(user_agent="wro_taxi_precision_v39")
+        geolocator = Nominatim(user_agent="wro_taxi_precision_v40")
         return client, geolocator
     except: return None, None
 
 client, geolocator = init_services()
 
-start_adr = st.text_input("📍 Skąd we Wrocławiu?", placeholder="np. Wojaczka 10")
+start_adr = st.text_input("📍 Skąd?", placeholder="np. Wojaczka 10")
 cel_adr = st.text_input("🏁 Dokąd?", placeholder="np. Celtycka 1")
 
 if st.button("PORÓWNAJ CENY"):
@@ -91,9 +83,8 @@ if st.button("PORÓWNAJ CENY"):
                     route = client.directions(coordinates=coords, profile='driving-car', format='geojson')
                     km = route['features'][0]['properties']['summary']['distance'] / 1000
                     
-                    # --- KALIBRACJA CEN (v39 - Poprawka Hybrida i Comfortu) ---
-                    # Nowa baza dla UberX, by Hybrid wyszedł ~31.95 PLN
-                    u_x_base = (8.1 + km * 2.31) * uber_surge
+                    # --- KALIBRACJA CEN (v40 - Finalny szlif "Czekaj i oszczędzaj") ---
+                    u_x_base = (8.2 + km * 2.32) * uber_surge
                     
                     itaxi_v = 9.0 + (km * 4.30 * mnoznik)
                     ryba_min = 20.50 + (math.ceil(km - 4) * (2.50 * mnoznik) if km > 4 else 0)
@@ -101,14 +92,14 @@ if st.button("PORÓWNAJ CENY"):
                     dane = [
                         {
                             "Firma": "Uber 🚗", 
-                            "Cena": f"od {u_x_base * 0.86:.2f} PLN", 
-                            "Val": u_x_base * 0.86, "Type": "link",
+                            "Cena": f"od {u_x_base * 0.88:.2f} PLN", 
+                            "Val": u_x_base * 0.88, "Type": "link",
                             "Link": f"https://m.uber.com/ul/?action=setPickup&pickup[latitude]={l1.latitude}&pickup[longitude]={l1.longitude}&dropoff[latitude]={l2.latitude}&dropoff[longitude]={l2.longitude}",
                             "Variants": [
-                                {"name": "📉 Czekaj i oszczędzaj", "price": u_x_base * 0.86},
-                                {"name": "🚗 UberX", "price": u_x_base},
-                                {"name": "🔋 Hybrid", "price": u_x_base * 1.01}, # Poprawione na ~31.95
-                                {"name": "✨ Comfort", "price": u_x_base * 1.20} # Poprawione na ~37.97
+                                {"name": "📉 Czekaj i oszczędzaj", "price": u_x_base * 0.88}, # Cel: ~27.42
+                                {"name": "🚗 UberX", "price": u_x_base},                     # Cel: ~31.20
+                                {"name": "🔋 Hybrid", "price": u_x_base * 1.02},             # Cel: ~31.95
+                                {"name": "✨ Comfort", "price": u_x_base * 1.21}             # Cel: ~37.97
                             ]
                         },
                         {
