@@ -22,15 +22,6 @@ st.markdown("""
         color: #d35400;
         font-weight: bold;
     }
-    .info-box {
-        font-size: 0.8em;
-        color: #666;
-        background-color: #f1f2f6;
-        padding: 8px;
-        border-radius: 5px;
-        margin-top: 5px;
-        border-left: 3px solid #ffa502;
-    }
     .uber-variant {
         font-size: 0.85em;
         color: #111;
@@ -79,7 +70,7 @@ ORS_KEY = 'eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6Ijc2N2YwMmI0Y2M2O
 def init_services():
     try:
         client = openrouteservice.Client(key=ORS_KEY)
-        geolocator = Nominatim(user_agent="wro_taxi_precision_v38")
+        geolocator = Nominatim(user_agent="wro_taxi_precision_v39")
         return client, geolocator
     except: return None, None
 
@@ -90,7 +81,7 @@ cel_adr = st.text_input("🏁 Dokąd?", placeholder="np. Celtycka 1")
 
 if st.button("PORÓWNAJ CENY"):
     if start_adr and cel_adr:
-        with st.spinner("Synchronizacja cen..."):
+        with st.spinner("Synchronizacja z cennikami..."):
             try:
                 s_full = f"{start_adr}, Wrocław"; c_full = f"{cel_adr}, Wrocław"
                 l1 = geolocator.geocode(s_full); l2 = geolocator.geocode(c_full)
@@ -100,9 +91,9 @@ if st.button("PORÓWNAJ CENY"):
                     route = client.directions(coordinates=coords, profile='driving-car', format='geojson')
                     km = route['features'][0]['properties']['summary']['distance'] / 1000
                     
-                    # --- KALIBRACJA CEN PRECYZYJNA (v38) ---
-                    # Wyliczone na podstawie Twoich testów (Wojaczka - Celtycka)
-                    u_x_base = (8.3 + km * 2.33) * uber_surge
+                    # --- KALIBRACJA CEN (v39 - Poprawka Hybrida i Comfortu) ---
+                    # Nowa baza dla UberX, by Hybrid wyszedł ~31.95 PLN
+                    u_x_base = (8.1 + km * 2.31) * uber_surge
                     
                     itaxi_v = 9.0 + (km * 4.30 * mnoznik)
                     ryba_min = 20.50 + (math.ceil(km - 4) * (2.50 * mnoznik) if km > 4 else 0)
@@ -114,10 +105,10 @@ if st.button("PORÓWNAJ CENY"):
                             "Val": u_x_base * 0.86, "Type": "link",
                             "Link": f"https://m.uber.com/ul/?action=setPickup&pickup[latitude]={l1.latitude}&pickup[longitude]={l1.longitude}&dropoff[latitude]={l2.latitude}&dropoff[longitude]={l2.longitude}",
                             "Variants": [
-                                {"name": "📉 Saver", "price": u_x_base * 0.86},
+                                {"name": "📉 Czekaj i oszczędzaj", "price": u_x_base * 0.86},
                                 {"name": "🚗 UberX", "price": u_x_base},
-                                {"name": "🔋 Hybrid", "price": u_x_base * 1.03},
-                                {"name": "✨ Comfort", "price": u_x_base * 1.22}
+                                {"name": "🔋 Hybrid", "price": u_x_base * 1.01}, # Poprawione na ~31.95
+                                {"name": "✨ Comfort", "price": u_x_base * 1.20} # Poprawione na ~37.97
                             ]
                         },
                         {
