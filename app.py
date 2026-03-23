@@ -106,19 +106,21 @@ if st.button("PORÓWNAJ CENY"):
                     ryba_min = 20.50 + (math.ceil(km - 4) * (2.50 * mnoznik) if km > 4 else 0)
                     ryba_max = (ryba_min * 1.15) + 2.00
                     
-                    dane = [
-                        {
-                            "Firma": "Uber (Warianty) 🚗", 
-                            "Cena": f"~{u_x:.2f} PLN", 
-                            "Val": u_x, "Type": "link",
-                            "Link": f"https://m.uber.com/ul/?action=setPickup&pickup[latitude]={l1.latitude}&pickup[longitude]={l1.longitude}&dropoff[latitude]={l2.latitude}&dropoff[longitude]={l2.longitude}",
-                            "Variants": [
-                                {"name": "📉 Saver", "price": u_x * 0.88},
-                                {"name": "🔋 Hybrid", "price": u_x * 1.12},
-                                {"name": "⚡ Priority", "price": u_x * 1.25},
-                                {"name": "✨ Comfort", "price": u_x * 1.30}
-                            ]
-                        },
+                    # --- NOWA KALIBRACJA UBERA (v37) ---
+u_x = (8.0 + km*2.3) * uber_surge  # Obniżona stawka za km z 2.5 na 2.3
+
+dane = [
+    {
+        "Firma": "Uber (Warianty) 🚗", 
+        "Cena": f"~{u_x:.2f} PLN", 
+        "Val": u_x, "Type": "link",
+        "Link": f"https://m.uber.com/ul/?action=setPickup&pickup[latitude]={l1.latitude}&pickup[longitude]={l1.longitude}&dropoff[latitude]={l2.latitude}&dropoff[longitude]={l2.longitude}",
+        "Variants": [
+            {"name": "📉 Saver", "price": u_x * 0.85},   # Realne ~27.50 zł
+            {"name": "🔋 Hybrid", "price": u_x * 1.02},  # Realne ~31.90 zł
+            {"name": "✨ Comfort", "price": u_x * 1.21}   # Realne ~37.90 zł
+        ]
+    },
                         {
                             "Firma": "iTaxi 🚕", 
                             "Cena": f"~{itaxi_v:.2f} PLN", 
