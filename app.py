@@ -32,15 +32,16 @@ st.markdown("""
         border-left: 3px solid #ffa502;
     }
     .uber-variant {
-        font-size: 0.82em;
-        color: #333;
-        background-color: #f8f9fa;
-        padding: 5px 12px;
+        font-size: 0.85em;
+        color: #111;
+        background-color: #ffffff;
+        padding: 6px 12px;
         border-radius: 8px;
-        margin-top: 4px;
-        border: 1px solid #eee;
+        margin-top: 5px;
+        border: 1px solid #ddd;
         display: flex;
         justify-content: space-between;
+        box-shadow: 1px 1px 3px rgba(0,0,0,0.05);
     }
     .disclaimer {
         font-size: 0.75em;
@@ -49,7 +50,6 @@ st.markdown("""
         margin-top: 30px;
         padding: 15px;
         border-top: 1px solid #eee;
-        line-height: 1.5;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -79,10 +79,9 @@ ORS_KEY = 'eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6Ijc2N2YwMmI0Y2M2O
 def init_services():
     try:
         client = openrouteservice.Client(key=ORS_KEY)
-        geolocator = Nominatim(user_agent="wro_taxi_final_v37")
+        geolocator = Nominatim(user_agent="wro_taxi_precision_v38")
         return client, geolocator
-    except:
-        return None, None
+    except: return None, None
 
 client, geolocator = init_services()
 
@@ -91,103 +90,66 @@ cel_adr = st.text_input("🏁 Dokąd?", placeholder="np. Celtycka 1")
 
 if st.button("PORÓWNAJ CENY"):
     if start_adr and cel_adr:
-        with st.spinner("Szukam najtańszego przejazdu..."):
+        with st.spinner("Synchronizacja cen..."):
             try:
-                s_full = f"{start_adr}, Wrocław"
-                c_full = f"{cel_adr}, Wrocław"
-                l1 = geolocator.geocode(s_full)
-                l2 = geolocator.geocode(c_full)
+                s_full = f"{start_adr}, Wrocław"; c_full = f"{cel_adr}, Wrocław"
+                l1 = geolocator.geocode(s_full); l2 = geolocator.geocode(c_full)
                 
                 if l1 and l2:
                     coords = ((l1.longitude, l1.latitude), (l2.longitude, l2.latitude))
                     route = client.directions(coordinates=coords, profile='driving-car', format='geojson')
                     km = route['features'][0]['properties']['summary']['distance'] / 1000
                     
-                    # --- KALIBRACJA CEN (v37) ---
-                    # Baza UberX ustawiona tak, by Saver i Comfort zgadzały się z Twoimi testami
-                    u_base = (8.5 + km * 2.3) * uber_surge
+                    # --- KALIBRACJA CEN PRECYZYJNA (v38) ---
+                    # Wyliczone na podstawie Twoich testów (Wojaczka - Celtycka)
+                    u_x_base = (8.3 + km * 2.33) * uber_surge
                     
                     itaxi_v = 9.0 + (km * 4.30 * mnoznik)
                     ryba_min = 20.50 + (math.ceil(km - 4) * (2.50 * mnoznik) if km > 4 else 0)
-                    ryba_max = (ryba_min * 1.15) + 2.00
                     
                     dane = [
                         {
-                            "Firma": "Uber (Warianty) 🚗", 
-                            "Cena": f"~{u_base:.2f} PLN", 
-                            "Val": u_base, "Type": "link",
+                            "Firma": "Uber 🚗", 
+                            "Cena": f"od {u_x_base * 0.86:.2f} PLN", 
+                            "Val": u_x_base * 0.86, "Type": "link",
                             "Link": f"https://m.uber.com/ul/?action=setPickup&pickup[latitude]={l1.latitude}&pickup[longitude]={l1.longitude}&dropoff[latitude]={l2.latitude}&dropoff[longitude]={l2.longitude}",
                             "Variants": [
-                                {"name": "📉 Saver", "price": u_base * 0.85},
-                                {"name": "🔋 Hybrid", "price": u_base * 1.02},
-                                {"name": "✨ Comfort", "price": u_base * 1.21}
+                                {"name": "📉 Saver", "price": u_x_base * 0.86},
+                                {"name": "🚗 UberX", "price": u_x_base},
+                                {"name": "🔋 Hybrid", "price": u_x_base * 1.03},
+                                {"name": "✨ Comfort", "price": u_x_base * 1.22}
                             ]
                         },
                         {
-                            "Firma": "iTaxi 🚕", 
-                            "Cena": f"~{itaxi_v:.2f} PLN", 
-                            "Val": itaxi_v, "Type": "call",
-                            "Link": "tel:737737737", "Info": "⚠️ iTaxi miewa problemy z linkami. Zalecamy telefon."
+                            "Firma": "iTaxi 🚕", "Cena": f"~{itaxi_v:.2f} PLN", 
+                            "Val": itaxi_v, "Type": "call", "Link": "tel:737737737"
                         },
                         {
-                            "Firma": "Ryba Taxi 🐟", 
-                            "Cena": f"{ryba_min:.2f} - {ryba_max:.2f} PLN", 
-                            "Val": ryba_min, "Type": "call",
-                            "Link": "tel:713441515", "Info": "⚠️ Zamówienie telefoniczne lub przez apkę."
+                            "Firma": "Ryba Taxi 🐟", "Cena": f"~{ryba_min:.2f} PLN", 
+                            "Val": ryba_min, "Type": "call", "Link": "tel:713441515"
                         },
                         {
-                            "Firma": "Bolt ⚡", 
-                            "Cena": f"~{(6.5 + km*2.8) * uber_surge:.2f} PLN", 
-                            "Val": (6.5 + km*2.8) * uber_surge, "Type": "link",
-                            "Link": "bolt://ride"
-                        },
-                        {
-                            "Firma": "FreeNow 🚕", 
-                            "Cena": f"~{(5.0 + km*3.0) * mnoznik:.2f} PLN", 
-                            "Val": (5.0 + km*3.0) * mnoznik, "Type": "link",
-                            "Link": "https://www.free-now.com/pl/"
+                            "Firma": "Bolt ⚡", "Cena": f"~{(6.5 + km*2.8) * uber_surge:.2f} PLN", 
+                            "Val": (6.5 + km*2.8) * uber_surge, "Type": "link", "Link": "bolt://ride"
                         }
                     ]
                     
-                    st.success(f"🛣️ Dystans trasy: {km:.2f} km")
-                    st.write("---")
+                    st.success(f"🛣️ Dystans: {km:.2f} km")
                     
                     posortowane = sorted(dane, key=lambda x: x['Val'])
                     for item in posortowane:
                         with st.container():
-                            if item['Val'] == posortowane[0]['Val']: 
-                                st.markdown("✅ **NAJLEPSZA CENA**")
-                            
                             c1, c2 = st.columns([2, 1])
                             with c1:
                                 st.markdown(f"**{item['Firma']}**")
                                 st.markdown(f"### {item['Cena']}")
-                                
-                                # Wyświetlanie wariantów (tylko dla Ubera)
                                 if "Variants" in item:
                                     for v in item['Variants']:
-                                        st.markdown(f"""
-                                            <div class='uber-variant'>
-                                                <span>{v['name']}</span>
-                                                <b>{v['price']:.2f} PLN</b>
-                                            </div>
-                                        """, unsafe_allow_html=True)
-                                        
+                                        st.markdown(f"<div class='uber-variant'><span>{v['name']}</span><b>{v['price']:.2f} PLN</b></div>", unsafe_allow_html=True)
                             with c2:
-                                st.write("") # Spacer
-                                if item['Type'] == "link":
-                                    st.link_button("ZAMÓW", item['Link'])
-                                else:
-                                    st.link_button("ZADZWOŃ", item['Link'], type="secondary")
-                            
-                            if "Info" in item:
-                                st.markdown(f"<div class='info-box'>{item['Info']}</div>", unsafe_allow_html=True)
+                                st.write("")
+                                if item['Type'] == "link": st.link_button("ZAMÓW", item['Link'])
+                                else: st.link_button("ZADZWOŃ", item['Link'], type="secondary")
                             st.write("---")
 
-                    st.markdown("<div class='disclaimer'><b>Ważna informacja:</b> Ceny wariantów Ubera są kalibrowane pod trasę Wojaczka-Celtycka.</div>", unsafe_allow_html=True)
-                else:
-                    st.error("Nie znaleziono podanych adresów we Wrocławiu.")
-            except Exception as e:
-                st.error(f"Wystąpił błąd podczas obliczeń: {e}")
-    else:
-        st.warning("Proszę podać oba adresy.")
+            except Exception as e: st.error(f"Błąd: {e}")
