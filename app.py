@@ -117,7 +117,7 @@ if st.button("PORÓWNAJ CENY"):
                             "Firma": "Bolt ⚡", 
                             "Cena": f"~{(6.5 + km*2.8) * uber_surge:.2f} PLN", 
                             "Val": (6.5 + km*2.8) * uber_surge, "Type": "link",
-                            "Link": "bolt://ride"
+                            "Link": "bolt://ride?pickup_lat={lat1}&pickup_lng={lng1}&dropoff_lat={lat2}&dropoff_lng={lng2}"
                         },
                         {
                             "Firma": "FreeNow 🚕", 
