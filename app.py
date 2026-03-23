@@ -158,4 +158,36 @@ if st.button("PORÓWNAJ CENY"):
                             if item['Val'] == posortowane[0]['Val']: 
                                 st.markdown("✅ **NAJLEPSZA CENA**")
                             
-                            c1, c2 = st
+                            c1, c2 = st.columns([2, 1])
+                            with c1:
+                                st.markdown(f"**{item['Firma']}**")
+                                st.markdown(f"### {item['Cena']}")
+                                
+                                # Wyświetlanie wariantów (tylko dla Ubera)
+                                if "Variants" in item:
+                                    for v in item['Variants']:
+                                        st.markdown(f"""
+                                            <div class='uber-variant'>
+                                                <span>{v['name']}</span>
+                                                <b>{v['price']:.2f} PLN</b>
+                                            </div>
+                                        """, unsafe_allow_html=True)
+                                        
+                            with c2:
+                                st.write("") # Spacer
+                                if item['Type'] == "link":
+                                    st.link_button("ZAMÓW", item['Link'])
+                                else:
+                                    st.link_button("ZADZWOŃ", item['Link'], type="secondary")
+                            
+                            if "Info" in item:
+                                st.markdown(f"<div class='info-box'>{item['Info']}</div>", unsafe_allow_html=True)
+                            st.write("---")
+
+                    st.markdown("<div class='disclaimer'><b>Ważna informacja:</b> Ceny wariantów Ubera są kalibrowane pod trasę Wojaczka-Celtycka.</div>", unsafe_allow_html=True)
+                else:
+                    st.error("Nie znaleziono podanych adresów we Wrocławiu.")
+            except Exception as e:
+                st.error(f"Wystąpił błąd podczas obliczeń: {e}")
+    else:
+        st.warning("Proszę podać oba adresy.")
