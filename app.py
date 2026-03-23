@@ -31,12 +31,21 @@ st.markdown("""
         margin-top: 5px;
         border-left: 3px solid #ffa502;
     }
+    .disclaimer {
+        font-size: 0.75em;
+        color: #95a5a6;
+        text-align: center;
+        margin-top: 30px;
+        padding: 15px;
+        border-top: 1px solid #eee;
+        line-height: 1.5;
+    }
     </style>
     """, unsafe_allow_html=True)
 
 st.title("🚕 WroTaxi Compare")
 
-# --- LOGIKA TARYF ---
+# --- LOGIKA TARYF (CZAS POLSKI) ---
 now = datetime.now()
 hour = (now.hour + 1) % 24 
 is_night = (hour >= 22 or hour < 6)
@@ -59,7 +68,7 @@ ORS_KEY = 'eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6Ijc2N2YwMmI0Y2M2O
 def init_services():
     try:
         client = openrouteservice.Client(key=ORS_KEY)
-        geolocator = Nominatim(user_agent="wro_taxi_final_v28")
+        geolocator = Nominatim(user_agent="wro_taxi_clean_v31")
         return client, geolocator
     except: return None, None
 
@@ -68,9 +77,9 @@ client, geolocator = init_services()
 start_adr = st.text_input("📍 Skąd we Wrocławiu?", placeholder="np. Wojaczka 10")
 cel_adr = st.text_input("🏁 Dokąd?", placeholder="np. Celtycka 1")
 
-if st.button("SPRAWDŹ CENY"):
+if st.button("PORÓWNAJ CENY"):
     if start_adr and cel_adr:
-        with st.spinner("Przeliczam kursy..."):
+        with st.spinner("Szukam najtańszego przejazdu..."):
             try:
                 s_full = f"{start_adr}, Wrocław"; c_full = f"{cel_adr}, Wrocław"
                 l1 = geolocator.geocode(s_full); l2 = geolocator.geocode(c_full)
@@ -80,43 +89,41 @@ if st.button("SPRAWDŹ CENY"):
                     route = client.directions(coordinates=coords, profile='driving-car', format='geojson')
                     km = route['features'][0]['properties']['summary']['distance'] / 1000
                     
-                    # --- KALIBRACJA CEN ---
-                    itaxi_val = 9.0 + (km * 4.30 * mnoznik)
+                    # KALIBRACJA CEN
+                    itaxi_v = 9.0 + (km * 4.30 * mnoznik)
                     ryba_min = 20.50 + (math.ceil(km - 4) * (2.50 * mnoznik) if km > 4 else 0)
                     ryba_max = (ryba_min * 1.15) + 2.00
-
+                    
                     dane = [
                         {
                             "Firma": "UberX 🚗", 
-                            "Cena": f"~{ (8.0 + km*2.5) * uber_surge :.2f} PLN", 
-                            "Link": f"https://m.uber.com/ul/?action=setPickup&pickup[latitude]={l1.latitude}&pickup[longitude]={l1.longitude}&dropoff[latitude]={l2.latitude}&dropoff[longitude]={l2.longitude}", 
-                            "Type": "link", "Val": (8.0 + km*2.5) * uber_surge
+                            "Cena": f"~{(8.0 + km*2.5) * uber_surge:.2f} PLN", 
+                            "Val": (8.0 + km*2.5) * uber_surge, "Type": "link",
+                            "Link": f"https://m.uber.com/ul/?action=setPickup&pickup[latitude]={l1.latitude}&pickup[longitude]={l1.longitude}&dropoff[latitude]={l2.latitude}&dropoff[longitude]={l2.longitude}"
                         },
                         {
                             "Firma": "iTaxi 🚕", 
-                            "Cena": f"~{itaxi_val:.2f} PLN", 
-                            "Link": "tel:737737737", 
-                            "Type": "call", "Val": itaxi_val,
-                            "Info": "⚠️ Aplikacja iTaxi miewa problemy z linkami. Zalecamy kontakt telefoniczny."
+                            "Cena": f"~{itaxi_v:.2f} PLN", 
+                            "Val": itaxi_v, "Type": "call",
+                            "Link": "tel:737737737", "Info": "⚠️ Zamówienie tylko telefoniczne lub przez aplikację."
                         },
                         {
                             "Firma": "Ryba Taxi 🐟", 
                             "Cena": f"{ryba_min:.2f} - {ryba_max:.2f} PLN", 
-                            "Link": "tel:713441515", 
-                            "Type": "call", "Val": ryba_min,
-                            "Info": "⚠️ Zamówienie tylko telefoniczne lub przez aplikację Ryba Taxi."
+                            "Val": ryba_min, "Type": "call",
+                            "Link": "tel:713441515", "Info": "⚠️ Zamówienie tylko telefoniczne lub przez aplikację."
                         },
                         {
                             "Firma": "Bolt ⚡", 
-                            "Cena": f"~{ (6.5 + km*2.8) * uber_surge :.2f} PLN", 
-                            "Link": "bolt://ride", 
-                            "Type": "link", "Val": (6.5 + km*2.8) * uber_surge
+                            "Cena": f"~{(6.5 + km*2.8) * uber_surge:.2f} PLN", 
+                            "Val": (6.5 + km*2.8) * uber_surge, "Type": "link",
+                            "Link": "bolt://ride"
                         },
                         {
                             "Firma": "FreeNow 🚕", 
-                            "Cena": f"~{ (5.0 + km*3.0) * mnoznik :.2f} PLN", 
-                            "Link": "https://www.free-now.com/pl/", 
-                            "Type": "link", "Val": (5.0 + km*3.0) * mnoznik
+                            "Cena": f"~{(5.0 + km*3.0) * mnoznik:.2f} PLN", 
+                            "Val": (5.0 + km*3.0) * mnoznik, "Type": "link",
+                            "Link": "https://www.free-now.com/pl/"
                         }
                     ]
                     
@@ -124,7 +131,6 @@ if st.button("SPRAWDŹ CENY"):
                     st.write("---")
                     
                     posortowane = sorted(dane, key=lambda x: x['Val'])
-                    
                     for item in posortowane:
                         with st.container():
                             if item['Val'] == posortowane[0]['Val']: st.markdown("✅ **NAJLEPSZA CENA**")
@@ -133,16 +139,19 @@ if st.button("SPRAWDŹ CENY"):
                                 st.markdown(f"**{item['Firma']}**")
                                 st.markdown(f"### {item['Cena']}")
                             with c2:
-                                st.write("")
                                 if item['Type'] == "link":
                                     st.link_button("ZAMÓW", item['Link'])
                                 else:
                                     st.link_button("ZADZWOŃ", item['Link'], type="secondary")
-                            
                             if "Info" in item:
                                 st.markdown(f"<div class='info-box'>{item['Info']}</div>", unsafe_allow_html=True)
                             st.write("---")
-                else: st.error("Nie znaleziono adresu we Wrocławiu.")
-            except Exception as e: st.error(f"Błąd klucza lub map: {e}")
 
-st.caption("Ceny iTaxi oraz Ryba Taxi są szacunkowe i zależą od taryfy oraz natężenia ruchu.")
+                    st.markdown("""
+                        <div class='disclaimer'>
+                            <b>Ważna informacja:</b> Powyższe ceny są szacunkowe i nie uwzględniają Twoich indywidualnych rabatów, 
+                            kodów promocyjnych oraz dynamicznych zmian stawek (surge) dostępnych wyłącznie w oficjalnych aplikacjach.
+                        </div>
+                    """, unsafe_allow_html=True)
+
+            except Exception as e: st.error(f"Wystąpił błąd: {e}")
