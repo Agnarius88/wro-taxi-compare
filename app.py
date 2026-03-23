@@ -56,7 +56,7 @@ st.markdown("""
 
 st.title("🚕 WroTaxi Compare")
 
-# --- LOGIKA TARYF (CZAS POLSKI) ---
+# --- LOGIKA TARYF ---
 now = datetime.now()
 hour = (now.hour + 1) % 24 
 is_night = (hour >= 22 or hour < 6)
@@ -73,15 +73,16 @@ else:
 
 st.markdown(f"<div class='tariff-info'>{t_label}<br>Aktualna godzina: {hour:02d}:{now.minute:02d}</div>", unsafe_allow_html=True)
 
-# --- TWÓJ KLUCZ API ---
+# --- KLUCZ API ---
 ORS_KEY = 'eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6Ijc2N2YwMmI0Y2M2OTRkMjE5MDk5MDU4ZTg3NzMxYjYzIiwiaCI6Im11cm11cjY0In0='
 
 def init_services():
     try:
         client = openrouteservice.Client(key=ORS_KEY)
-        geolocator = Nominatim(user_agent="wro_taxi_hybrid_v36")
+        geolocator = Nominatim(user_agent="wro_taxi_final_v37")
         return client, geolocator
-    except: return None, None
+    except:
+        return None, None
 
 client, geolocator = init_services()
 
@@ -92,35 +93,36 @@ if st.button("PORÓWNAJ CENY"):
     if start_adr and cel_adr:
         with st.spinner("Szukam najtańszego przejazdu..."):
             try:
-                s_full = f"{start_adr}, Wrocław"; c_full = f"{cel_adr}, Wrocław"
-                l1 = geolocator.geocode(s_full); l2 = geolocator.geocode(c_full)
+                s_full = f"{start_adr}, Wrocław"
+                c_full = f"{cel_adr}, Wrocław"
+                l1 = geolocator.geocode(s_full)
+                l2 = geolocator.geocode(c_full)
                 
                 if l1 and l2:
                     coords = ((l1.longitude, l1.latitude), (l2.longitude, l2.latitude))
                     route = client.directions(coordinates=coords, profile='driving-car', format='geojson')
                     km = route['features'][0]['properties']['summary']['distance'] / 1000
                     
-                    # KALIBRACJA CEN BAZOWYCH
-                    u_x = (8.0 + km*2.5) * uber_surge
+                    # --- KALIBRACJA CEN (v37) ---
+                    # Baza UberX ustawiona tak, by Saver i Comfort zgadzały się z Twoimi testami
+                    u_base = (8.5 + km * 2.3) * uber_surge
+                    
                     itaxi_v = 9.0 + (km * 4.30 * mnoznik)
                     ryba_min = 20.50 + (math.ceil(km - 4) * (2.50 * mnoznik) if km > 4 else 0)
                     ryba_max = (ryba_min * 1.15) + 2.00
                     
-                    # --- NOWA KALIBRACJA UBERA (v37) ---
-u_x = (8.0 + km*2.3) * uber_surge  # Obniżona stawka za km z 2.5 na 2.3
-
-dane = [
-    {
-        "Firma": "Uber (Warianty) 🚗", 
-        "Cena": f"~{u_x:.2f} PLN", 
-        "Val": u_x, "Type": "link",
-        "Link": f"https://m.uber.com/ul/?action=setPickup&pickup[latitude]={l1.latitude}&pickup[longitude]={l1.longitude}&dropoff[latitude]={l2.latitude}&dropoff[longitude]={l2.longitude}",
-        "Variants": [
-            {"name": "📉 Saver", "price": u_x * 0.85},   # Realne ~27.50 zł
-            {"name": "🔋 Hybrid", "price": u_x * 1.02},  # Realne ~31.90 zł
-            {"name": "✨ Comfort", "price": u_x * 1.21}   # Realne ~37.90 zł
-        ]
-    },
+                    dane = [
+                        {
+                            "Firma": "Uber (Warianty) 🚗", 
+                            "Cena": f"~{u_base:.2f} PLN", 
+                            "Val": u_base, "Type": "link",
+                            "Link": f"https://m.uber.com/ul/?action=setPickup&pickup[latitude]={l1.latitude}&pickup[longitude]={l1.longitude}&dropoff[latitude]={l2.latitude}&dropoff[longitude]={l2.longitude}",
+                            "Variants": [
+                                {"name": "📉 Saver", "price": u_base * 0.85},
+                                {"name": "🔋 Hybrid", "price": u_base * 1.02},
+                                {"name": "✨ Comfort", "price": u_base * 1.21}
+                            ]
+                        },
                         {
                             "Firma": "iTaxi 🚕", 
                             "Cena": f"~{itaxi_v:.2f} PLN", 
@@ -153,32 +155,7 @@ dane = [
                     posortowane = sorted(dane, key=lambda x: x['Val'])
                     for item in posortowane:
                         with st.container():
-                            if item['Val'] == posortowane[0]['Val']: st.markdown("✅ **NAJLEPSZA CENA**")
-                            c1, c2 = st.columns([2, 1])
-                            with c1:
-                                st.markdown(f"**{item['Firma']}**")
-                                st.markdown(f"### {item['Cena']}")
-                                
-                                if "Variants" in item:
-                                    for v in item['Variants']:
-                                        st.markdown(f"""
-                                            <div class='uber-variant'>
-                                                <span>{v['name']}</span>
-                                                <b>{v['price']:.2f} PLN</b>
-                                            </div>
-                                        """, unsafe_allow_html=True)
-                                        
-                            with c2:
-                                st.write("")
-                                if item['Type'] == "link":
-                                    st.link_button("ZAMÓW", item['Link'])
-                                else:
-                                    st.link_button("ZADZWOŃ", item['Link'], type="secondary")
+                            if item['Val'] == posortowane[0]['Val']: 
+                                st.markdown("✅ **NAJLEPSZA CENA**")
                             
-                            if "Info" in item:
-                                st.markdown(f"<div class='info-box'>{item['Info']}</div>", unsafe_allow_html=True)
-                            st.write("---")
-
-                    st.markdown("<div class='disclaimer'><b>Ważna informacja:</b> Ceny wariantów Ubera są szacowane na podstawie średnich rynkowych mnożników.</div>", unsafe_allow_html=True)
-
-            except Exception as e: st.error(f"Błąd: {e}")
+                            c1, c2 = st
