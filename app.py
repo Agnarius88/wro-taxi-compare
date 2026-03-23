@@ -84,4 +84,58 @@ if st.button("PORÓWNAJ CENY"):
                     km = route['features'][0]['properties']['summary']['distance'] / 1000
                     
                     # --- KALIBRACJA CEN ---
-                    u_x_base = (8.2 + km * 2.32) * uber_
+                    u_x_base = (8.2 + km * 2.32) * uber_surge
+                    
+                    itaxi_v = 9.0 + (km * 4.30 * mnoznik)
+                    
+                    # RYBA TAXI - Twoja sprawdzona kalibracja
+                    ryba_min = 20.50 + (math.ceil(km - 4) * (2.50 * mnoznik) if km > 4 else 0)
+                    ryba_max = (ryba_min * 1.15) + 2.00 # Przywrócona cena max
+                    
+                    dane = [
+                        {
+                            "Firma": "Uber 🚗", 
+                            "Cena": f"od {u_x_base * 0.88:.2f} PLN", 
+                            "Val": u_x_base * 0.88, "Type": "link",
+                            "Link": f"https://m.uber.com/ul/?action=setPickup&pickup[latitude]={l1.latitude}&pickup[longitude]={l1.longitude}&dropoff[latitude]={l2.latitude}&dropoff[longitude]={l2.longitude}",
+                            "Variants": [
+                                {"name": "📉 Czekaj i oszczędzaj", "price": u_x_base * 0.88},
+                                {"name": "🚗 UberX", "price": u_x_base},
+                                {"name": "🔋 Hybrid", "price": u_x_base * 1.02},
+                                {"name": "✨ Comfort", "price": u_x_base * 1.21}
+                            ]
+                        },
+                        {
+                            "Firma": "iTaxi 🚕", "Cena": f"~{itaxi_v:.2f} PLN", 
+                            "Val": itaxi_v, "Type": "call", "Link": "tel:737737737"
+                        },
+                        {
+                            "Firma": "Ryba Taxi 🐟", 
+                            "Cena": f"{ryba_min:.2f} - {ryba_max:.2f} PLN", # Dodany zakres cenowy
+                            "Val": ryba_min, "Type": "call", "Link": "tel:713441515"
+                        },
+                        {
+                            "Firma": "Bolt ⚡", "Cena": f"~{(6.5 + km*2.8) * uber_surge:.2f} PLN", 
+                            "Val": (6.5 + km*2.8) * uber_surge, "Type": "link", "Link": "bolt://ride"
+                        }
+                    ]
+                    
+                    st.success(f"🛣️ Dystans: {km:.2f} km")
+                    
+                    posortowane = sorted(dane, key=lambda x: x['Val'])
+                    for item in posortowane:
+                        with st.container():
+                            c1, c2 = st.columns([2, 1])
+                            with c1:
+                                st.markdown(f"**{item['Firma']}**")
+                                st.markdown(f"### {item['Cena']}")
+                                if "Variants" in item:
+                                    for v in item['Variants']:
+                                        st.markdown(f"<div class='uber-variant'><span>{v['name']}</span><b>{v['price']:.2f} PLN</b></div>", unsafe_allow_html=True)
+                            with c2:
+                                st.write("")
+                                if item['Type'] == "link": st.link_button("ZAMÓW", item['Link'])
+                                else: st.link_button("ZADZWOŃ", item['Link'], type="secondary")
+                            st.write("---")
+
+            except Exception as e: st.error(f"Błąd: {e}")
