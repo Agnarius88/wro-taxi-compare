@@ -18,7 +18,7 @@ st.title("🚕 WroTaxi Compare")
 st.caption("Wrocław: iTaxi po kalibracji (~72zł) | Ryba (Idealna) | FreeNow Fix")
 
 # --- KLUCZ API ---
-ORS_KEY = '5b3ce3597851100001cf6248383f98c603b544d6935272a912a2335f'
+ORS_KEY = 'eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6Ijc2N2YwMmI0Y2M2OTRkMjE5MDk5MDU4ZTg3NzMxYjYzIiwiaCI6Im11cm11cjY0In0='
 
 def init_services():
     try:
