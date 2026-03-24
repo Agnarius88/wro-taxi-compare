@@ -34,6 +34,11 @@ st.markdown("""
         justify-content: space-between;
         box-shadow: 1px 1px 3px rgba(0,0,0,0.05);
     }
+    .discount-tag {
+        color: #27ae60;
+        font-weight: bold;
+        font-size: 0.85em;
+    }
     </style>
     """, unsafe_allow_html=True)
 
@@ -71,6 +76,13 @@ client, geolocator = init_services()
 start_adr = st.text_input("📍 Skąd?", placeholder="np. Wojaczka 10")
 cel_adr = st.text_input("🏁 Dokąd?", placeholder="np. Celtycka 1")
 
+# --- NOWE: SUWAKI ZNIŻEK ---
+col_u, col_b = st.columns(2)
+with col_u:
+    u_promo = st.slider("Zniżka Uber (%)", 0, 90, 0, 5)
+with col_b:
+    b_promo = st.slider("Zniżka Bolt (%)", 0, 90, 0, 5)
+
 if st.button("PORÓWNAJ CENY"):
     if start_adr and cel_adr:
         with st.spinner("Analiza trasy..."):
@@ -86,40 +98,49 @@ if st.button("PORÓWNAJ CENY"):
                     km = summary['distance'] / 1000
                     minuty = summary['duration'] / 60
                     
-                    # --- SKORYGOWANA KALIBRACJA UBERA (v42) ---
-                    # Baza 8.00 + km * 2.10 + minuty * 0.15
-                    u_x_base = (8.00 + (km * 2.10) + (minuty * 0.15)) * uber_surge
+                    # Logika przeliczania zniżek
+                    u_mult = (100 - u_promo) / 100
+                    b_mult = (100 - b_promo) / 100
+
+                    # --- SKORYGOWANA KALIBRACJA UBERA (v42) + ZNIŻKA ---
+                    u_x_base = ((8.00 + (km * 2.10) + (minuty * 0.15)) * uber_surge) * u_mult
                     
-                    # iTaxi i Ryba - Twoje nienaruszone wzory
+                    # iTaxi i Ryba - stałe wzory
                     itaxi_v = 9.0 + (km * 4.30 * mnoznik)
                     ryba_min = 20.50 + (math.ceil(km - 4) * (2.50 * mnoznik) if km > 4 else 0)
                     ryba_max = (ryba_min * 1.15) + 2.00 
                     
+                    # Bolt + ZNIŻKA
+                    bolt_v = ((6.5 + km * 2.8) * uber_surge) * b_mult
+                    
                     dane = [
                         {
                             "Firma": "Uber 🚗", 
-                            "Cena": f"od {u_x_base * 0.88:.2f} PLN", 
-                            "Val": u_x_base * 0.88, "Type": "link",
+                            "Promo": f"-{u_promo}%" if u_promo > 0 else "",
+                            "Cena": f"od {u_x_base * 0.86:.2f} PLN", 
+                            "Val": u_x_base * 0.86, "Type": "link",
                             "Link": f"https://m.uber.com/ul/?action=setPickup&pickup[latitude]={l1.latitude}&pickup[longitude]={l1.longitude}&dropoff[latitude]={l2.latitude}&dropoff[longitude]={l2.longitude}",
                             "Variants": [
-                                {"name": "📉 Czekaj i oszczędzaj", "price": u_x_base * 0.86}, # Obniżka z 0.88
+                                {"name": "📉 Czekaj i oszczędzaj", "price": u_x_base * 0.86},
                                 {"name": "🚗 UberX", "price": u_x_base},
                                 {"name": "🔋 Hybrid", "price": u_x_base * 1.01},
-                                {"name": "✨ Comfort", "price": u_x_base * 1.16}  # Obniżka z 1.19
-                        ]
+                                {"name": "✨ Comfort", "price": u_x_base * 1.16}
+                            ]
                         },
                         {
-                            "Firma": "iTaxi 🚕", "Cena": f"~{itaxi_v:.2f} PLN", 
+                            "Firma": "iTaxi 🚕", "Cena": f"~{itaxi_v:.2f} PLN", "Promo": "",
                             "Val": itaxi_v, "Type": "call", "Link": "tel:737737737"
                         },
                         {
                             "Firma": "Ryba Taxi 🐟", 
-                            "Cena": f"{ryba_min:.2f} - {ryba_max:.2f} PLN",
+                            "Cena": f"{ryba_min:.2f} - {ryba_max:.2f} PLN", "Promo": "",
                             "Val": ryba_min, "Type": "call", "Link": "tel:713441515"
                         },
                         {
-                            "Firma": "Bolt ⚡", "Cena": f"~{(6.5 + km*2.8) * uber_surge:.2f} PLN", 
-                            "Val": (6.5 + km*2.8) * uber_surge, "Type": "link", "Link": "bolt://ride"
+                            "Firma": "Bolt ⚡", 
+                            "Promo": f"-{b_promo}%" if b_promo > 0 else "",
+                            "Cena": f"~{bolt_v:.2f} PLN", 
+                            "Val": bolt_v, "Type": "link", "Link": "bolt://ride"
                         }
                     ]
                     
@@ -130,7 +151,8 @@ if st.button("PORÓWNAJ CENY"):
                         with st.container():
                             c1, c2 = st.columns([2, 1])
                             with c1:
-                                st.markdown(f"**{item['Firma']}**")
+                                p_tag = f" <span class='discount-tag'>{item['Promo']}</span>" if item['Promo'] else ""
+                                st.markdown(f"**{item['Firma']}**{p_tag}", unsafe_allow_html=True)
                                 st.markdown(f"### {item['Cena']}")
                                 if "Variants" in item:
                                     for v in item['Variants']:
