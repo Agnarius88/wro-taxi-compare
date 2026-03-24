@@ -2,12 +2,12 @@ import streamlit as st
 import openrouteservice
 from geopy.geocoders import Nominatim
 import math
+import urllib.parse
 from datetime import datetime
 
 # Konfiguracja strony
 st.set_page_config(page_title="WroTaxi Compare", page_icon="🚕", layout="centered")
 
-# --- STYLE CSS ---
 st.markdown("""
     <style>
     .stButton>button { width: 100%; border-radius: 10px; height: 3.5em; font-weight: bold; }
@@ -34,18 +34,8 @@ st.markdown("""
         justify-content: space-between;
         box-shadow: 1px 1px 3px rgba(0,0,0,0.05);
     }
-    .discount-tag {
-        color: #27ae60;
-        font-size: 0.8em;
-        font-weight: bold;
-    }
     </style>
     """, unsafe_allow_html=True)
-
-# --- SIDEBAR: ZNIŻKI ---
-st.sidebar.header("🎁 Twoje Zniżki")
-uber_promo = st.sidebar.slider("Zniżka Uber (%)", 0, 100, 0, 5)
-bolt_promo = st.sidebar.slider("Zniżka Bolt (%)", 0, 100, 0, 5)
 
 st.title("🚕 WroTaxi Compare")
 
@@ -66,13 +56,13 @@ else:
 
 st.markdown(f"<div class='tariff-info'>{t_label}<br>Aktualna godzina: {hour:02d}:{now.minute:02d}</div>", unsafe_allow_html=True)
 
-# --- API ---
+# --- KLUCZ API ---
 ORS_KEY = 'eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6Ijc2N2YwMmI0Y2M2OTRkMjE5MDk5MDU4ZTg3NzMxYjYzIiwiaCI6Im11cm11cjY0In0='
 
 def init_services():
     try:
         client = openrouteservice.Client(key=ORS_KEY)
-        geolocator = Nominatim(user_agent="wro_taxi_precision_v44")
+        geolocator = Nominatim(user_agent="wro_taxi_precision_v42")
         return client, geolocator
     except: return None, None
 
@@ -83,7 +73,7 @@ cel_adr = st.text_input("🏁 Dokąd?", placeholder="np. Celtycka 1")
 
 if st.button("PORÓWNAJ CENY"):
     if start_adr and cel_adr:
-        with st.spinner("Analiza trasy i promocji..."):
+        with st.spinner("Analiza trasy..."):
             try:
                 s_full = f"{start_adr}, Wrocław"; c_full = f"{cel_adr}, Wrocław"
                 l1 = geolocator.geocode(s_full); l2 = geolocator.geocode(c_full)
@@ -96,18 +86,11 @@ if st.button("PORÓWNAJ CENY"):
                     km = summary['distance'] / 1000
                     minuty = summary['duration'] / 60
                     
-                    # --- OBLICZENIA BAZOWE ---
-                    # Uber (v42 calibration)
-                    u_x_raw = (8.00 + (km * 2.10) + (minuty * 0.15)) * uber_surge
-                    u_discount_factor = (100 - uber_promo) / 100
-                    u_x_final = u_x_raw * u_discount_factor
-
-                    # Bolt (v40 calibration)
-                    b_raw = (6.5 + km * 2.8) * uber_surge
-                    b_discount_factor = (100 - bolt_promo) / 100
-                    b_final = b_raw * b_discount_factor
-
-                    # iTaxi i Ryba (Bez zniżek)
+                    # --- SKORYGOWANA KALIBRACJA UBERA (v42) ---
+                    # Baza 8.00 + km * 2.10 + minuty * 0.15
+                    u_x_base = (8.00 + (km * 2.10) + (minuty * 0.15)) * uber_surge
+                    
+                    # iTaxi i Ryba - Twoje nienaruszone wzory
                     itaxi_v = 9.0 + (km * 4.30 * mnoznik)
                     ryba_min = 20.50 + (math.ceil(km - 4) * (2.50 * mnoznik) if km > 4 else 0)
                     ryba_max = (ryba_min * 1.15) + 2.00 
@@ -115,30 +98,28 @@ if st.button("PORÓWNAJ CENY"):
                     dane = [
                         {
                             "Firma": "Uber 🚗", 
-                            "Cena": f"od {u_x_final * 0.88:.2f} PLN", 
-                            "Promo": f"(-{uber_promo}%)" if uber_promo > 0 else "",
-                            "Val": u_x_final * 0.88, "Type": "link",
+                            "Cena": f"od {u_x_base * 0.88:.2f} PLN", 
+                            "Val": u_x_base * 0.88, "Type": "link",
                             "Link": f"https://m.uber.com/ul/?action=setPickup&pickup[latitude]={l1.latitude}&pickup[longitude]={l1.longitude}&dropoff[latitude]={l2.latitude}&dropoff[longitude]={l2.longitude}",
                             "Variants": [
-                                {"name": "📉 Czekaj i oszczędzaj", "price": u_x_final * 0.88},
-                                {"name": "🚗 UberX", "price": u_x_final},
-                                {"name": "✨ Comfort", "price": u_x_final * 1.16}
-                            ]
+                                {"name": "📉 Czekaj i oszczędzaj", "price": u_x_base * 0.86}, # Obniżka z 0.88
+                                {"name": "🚗 UberX", "price": u_x_base},
+                                {"name": "🔋 Hybrid", "price": u_x_base * 1.01},
+                                {"name": "✨ Comfort", "price": u_x_base * 1.16}  # Obniżka z 1.19
+                        ]
                         },
                         {
-                            "Firma": "Bolt ⚡", 
-                            "Cena": f"~{b_final:.2f} PLN", 
-                            "Promo": f"(-{bolt_promo}%)" if bolt_promo > 0 else "",
-                            "Val": b_final, "Type": "link", "Link": "bolt://ride"
-                        },
-                        {
-                            "Firma": "iTaxi 🚕", "Cena": f"~{itaxi_v:.2f} PLN", "Promo": "",
+                            "Firma": "iTaxi 🚕", "Cena": f"~{itaxi_v:.2f} PLN", 
                             "Val": itaxi_v, "Type": "call", "Link": "tel:737737737"
                         },
                         {
                             "Firma": "Ryba Taxi 🐟", 
-                            "Cena": f"{ryba_min:.2f} - {ryba_max:.2f} PLN", "Promo": "",
+                            "Cena": f"{ryba_min:.2f} - {ryba_max:.2f} PLN",
                             "Val": ryba_min, "Type": "call", "Link": "tel:713441515"
+                        },
+                        {
+                            "Firma": "Bolt ⚡", "Cena": f"~{(6.5 + km*2.8) * uber_surge:.2f} PLN", 
+                            "Val": (6.5 + km*2.8) * uber_surge, "Type": "link", "Link": "bolt://ride"
                         }
                     ]
                     
@@ -149,7 +130,7 @@ if st.button("PORÓWNAJ CENY"):
                         with st.container():
                             c1, c2 = st.columns([2, 1])
                             with c1:
-                                st.markdown(f"**{item['Firma']}** <span class='discount-tag'>{item['Promo']}</span>", unsafe_allow_html=True)
+                                st.markdown(f"**{item['Firma']}**")
                                 st.markdown(f"### {item['Cena']}")
                                 if "Variants" in item:
                                     for v in item['Variants']:
