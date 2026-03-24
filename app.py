@@ -51,9 +51,9 @@ is_night = (hour >= 22 or hour < 6)
 is_weekend = (now.weekday() == 6)
 
 if is_night or is_weekend:
-    t_label = "🌙 TARYFA 2 (Noc/Weekend)"
+    t_label = "🌙 TARYFA 2 (Noc/Weekend - tylko iTaxi)"
     mnoznik = 1.45
-    uber_surge = 1.3
+    uber_surge = 1.0  
 else:
     t_label = "☀️ TARYFA 1 (Dzień)"
     mnoznik = 1.0
@@ -105,9 +105,10 @@ if st.button("PORÓWNAJ CENY"):
                     # --- SKORYGOWANA KALIBRACJA UBERA (v42) + ZNIŻKA ---
                     u_x_base = ((8.00 + (km * 2.10) + (minuty * 0.15)) * uber_surge) * u_mult
                     
-                    # iTaxi i Ryba - stałe wzory
+                    # iTaxi (z mnożnikiem) i Ryba (stała cena)
                     itaxi_v = 9.0 + (km * 4.30 * mnoznik)
-                    ryba_min = 20.50 + (math.ceil(km - 4) * (2.50 * mnoznik) if km > 4 else 0)
+                    # Usunięto mnoznik z obliczeń Ryby
+                    ryba_min = 20.50 + (math.ceil(km - 4) * 2.50 if km > 4 else 0)
                     ryba_max = (ryba_min * 1.15) + 2.00 
                     
                     # Bolt + ZNIŻKA
