@@ -103,11 +103,11 @@ if st.button("PORÓWNAJ CENY"):
                             "Val": u_x_base * 0.88, "Type": "link",
                             "Link": f"https://m.uber.com/ul/?action=setPickup&pickup[latitude]={l1.latitude}&pickup[longitude]={l1.longitude}&dropoff[latitude]={l2.latitude}&dropoff[longitude]={l2.longitude}",
                             "Variants": [
-                                {"name": "📉 Czekaj i oszczędzaj", "price": u_x_base * 0.88},
+                                {"name": "📉 Czekaj i oszczędzaj", "price": u_x_base * 0.86}, # Obniżka z 0.88
                                 {"name": "🚗 UberX", "price": u_x_base},
-                                {"name": "🔋 Hybrid", "price": u_x_base * 1.02},
-                                {"name": "✨ Comfort", "price": u_x_base * 1.21}
-                            ]
+                                {"name": "🔋 Hybrid", "price": u_x_base * 1.01},
+                                {"name": "✨ Comfort", "price": u_x_base * 1.16}  # Obniżka z 1.19
+                        ]
                         },
                         {
                             "Firma": "iTaxi 🚕", "Cena": f"~{itaxi_v:.2f} PLN", 
