@@ -62,7 +62,7 @@ ORS_KEY = 'eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6Ijc2N2YwMmI0Y2M2O
 def init_services():
     try:
         client = openrouteservice.Client(key=ORS_KEY)
-        geolocator = Nominatim(user_agent="wro_taxi_precision_v40")
+        geolocator = Nominatim(user_agent="wro_taxi_precision_v41")
         return client, geolocator
     except: return None, None
 
@@ -73,7 +73,7 @@ cel_adr = st.text_input("🏁 Dokąd?", placeholder="np. Celtycka 1")
 
 if st.button("PORÓWNAJ CENY"):
     if start_adr and cel_adr:
-        with st.spinner("Synchronizacja z cennikami..."):
+        with st.spinner("Analiza trasy i korków..."):
             try:
                 s_full = f"{start_adr}, Wrocław"; c_full = f"{cel_adr}, Wrocław"
                 l1 = geolocator.geocode(s_full); l2 = geolocator.geocode(c_full)
@@ -81,16 +81,20 @@ if st.button("PORÓWNAJ CENY"):
                 if l1 and l2:
                     coords = ((l1.longitude, l1.latitude), (l2.longitude, l2.latitude))
                     route = client.directions(coordinates=coords, profile='driving-car', format='geojson')
-                    km = route['features'][0]['properties']['summary']['distance'] / 1000
                     
-                    # --- KALIBRACJA CEN ---
-                    u_x_base = (8.2 + km * 2.32) * uber_surge
+                    # Pobieramy dane z mapy
+                    summary = route['features'][0]['properties']['summary']
+                    km = summary['distance'] / 1000
+                    minuty = summary['duration'] / 60
                     
+                    # --- NOWA KALIBRACJA UBERA (KM + CZAS) ---
+                    # Baza 6.00 + 1.85/km + 0.45/min
+                    u_x_base = (6.00 + (km * 1.85) + (minuty * 0.45)) * uber_surge
+                    
+                    # iTaxi i Ryba - zostawiamy Twoje sprawdzone wzory
                     itaxi_v = 9.0 + (km * 4.30 * mnoznik)
-                    
-                    # RYBA TAXI - Twoja sprawdzona kalibracja
                     ryba_min = 20.50 + (math.ceil(km - 4) * (2.50 * mnoznik) if km > 4 else 0)
-                    ryba_max = (ryba_min * 1.15) + 2.00 # Przywrócona cena max
+                    ryba_max = (ryba_min * 1.15) + 2.00 
                     
                     dane = [
                         {
@@ -111,16 +115,16 @@ if st.button("PORÓWNAJ CENY"):
                         },
                         {
                             "Firma": "Ryba Taxi 🐟", 
-                            "Cena": f"{ryba_min:.2f} - {ryba_max:.2f} PLN", # Dodany zakres cenowy
+                            "Cena": f"{ryba_min:.2f} - {ryba_max:.2f} PLN",
                             "Val": ryba_min, "Type": "call", "Link": "tel:713441515"
                         },
                         {
-                            "Firma": "Bolt ⚡", "Cena": f"~{(6.5 + km*2.8) * uber_surge:.2f} PLN", 
+                            "Firma": "Bolt ⚡", "Cena": f"~{(6.5 + km*2.8 + minuty*0.4) * uber_surge:.2f} PLN", 
                             "Val": (6.5 + km*2.8) * uber_surge, "Type": "link", "Link": "bolt://ride"
                         }
                     ]
                     
-                    st.success(f"🛣️ Dystans: {km:.2f} km")
+                    st.success(f"🛣️ {km:.2f} km | ⏱️ {int(minuty)} min")
                     
                     posortowane = sorted(dane, key=lambda x: x['Val'])
                     for item in posortowane:
