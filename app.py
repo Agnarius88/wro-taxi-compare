@@ -24,7 +24,7 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-st.title("🚕 WroTaxi Compare v5.5")
+st.title("🚕 WroTaxi Compare v5.4")
 
 # --- LOGIKA CZASOWA ---
 now = datetime.now()
@@ -36,6 +36,8 @@ is_weekend = (day >= 5)
 is_night = (time_val >= 22 or time_val < 6)
 is_peak = not is_weekend and ((7.5 <= time_val <= 9.5) or (15.5 <= time_val <= 18.5))
 
+# iTaxi taryfa nocna/weekendowa
+itaxi_mnoznik = 1.45 if (is_night or day == 6) else 1.0
 surge = 1.0
 
 if is_night:
@@ -43,7 +45,7 @@ if is_night:
     u_base, u_km = 7.00, 1.85 
     b_base, b_km = 4.50, 2.30 
 elif is_peak:
-    t_status = "🚦 SZCZYT KOMUNIKACYJNY (Dynamiczny Uber/Bolt/FREENOW)"
+    t_status = "🚦 SZCZYT KOMUNIKACYJNY (Dynamiczny Uber/Bolt)"
     surge = 1.55
     u_base, u_km = 8.00, 2.10
     b_base, b_km = 5.00, 2.70 
@@ -59,7 +61,7 @@ ORS_KEY = 'eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6Ijc2N2YwMmI0Y2M2O
 
 def get_data():
     try:
-        return openrouteservice.Client(key=ORS_KEY), Nominatim(user_agent="wrotaxi_v55_precision")
+        return openrouteservice.Client(key=ORS_KEY), Nominatim(user_agent="wrotaxi_v54_precision")
     except: return None, None
 
 client, geolocator = get_data()
@@ -86,14 +88,12 @@ if st.button("SPRAWDŹ CENY"):
                     u_mult = (100 - u_promo) / 100
                     b_mult = (100 - b_promo) / 100
 
-                    # 1. OBLICZENIA UBER I BOLT
+                    # 1. OBLICZENIA UBER I BOLT (z v5.3 - działające)
                     uber_x = ((u_base + (km * u_km) + (dur * 0.15)) * surge) * u_mult
                     bolt_std = ((b_base + (km * b_km)) * surge) * b_mult
                     
-                    # 2. OBLICZENIA FREENOW (z opłatą serwisową 2.00 PLN)
-                    freenow_lite = ((u_base + (km * u_km) + (dur * 0.15)) * surge) + 2.00
-                    
-                    # 3. OBLICZENIA RYBA
+                    # 2. OBLICZENIA RYBA I ITAXI (Przywrócona "idealna" logika z v4.2)
+                    itaxi_v = 9.0 + (km * 4.30 * itaxi_mnoznik)
                     ryba_min = 20.50 + (math.ceil(km - 4) * 2.50 if km > 4 else 0)
                     ryba_max = (ryba_min * 1.15) + 2.00 
 
@@ -121,15 +121,13 @@ if st.button("SPRAWDŹ CENY"):
                             ]
                         },
                         {
-                            "Firma": "FREENOW 🔴",
-                            "Btn": "WYBIERZ",
-                            "Val": freenow_lite, 
+                            "Firma": "iTaxi 🚕",
+                            "Btn": "ZADZWOŃ",
+                            "Val": itaxi_v, 
                             "Promo": 0, 
-                            "Main": f"~{freenow_lite:.2f} PLN", 
-                            "Link": "freenow://", 
-                            "Vars": [
-                                ("🚗 Lite", freenow_lite), ("🚕 Taxi", freenow_lite * 1.25), ("✨ Comfort", freenow_lite * 1.40)
-                            ]
+                            "Main": f"~{itaxi_v:.2f} PLN", 
+                            "Link": "tel:737737737", 
+                            "Vars": []
                         },
                         {
                             "Firma": "Ryba Taxi 🐟",
@@ -147,10 +145,12 @@ if st.button("SPRAWDŹ CENY"):
                     for item in sorted(dane, key=lambda x: x['Val']):
                         c1, c2 = st.columns([3, 1])
                         with c1:
+                            # Obsługa tagu zniżki
                             disc = f" <span class='discount-tag'>-{item['Promo']}%</span>" if item['Promo'] > 0 else ""
                             st.markdown(f"**{item['Firma']}**{disc}", unsafe_allow_html=True)
                             st.markdown(f"### {item['Main']}")
                             
+                            # Wyświetlanie wariantów tylko jeśli istnieją (Uber/Bolt)
                             if item['Vars']:
                                 for v_name, v_price in item['Vars']:
                                     st.markdown(f"<div class='variant-card'><span>{v_name}</span><b>{v_price:.2f} PLN</b></div>", unsafe_allow_html=True)
