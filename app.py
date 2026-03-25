@@ -36,7 +36,10 @@ is_weekend = (day >= 5)
 is_night = (time_val >= 22 or time_val < 6)
 is_peak = not is_weekend and ((7.5 <= time_val <= 9.5) or (15.5 <= time_val <= 18.5))
 
-surge = 1.0
+# Ustawienia bazowe stawek
+u_base, u_km, u_min = 8.00, 2.15, 0.20
+b_base, b_km = 5.50, 2.80
+u_surge, b_surge = 1.0, 1.0
 
 # --- LOGIKA CZASOWA ---
 if is_night:
@@ -56,8 +59,8 @@ elif (13.5 <= time_val <= 14.5): # 13:30 - 14:30 (Twoje okno z 13:40)
     surge = 1.0
 elif (7.2 <= time_val <= 9.5) or (15.2 <= time_val <= 18.8):
     t_status = "🚦 SZCZYT KOMUNIKACYJNY"
-    u_base == 1.53, u_km = 8.00, 2.10  # Kalibracja pod Twoje 48.95 PLN (Uber)
-    b_base == 1.28, b_km = 4.80, 2.70  # Kalibracja pod Twoje 32.90 PLN (Bolt)    
+    u_base = 1.53, u_km = 8.00, 2.10  # Kalibracja pod Twoje 48.95 PLN (Uber)
+    b_base = 1.28, b_km = 4.80, 2.70  # Kalibracja pod Twoje 32.90 PLN (Bolt)    
 else:
     t_status = "☀️ STANDARDOWY DZIEŃ (np. 10:00)"
     u_base, u_km = 8.00, 2.10 # Uber bez zmian
