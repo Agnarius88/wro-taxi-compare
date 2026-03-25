@@ -73,9 +73,9 @@ cel_adr = st.text_input("🏁 Dokąd?", placeholder="np. Celtycka 1")
 # --- SUWAKI ZNIŻEK ---
 col_u, col_b = st.columns(2)
 with col_u:
-    u_promo = st.slider("Zniżka Uber (%)", 0, 90, 0, 10)
+    u_promo = st.slider("Zniżka Uber (%)", 0, 90, 0, 5)
 with col_b:
-    b_promo = st.slider("Zniżka Bolt (%)", 0, 90, 0, 10)
+    b_promo = st.slider("Zniżka Bolt (%)", 0, 90, 0, 5)
 
 if st.button("PORÓWNAJ CENY"):
     if start_adr and cel_adr:
