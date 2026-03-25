@@ -24,45 +24,43 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-st.title("🚕 WroTaxi Compare v5.2")
+st.title("🚕 WroTaxi Compare v5.3")
 
-# --- INTELIGENTNA LOGIKA CZASOWA ---
+# --- LOGIKA CZASOWA ---
 now = datetime.now()
 h = (now.hour + 1) % 24 
-m = now.minute
-time_val = h + m/60
+time_val = h + now.minute/60
 day = now.weekday() 
 
 is_weekend = (day >= 5)
 is_night = (time_val >= 22 or time_val < 6)
 is_peak = not is_weekend and ((7.5 <= time_val <= 9.5) or (15.5 <= time_val <= 18.5))
 
-# Ustalanie mnożników i stawek bazowych
 itaxi_mnoznik = 1.45 if (is_night or day == 6) else 1.0
 surge = 1.0
 
 if is_night:
-    t_status = "🌙 NOC (Parametry pod Twoje 23:20)"
+    t_status = "🌙 NOC (Parametry nocne)"
     u_base, u_km = 7.00, 1.85 
-    b_base, b_km = 6.00, 2.40
+    b_base, b_km = 4.50, 2.30 # Obniżona baza Bolta o 1.50 względem v5.2
 elif is_peak:
     t_status = "🚦 SZCZYT KOMUNIKACYJNY (Mnożnik dynamiczny)"
-    surge = 1.50
+    surge = 1.55
     u_base, u_km = 8.00, 2.10
-    b_base, b_km = 6.50, 2.80
+    b_base, b_km = 5.00, 2.70 # Obniżona baza Bolta o 1.50
 else:
-    t_status = "☀️ STANDARDOWY DZIEŃ (Sprawdzona baza)"
+    t_status = "☀️ STANDARDOWY DZIEŃ (Kalibracja v5.3)"
     u_base, u_km = 8.00, 2.10
-    b_base, b_km = 6.50, 2.80
+    b_base, b_km = 5.00, 2.70 # Obniżona baza Bolta o 1.50
 
-st.markdown(f"<div class='tariff-info'>{t_status}<br>Aktualna godzina: {h:02d}:{m:02d}</div>", unsafe_allow_html=True)
+st.markdown(f"<div class='tariff-info'>{t_status}<br>Aktualna godzina: {h:02d}:{now.minute:02d}</div>", unsafe_allow_html=True)
 
 # --- USŁUGI ---
 ORS_KEY = 'eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6Ijc2N2YwMmI0Y2M2OTRkMjE5MDk5MDU4ZTg3NzMxYjYzIiwiaCI6Im11cm11cjY0In0='
 
 def get_data():
     try:
-        return openrouteservice.Client(key=ORS_KEY), Nominatim(user_agent="wrotaxi_v52")
+        return openrouteservice.Client(key=ORS_KEY), Nominatim(user_agent="wrotaxi_v53")
     except: return None, None
 
 client, geolocator = get_data()
@@ -76,7 +74,7 @@ with col2: b_promo = st.slider("Zniżka Bolt %", 0, 90, 0, 5)
 
 if st.button("SPRAWDŹ CENY"):
     if start_adr and cel_adr:
-        with st.spinner("Liczenie trasy..."):
+        with st.spinner("Przeliczanie..."):
             try:
                 l1 = geolocator.geocode(f"{start_adr}, Wrocław")
                 l2 = geolocator.geocode(f"{cel_adr}, Wrocław")
@@ -89,38 +87,29 @@ if st.button("SPRAWDŹ CENY"):
                     u_mult = (100 - u_promo) / 100
                     b_mult = (100 - b_promo) / 100
 
-                    # Podstawowe wyliczenia (UberX i Bolt Standard)
+                    # OBLICZENIA
                     uber_x = ((u_base + (km * u_km) + (dur * 0.15)) * surge) * u_mult
-                    bolt_std = ((b_base + (km * b_km)) * surge) * b_mult
+                    bolt_std = ((b_base + (km * b_km)) * surge) * b_mult # Usunięte minuty dla Bolta (często ukryte w surge)
                     
-                    # Tradycyjne
                     itaxi = 9.0 + (km * 4.30 * itaxi_mnoznik)
                     ryba = 20.50 + (math.ceil(km - 4) * 2.50 if km > 4 else 0)
 
                     dane = [
                         {
-                            "Firma": "Uber 🚗", 
-                            "Val": uber_x * 0.86, # Sortowanie po najtańszym wariancie
-                            "Promo": u_promo,
+                            "Firma": "Uber 🚗", "Val": uber_x * 0.86, "Promo": u_promo,
                             "Main": f"od {uber_x * 0.86:.2f} PLN", 
                             "Link": f"https://m.uber.com/ul/?action=setPickup&pickup[latitude]={l1.latitude}&pickup[longitude]={l1.longitude}&dropoff[latitude]={l2.latitude}&dropoff[longitude]={l2.longitude}",
                             "Vars": [
-                                ("📉 Czekaj i oszczędzaj", uber_x * 0.86),
-                                ("🚗 UberX", uber_x),
-                                ("🔋 Hybrid", uber_x * 1.01),
-                                ("✨ Comfort", uber_x * 1.18)
+                                ("📉 Czekaj i oszczędzaj", uber_x * 0.86), ("🚗 UberX", uber_x), ("🔋 Hybrid", uber_x * 1.01), ("✨ Comfort", uber_x * 1.18)
                             ]
                         },
                         {
-                            "Firma": "Bolt ⚡", 
-                            "Val": bolt_std * 0.88, 
-                            "Promo": b_promo,
-                            "Main": f"od {bolt_std * 0.88:.2f} PLN", 
-                            "Link": "bolt://ride",
+                            "Firma": "Bolt ⚡", "Val": bolt_std * 0.88, "Promo": b_promo,
+                            "Main": f"od {bolt_std * 0.88:.2f} PLN", "Link": "bolt://ride",
                             "Vars": [
+                                ("📉 Wait and Save", bolt_std * 0.89), # Lekka korekta, żeby było bliżej realu
                                 ("⚡ Bolt", bolt_std),
-                                ("✨ Comfort", bolt_std * 1.20),
-                                ("📉 Wait and Save", bolt_std * 0.88)
+                                ("✨ Comfort", bolt_std * 1.16) # Obniżony mnożnik z 1.20 na 1.16
                             ]
                         },
                         {
@@ -132,7 +121,6 @@ if st.button("SPRAWDŹ CENY"):
                     ]
 
                     st.success(f"🛣️ {km:.2f} km | ⏱️ {int(dur)} min")
-                    
                     for item in sorted(dane, key=lambda x: x['Val']):
                         c1, c2 = st.columns([3, 1])
                         with c1:
