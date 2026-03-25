@@ -92,7 +92,9 @@ if st.button("SPRAWDŹ CENY"):
                     bolt_std = ((b_base + (km * b_km)) * surge) * b_mult # Usunięte minuty dla Bolta (często ukryte w surge)
                     
                     itaxi = 9.0 + (km * 4.30 * itaxi_mnoznik)
-                    ryba = 20.50 + (math.ceil(km - 4) * 2.50 if km > 4 else 0)
+                    ryba_min = 20.50 + (math.ceil(km - 4) * 2.50 if km > 4 else 0)
+                    ryba_max = (ryba_min * 1.15) + 2.00
+
 
                     dane = [
                         {
