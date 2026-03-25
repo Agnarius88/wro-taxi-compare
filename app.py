@@ -43,16 +43,17 @@ if is_night:
     t_status = "🌙 NOC"
     u_base, u_km = 7.00, 1.85 
     b_base, b_km = 4.50, 2.30 
-elif (11.0 <= time_val <= 14.0): # OKNO LUNCHOWE - Tu jesteśmy teraz
-    t_status = "🍴 RUCH PRZEDPOŁUDNIOWY / LUNCH"
-    u_base, u_km = 8.00, 2.10 # Uber bez zmian - będzie idealny
-    b_base, b_km = 4.80, 2.70 # Bolt skorygowany pod 24,90 PLN
-    surge = 1.0 
-elif is_peak:
-    t_status = "🚦 SZCZYT KOMUNIKACYJNY"
-    surge = 1.55
+elif (11.0 <= time_val < 13.5): # 11:00 - 13:30 (Standard Lunch)
+    t_status = "🍴 LUNCH / RUCH PRZEDPOŁUDNIOWY"
     u_base, u_km = 8.00, 2.10
-    b_base, b_km = 5.00, 2.70 
+    b_base, b_km = 4.80, 2.70 
+    surge = 1.0 
+elif (13.5 <= time_val <= 14.5): # 13:30 - 14:30 (Twoje okno z 13:40)
+    t_status = "📉 PRZEDSZCZYTOWA PROMOCJA BOLT"
+    u_base, u_km = 8.00, 2.10
+    # Obniżamy bazę Bolta o 2 PLN względem standardu
+    b_base, b_km = 2.80, 2.70 
+    surge = 1.0
 else:
     t_status = "☀️ STANDARDOWY DZIEŃ (np. 10:00)"
     u_base, u_km = 8.00, 2.10 # Uber bez zmian
