@@ -172,3 +172,12 @@ if st.button("SPRAWDŹ CENY"):
                             
                             if item['Vars']:
                                 for v_name, v_price in item['Vars']:
+                                    st.markdown(f"<div class='variant-card'><span>{v_name}</span><b>{v_price:.2f} PLN</b></div>", unsafe_allow_html=True)
+                        with c2:
+                            st.write("")
+                            st.link_button(item['Btn'], item['Link'])
+                        st.write("---")
+            except Exception as e:
+                st.error(f"Błąd: {e}")
+    else:
+        st.warning("Wprowadź oba adresy!")
