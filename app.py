@@ -59,22 +59,27 @@ if st.button("PRZELICZ TRASĘ"):
                     b_mult = (100 - b_promo) / 100
                     surge = 1.0
 
-                    # --- PRECYZYJNY SILNIK WARSZAWSKI v7.7 ---
+                    # --- APTEKARSKA PRECYZJA WARSZAWSKA v7.8 ---
                     if any(x in city for x in ["Warszawa", "Warsaw"]):
-                        # Podbijamy bazę do 11.00, aby zniwelować brakujące 3-4 zł
-                        u_base, u_km, u_min = 11.00, 1.95, 0.42 
+                        # Skorygowane: Niższy start, ale realna stawka km/min dla WAW
+                        u_base, u_km, u_min = 7.50, 1.65, 0.45 
                         b_base, b_km = 6.00, 2.90
                         city_label = "WARSZAWA 🏙️"
                         
+                        # Obliczamy bazowy UberX
                         ux_val = ((u_base + (km * u_km) + (dur * u_min)) * surge) * u_mult
+                        
+                        # SZTYWNE MNOŻNIKI Z TWOJEGO TESTU:
+                        # 31.64 / 32.95 = ~0.96
+                        # 43.98 / 32.95 = ~1.335
                         u_vars = [
-                            ("📉 Czekaj i oszczędzaj", ux_val * 0.96), # 31.64 / 32.95
-                            ("🚗 UberX", ux_val),                     # Cel: 32.95
-                            ("🔋 Hybrid", ux_val),                    # W WAW Hybrid = UberX
-                            ("✨ Comfort", ux_val * 1.335)             # 43.98 / 32.95
+                            ("📉 Czekaj i oszczędzaj", ux_val * 0.96), 
+                            ("🚗 UberX", ux_val),                     
+                            ("🔋 Hybrid", ux_val),                    
+                            ("✨ Comfort", ux_val * 1.335)             
                         ]
                     else:
-                        # Profil STANDARD (Wrocław i reszta) - zostaje bez zmian, bo tam działało!
+                        # Profil WROCŁAW / STANDARD - zostawiamy, bo tam działa idealnie!
                         u_base, u_km, u_min = 8.00, 2.10, 0.15
                         b_base, b_km = 5.00, 2.70
                         city_label = f"{city.upper()} 🇵🇱"
