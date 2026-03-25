@@ -135,7 +135,7 @@ if st.button("SPRAWDŹ CENY"):
                             "Val": freenow_lite, 
                             "Promo": 0, 
                             "Main": f"~{freenow_lite:.2f} PLN", 
-                            "Link": f"freenow://booking?pickupLat={l1.latitude}&pickupLng={l1.longitude}&dropoffLat={l2.latitude}&dropoffLng={l2.longitude}", 
+                            "Link": "freenow://booking", 
                             "Vars": [
                                 ("🚗 Lite", freenow_lite), ("🚕 Taxi", freenow_lite * 1.25), ("✨ Comfort", freenow_lite * 1.40)
                             ]
