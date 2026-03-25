@@ -38,26 +38,32 @@ is_peak = not is_weekend and ((7.5 <= time_val <= 9.5) or (15.5 <= time_val <= 1
 
 surge = 1.0
 
-# --- LOGIKA CZASOWA ---
+# --- LOGIKA CZASOWA v6.2 ---
 if is_night:
     t_status = "🌙 NOC"
     u_base, u_km = 7.00, 1.85 
     b_base, b_km = 4.50, 2.30 
-elif (11.0 <= time_val < 13.5): # 11:00 - 13:30 (Standard Lunch)
-    t_status = "🍴 LUNCH / RUCH PRZEDPOŁUDNIOWY"
+elif (11.0 <= time_val < 13.5): # 11:00 - 13:30
+    t_status = "🍴 STANDARDOWY LUNCH"
     u_base, u_km = 8.00, 2.10
     b_base, b_km = 4.80, 2.70 
-    surge = 1.0 
-elif (13.5 <= time_val <= 14.5): # 13:30 - 14:30 (Twoje okno z 13:40)
-    t_status = "📉 PRZEDSZCZYTOWA PROMOCJA BOLT"
+elif (13.5 <= time_val < 14.25): # 13:30 - 14:15 (Twoje tanie okno)
+    t_status = "📉 OKIENKO PROMOCYJNE BOLT"
     u_base, u_km = 8.00, 2.10
-    # Obniżamy bazę Bolta o 2 PLN względem standardu
-    b_base, b_km = 2.80, 2.70 
-    surge = 1.0
+    b_base, b_km = 2.80, 2.70 # -2 zł od standardu
+elif (14.25 <= time_val < 15.5): # 14:15 - 15:30 (To co widzisz TERAZ)
+    t_status = "⏳ ROZGRZEWKA PRZED SZCZYTEM"
+    u_base, u_km = 8.00, 2.10
+    b_base, b_km = 5.80, 2.70 # +1 zł do bazy (Bolt zaczyna drożeć)
+elif is_peak:
+    t_status = "🚦 SZCZYT KOMUNIKACYJNY"
+    surge = 1.55
+    u_base, u_km = 8.00, 2.10
+    b_base, b_km = 5.00, 2.70 
 else:
-    t_status = "☀️ STANDARDOWY DZIEŃ (np. 10:00)"
-    u_base, u_km = 8.00, 2.10 # Uber bez zmian
-    b_base, b_km = 5.00, 2.70 # Twoje stare, dobre ustawienia Bolta
+    t_status = "☀️ STANDARDOWY DZIEŃ"
+    u_base, u_km = 8.00, 2.10
+    b_base, b_km = 5.00, 2.70
 
 st.markdown(f"<div class='tariff-info'>{t_status}<br>Aktualna godzina: {h:02d}:{now.minute:02d}</div>", unsafe_allow_html=True)
 
