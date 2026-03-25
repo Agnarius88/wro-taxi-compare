@@ -99,7 +99,8 @@ if st.button("SPRAWDŹ CENY"):
 
                     dane = [
                         {
-                            "Firma": "Uber 🚗", 
+                            "Firma": "Uber 🚗",
+                            "Btn": "WYBIERZ",
                             "Val": uber_x * 0.86, 
                             "Promo": u_promo,
                             "Main": f"od {uber_x * 0.86:.2f} PLN", 
@@ -109,7 +110,8 @@ if st.button("SPRAWDŹ CENY"):
                             ]
                         },
                         {
-                            "Firma": "Bolt ⚡", 
+                            "Firma": "Bolt ⚡",
+                            "Btn": "WYBIERZ",
                             "Val": bolt_std * 0.89, 
                             "Promo": b_promo,
                             "Main": f"od {bolt_std * 0.89:.2f} PLN", 
@@ -119,7 +121,8 @@ if st.button("SPRAWDŹ CENY"):
                             ]
                         },
                         {
-                            "Firma": "iTaxi 🚕", 
+                            "Firma": "iTaxi 🚕",
+                            "Btn": "ZADZWOŃ",
                             "Val": itaxi_v, 
                             "Promo": 0, 
                             "Main": f"~{itaxi_v:.2f} PLN", 
@@ -127,7 +130,8 @@ if st.button("SPRAWDŹ CENY"):
                             "Vars": []
                         },
                         {
-                            "Firma": "Ryba Taxi 🐟", 
+                            "Firma": "Ryba Taxi 🐟",
+                            "Btn": "ZADZWOŃ",
                             "Val": ryba_min, 
                             "Promo": 0, 
                             "Main": f"{ryba_min:.2f} - {ryba_max:.2f} PLN", 
@@ -152,6 +156,6 @@ if st.button("SPRAWDŹ CENY"):
                                     st.markdown(f"<div class='variant-card'><span>{v_name}</span><b>{v_price:.2f} PLN</b></div>", unsafe_allow_html=True)
                         with c2:
                             st.write("")
-                            st.link_button("WYBIERZ", item['Link'])
+                            st.link_button(item['Btn'], item['Link'])
                         st.write("---")
             except Exception as e: st.error(f"Błąd mapy: {e}")
