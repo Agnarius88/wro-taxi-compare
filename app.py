@@ -77,8 +77,8 @@ if st.button("SPRAWDŹ CENY"):
     if start_adr and cel_adr:
         with st.spinner("Przeliczanie..."):
             try:
-                l1 = geolocator.geocode(f"{start_adr}, Wrocław")
-                l2 = geolocator.geocode(f"{cel_adr}, Wrocław")
+                l1 = geolocator.geocode(f"{start_adr}, Poland")
+                l2 = geolocator.geocode(f"{cel_adr}, Poland")
                 
                 if l1 and l2:
                     res = client.directions(coordinates=((l1.longitude, l1.latitude), (l2.longitude, l2.latitude)), profile='driving-car', format='geojson')
