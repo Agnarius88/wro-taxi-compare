@@ -118,9 +118,9 @@ if st.button("SPRAWDŹ CENY"):
                             "Main": f"od {bolt_std * 0.88:.2f} PLN", 
                             "Link": "bolt://ride",
                             "Vars": [
-                                ("📉 Economy", bolt_std * 0.88),
                                 ("⚡ Bolt", bolt_std),
-                                ("✨ Comfort", bolt_std * 1.20)
+                                ("✨ Comfort", bolt_std * 1.20),
+                                ("📉 Wait and Save", bolt_std * 0.88)
                             ]
                         },
                         {
