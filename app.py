@@ -24,7 +24,7 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-st.title("🚕 WroTaxi Compare v5.3")
+st.title("🚕 WroTaxi Compare v5.4")
 
 # --- LOGIKA CZASOWA ---
 now = datetime.now()
@@ -36,22 +36,23 @@ is_weekend = (day >= 5)
 is_night = (time_val >= 22 or time_val < 6)
 is_peak = not is_weekend and ((7.5 <= time_val <= 9.5) or (15.5 <= time_val <= 18.5))
 
+# iTaxi taryfa nocna/weekendowa
 itaxi_mnoznik = 1.45 if (is_night or day == 6) else 1.0
 surge = 1.0
 
 if is_night:
     t_status = "🌙 NOC (Parametry nocne)"
     u_base, u_km = 7.00, 1.85 
-    b_base, b_km = 4.50, 2.30 # Obniżona baza Bolta o 1.50 względem v5.2
+    b_base, b_km = 4.50, 2.30 
 elif is_peak:
-    t_status = "🚦 SZCZYT KOMUNIKACYJNY (Mnożnik dynamiczny)"
+    t_status = "🚦 SZCZYT KOMUNIKACYJNY (Dynamiczny Uber/Bolt)"
     surge = 1.55
     u_base, u_km = 8.00, 2.10
-    b_base, b_km = 5.00, 2.70 # Obniżona baza Bolta o 1.50
+    b_base, b_km = 5.00, 2.70 
 else:
-    t_status = "☀️ STANDARDOWY DZIEŃ (Kalibracja v5.3)"
+    t_status = "☀️ STANDARDOWY DZIEŃ"
     u_base, u_km = 8.00, 2.10
-    b_base, b_km = 5.00, 2.70 # Obniżona baza Bolta o 1.50
+    b_base, b_km = 5.00, 2.70 
 
 st.markdown(f"<div class='tariff-info'>{t_status}<br>Aktualna godzina: {h:02d}:{now.minute:02d}</div>", unsafe_allow_html=True)
 
@@ -60,7 +61,7 @@ ORS_KEY = 'eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6Ijc2N2YwMmI0Y2M2O
 
 def get_data():
     try:
-        return openrouteservice.Client(key=ORS_KEY), Nominatim(user_agent="wrotaxi_v53")
+        return openrouteservice.Client(key=ORS_KEY), Nominatim(user_agent="wrotaxi_v54_precision")
     except: return None, None
 
 client, geolocator = get_data()
@@ -87,18 +88,20 @@ if st.button("SPRAWDŹ CENY"):
                     u_mult = (100 - u_promo) / 100
                     b_mult = (100 - b_promo) / 100
 
-                    # OBLICZENIA
+                    # 1. OBLICZENIA UBER I BOLT (z v5.3 - działające)
                     uber_x = ((u_base + (km * u_km) + (dur * 0.15)) * surge) * u_mult
-                    bolt_std = ((b_base + (km * b_km)) * surge) * b_mult # Usunięte minuty dla Bolta (często ukryte w surge)
+                    bolt_std = ((b_base + (km * b_km)) * surge) * b_mult
                     
-                    itaxi = 9.0 + (km * 4.30 * itaxi_mnoznik)
+                    # 2. OBLICZENIA RYBA I ITAXI (Przywrócona "idealna" logika z v4.2)
+                    itaxi_v = 9.0 + (km * 4.30 * itaxi_mnoznik)
                     ryba_min = 20.50 + (math.ceil(km - 4) * 2.50 if km > 4 else 0)
-                    ryba_max = (ryba_min * 1.15) + 2.00
-
+                    ryba_max = (ryba_min * 1.15) + 2.00 
 
                     dane = [
                         {
-                            "Firma": "Uber 🚗", "Val": uber_x * 0.86, "Promo": u_promo,
+                            "Firma": "Uber 🚗", 
+                            "Val": uber_x * 0.86, 
+                            "Promo": u_promo,
                             "Main": f"od {uber_x * 0.86:.2f} PLN", 
                             "Link": f"https://m.uber.com/ul/?action=setPickup&pickup[latitude]={l1.latitude}&pickup[longitude]={l1.longitude}&dropoff[latitude]={l2.latitude}&dropoff[longitude]={l2.longitude}",
                             "Vars": [
@@ -106,33 +109,47 @@ if st.button("SPRAWDŹ CENY"):
                             ]
                         },
                         {
-                            "Firma": "Bolt ⚡", "Val": bolt_std * 0.88, "Promo": b_promo,
-                            "Main": f"od {bolt_std * 0.88:.2f} PLN", "Link": "bolt://ride",
+                            "Firma": "Bolt ⚡", 
+                            "Val": bolt_std * 0.89, 
+                            "Promo": b_promo,
+                            "Main": f"od {bolt_std * 0.89:.2f} PLN", 
+                            "Link": "bolt://ride",
                             "Vars": [
-                                ("📉 Wait and Save", bolt_std * 0.89), # Lekka korekta, żeby było bliżej realu
-                                ("⚡ Bolt", bolt_std),
-                                ("✨ Comfort", bolt_std * 1.16) # Obniżony mnożnik z 1.20 na 1.16
+                                ("📉 Wait and Save", bolt_std * 0.89), ("⚡ Bolt", bolt_std), ("✨ Comfort", bolt_std * 1.16)
                             ]
                         },
                         {
-                            "Firma": "iTaxi 🚕", "Val": itaxi, "Promo": 0, "Main": f"~{itaxi:.2f} PLN", "Link": "tel:737737737", "Vars": []
+                            "Firma": "iTaxi 🚕", 
+                            "Val": itaxi_v, 
+                            "Promo": 0, 
+                            "Main": f"~{itaxi_v:.2f} PLN", 
+                            "Link": "tel:737737737", 
+                            "Vars": []
                         },
                         {
                             "Firma": "Ryba Taxi 🐟", 
-                            "Cena": f"{ryba_min:.2f} - {ryba_max:.2f} PLN", "Promo": "",
-                            "Val": ryba_min, "Type": "call", "Link": "tel:713441515"
+                            "Val": ryba_min, 
+                            "Promo": 0, 
+                            "Main": f"{ryba_min:.2f} - {ryba_max:.2f} PLN", 
+                            "Link": "tel:713441515", 
+                            "Vars": []
                         }
                     ]
 
                     st.success(f"🛣️ {km:.2f} km | ⏱️ {int(dur)} min")
+                    
                     for item in sorted(dane, key=lambda x: x['Val']):
                         c1, c2 = st.columns([3, 1])
                         with c1:
+                            # Obsługa tagu zniżki
                             disc = f" <span class='discount-tag'>-{item['Promo']}%</span>" if item['Promo'] > 0 else ""
                             st.markdown(f"**{item['Firma']}**{disc}", unsafe_allow_html=True)
                             st.markdown(f"### {item['Main']}")
-                            for v_name, v_price in item['Vars']:
-                                st.markdown(f"<div class='variant-card'><span>{v_name}</span><b>{v_price:.2f} PLN</b></div>", unsafe_allow_html=True)
+                            
+                            # Wyświetlanie wariantów tylko jeśli istnieją (Uber/Bolt)
+                            if item['Vars']:
+                                for v_name, v_price in item['Vars']:
+                                    st.markdown(f"<div class='variant-card'><span>{v_name}</span><b>{v_price:.2f} PLN</b></div>", unsafe_allow_html=True)
                         with c2:
                             st.write("")
                             st.link_button("WYBIERZ", item['Link'])
