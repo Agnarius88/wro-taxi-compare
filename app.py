@@ -131,13 +131,16 @@ if st.button("SPRAWDŹ CENY"):
                         },
                         {
                             "Firma": "FREENOW 🔴",
-                            "Btn": "WYBIERZ",
+                            "Btn": "ZAMÓW W APCE",
                             "Val": freenow_lite, 
                             "Promo": 0, 
                             "Main": f"~{freenow_lite:.2f} PLN", 
                             "Link": "intent://#Intent;scheme=freenow;package=taxi.android.client;end", 
                             "Vars": [
-                                ("🚗 Lite", freenow_lite), ("🚕 Taxi", freenow_lite * 1.25), ("✨ Comfort", freenow_lite * 1.40)
+                                ("🚗 Lite / Green", freenow_lite), 
+                                ("✨ Comfort", freenow_lite * 1.30),
+                                ("🐾 Pets", freenow_lite * 1.30),
+                                ("🚐 Taxi XL", freenow_lite * 1.60)
                             ]
                         },
                         {
