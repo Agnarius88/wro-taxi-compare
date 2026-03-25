@@ -135,7 +135,7 @@ if st.button("SPRAWDŹ CENY"):
                             "Val": freenow_lite, 
                             "Promo": 0, 
                             "Main": f"~{freenow_lite:.2f} PLN", 
-                            "Link": "freenow://booking", 
+                            "Link": "https://freenow.page.link/open-app", 
                             "Vars": [
                                 ("🚗 Lite", freenow_lite), ("🚕 Taxi", freenow_lite * 1.25), ("✨ Comfort", freenow_lite * 1.40)
                             ]
