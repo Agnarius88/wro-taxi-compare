@@ -116,9 +116,9 @@ if st.button("SPRAWDŹ CENY"):
                             "Firma": "iTaxi 🚕", "Val": itaxi, "Promo": 0, "Main": f"~{itaxi:.2f} PLN", "Link": "tel:737737737", "Vars": []
                         },
                         {
-"Firma": "Ryba Taxi 🐟", 
+                            "Firma": "Ryba Taxi 🐟", 
                             "Cena": f"{ryba_min:.2f} - {ryba_max:.2f} PLN", "Promo": "",
-                            "Val": ryba_min, "Type": "call", "Link": "tel:713441515"]
+                            "Val": ryba_min, "Type": "call", "Link": "tel:713441515"
                         }
                     ]
 
