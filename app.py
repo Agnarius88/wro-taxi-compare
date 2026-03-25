@@ -2,7 +2,6 @@ import streamlit as st
 import openrouteservice
 from geopy.geocoders import Nominatim
 import math
-import urllib.parse
 from datetime import datetime
 
 # Konfiguracja strony
@@ -34,11 +33,7 @@ st.markdown("""
         justify-content: space-between;
         box-shadow: 1px 1px 3px rgba(0,0,0,0.05);
     }
-    .discount-tag {
-        color: #27ae60;
-        font-weight: bold;
-        font-size: 0.85em;
-    }
+    .discount-tag { color: #27ae60; font-weight: bold; font-size: 0.85em; }
     </style>
     """, unsafe_allow_html=True)
 
@@ -50,14 +45,13 @@ hour = (now.hour + 1) % 24
 is_night = (hour >= 22 or hour < 6)
 is_weekend = (now.weekday() == 6)
 
+# Taryfa 2 TYLKO dla iTaxi
 if is_night or is_weekend:
     t_label = "🌙 TARYFA 2 (Noc/Weekend - tylko iTaxi)"
-    mnoznik = 1.45
-    uber_surge = 1.0  
+    itaxi_mnoznik = 1.45
 else:
     t_label = "☀️ TARYFA 1 (Dzień)"
-    mnoznik = 1.0
-    uber_surge = 1.0
+    itaxi_mnoznik = 1.0
 
 st.markdown(f"<div class='tariff-info'>{t_label}<br>Aktualna godzina: {hour:02d}:{now.minute:02d}</div>", unsafe_allow_html=True)
 
@@ -67,7 +61,7 @@ ORS_KEY = 'eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6Ijc2N2YwMmI0Y2M2O
 def init_services():
     try:
         client = openrouteservice.Client(key=ORS_KEY)
-        geolocator = Nominatim(user_agent="wro_taxi_precision_v42")
+        geolocator = Nominatim(user_agent="wro_taxi_precision_v47")
         return client, geolocator
     except: return None, None
 
@@ -76,43 +70,41 @@ client, geolocator = init_services()
 start_adr = st.text_input("📍 Skąd?", placeholder="np. Wojaczka 10")
 cel_adr = st.text_input("🏁 Dokąd?", placeholder="np. Celtycka 1")
 
-# --- NOWE: SUWAKI ZNIŻEK ---
+# --- SUWAKI ZNIŻEK ---
 col_u, col_b = st.columns(2)
 with col_u:
-    u_promo = st.slider("Zniżka Uber (%)", 0, 90, 0, 5)
+    u_promo = st.slider("Zniżka Uber (%)", 0, 90, 0, 10)
 with col_b:
-    b_promo = st.slider("Zniżka Bolt (%)", 0, 90, 0, 5)
+    b_promo = st.slider("Zniżka Bolt (%)", 0, 90, 0, 10)
 
 if st.button("PORÓWNAJ CENY"):
     if start_adr and cel_adr:
-        with st.spinner("Analiza trasy..."):
+        with st.spinner("Liczenie trasy..."):
             try:
-                s_full = f"{start_adr}, Wrocław"; c_full = f"{cel_adr}, Wrocław"
-                l1 = geolocator.geocode(s_full); l2 = geolocator.geocode(c_full)
+                l1 = geolocator.geocode(f"{start_adr}, Wrocław")
+                l2 = geolocator.geocode(f"{cel_adr}, Wrocław")
                 
                 if l1 and l2:
-                    coords = ((l1.longitude, l1.latitude), (l2.longitude, l2.latitude))
-                    route = client.directions(coordinates=coords, profile='driving-car', format='geojson')
-                    
+                    route = client.directions(coordinates=((l1.longitude, l1.latitude), (l2.longitude, l2.latitude)), profile='driving-car', format='geojson')
                     summary = route['features'][0]['properties']['summary']
-                    km = summary['distance'] / 1000
-                    minuty = summary['duration'] / 60
+                    km, minuty = summary['distance'] / 1000, summary['duration'] / 60
                     
-                    # Logika przeliczania zniżek
                     u_mult = (100 - u_promo) / 100
                     b_mult = (100 - b_promo) / 100
 
-                    # --- SKORYGOWANA KALIBRACJA UBERA (v42) + ZNIŻKA ---
-                    u_x_base = ((8.00 + (km * 2.10) + (minuty * 0.15)) * uber_surge) * u_mult
+                    # --- NOWA KALIBRACJA UBERA (ZOPTYMALIZOWANA POD TWOJE DANE) ---
+                    # Baza 7.00 + km * 1.85 + minuty * 0.15
+                    u_x_base = (7.00 + (km * 1.85) + (minuty * 0.15)) * u_mult
                     
-                    # iTaxi (z mnożnikiem) i Ryba (stała cena)
-                    itaxi_v = 9.0 + (km * 4.30 * mnoznik)
-                    # Usunięto mnoznik z obliczeń Ryby
+                    # iTaxi (z mnożnikiem nocnym)
+                    itaxi_v = 9.0 + (km * 4.30 * itaxi_mnoznik)
+                    
+                    # Ryba Taxi (BEZ mnożnika nocnego)
                     ryba_min = 20.50 + (math.ceil(km - 4) * 2.50 if km > 4 else 0)
                     ryba_max = (ryba_min * 1.15) + 2.00 
                     
-                    # Bolt + ZNIŻKA
-                    bolt_v = ((6.5 + km * 2.8) * uber_surge) * b_mult
+                    # Bolt (lekka korekta bazy)
+                    bolt_v = (6.0 + km * 2.5) * b_mult
                     
                     dane = [
                         {
@@ -125,7 +117,7 @@ if st.button("PORÓWNAJ CENY"):
                                 {"name": "📉 Czekaj i oszczędzaj", "price": u_x_base * 0.86},
                                 {"name": "🚗 UberX", "price": u_x_base},
                                 {"name": "🔋 Hybrid", "price": u_x_base * 1.01},
-                                {"name": "✨ Comfort", "price": u_x_base * 1.16}
+                                {"name": "✨ Comfort", "price": u_x_base * 1.18}
                             ]
                         },
                         {
@@ -146,9 +138,7 @@ if st.button("PORÓWNAJ CENY"):
                     ]
                     
                     st.success(f"🛣️ {km:.2f} km | ⏱️ {int(minuty)} min")
-                    
-                    posortowane = sorted(dane, key=lambda x: x['Val'])
-                    for item in posortowane:
+                    for item in sorted(dane, key=lambda x: x['Val']):
                         with st.container():
                             c1, c2 = st.columns([2, 1])
                             with c1:
@@ -160,8 +150,6 @@ if st.button("PORÓWNAJ CENY"):
                                         st.markdown(f"<div class='uber-variant'><span>{v['name']}</span><b>{v['price']:.2f} PLN</b></div>", unsafe_allow_html=True)
                             with c2:
                                 st.write("")
-                                if item['Type'] == "link": st.link_button("ZAMÓW", item['Link'])
-                                else: st.link_button("ZADZWOŃ", item['Link'], type="secondary")
+                                st.link_button("ZAMÓW" if item['Type']=="link" else "ZADZWOŃ", item['Link'])
                             st.write("---")
-
             except Exception as e: st.error(f"Błąd: {e}")
