@@ -4,8 +4,8 @@ from geopy.geocoders import Nominatim
 import math
 from datetime import datetime
 
-# --- KONFIGURACJA v8.6 FULL PRECISION ---
-st.set_page_config(page_title="WroTaxi v8.6 Full", page_icon="🚕", layout="centered")
+# --- KONFIGURACJA v8.7 FULL PRECISION ---
+st.set_page_config(page_title="WroTaxi v8.7 Full", page_icon="🚕", layout="centered")
 
 st.markdown("""
     <style>
@@ -25,7 +25,7 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-st.title("🚕 WroTaxi Compare v8.6")
+st.title("🚕 WroTaxi Compare v8.7")
 
 # --- LOGIKA CZASOWA ---
 now = datetime.now()
@@ -55,12 +55,13 @@ else:
     t_status = "☀️ STANDARDOWY DZIEŃ"
     u_surge, b_surge = 1.0, 1.0
 
-st.markdown(f<div class='tariff-info'>{t_status}<br>Godzina pomiaru: {h:02d}:{now.minute:02d}</div>, unsafe_allow_html=True)
+# POPRAWIONA LINIA HTML:
+st.markdown(f"<div class='tariff-info'>{t_status}<br>Godzina pomiaru: {h:02d}:{now.minute:02d}</div>", unsafe_allow_html=True)
 
 # --- API ---
 ORS_KEY = 'eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6Ijc2N2YwMmI0Y2M2OTRkMjE5MDk5MDU4ZTg3NzMxYjYzIiwiaCI6Im11cm11cjY0In0='
 client = openrouteservice.Client(key=ORS_KEY)
-geolocator = Nominatim(user_agent="wrotaxi_86_full")
+geolocator = Nominatim(user_agent="wrotaxi_87_full")
 
 start_adr = st.text_input("📍 Skąd?", "Wojaczka 10, Wrocław")
 cel_adr = st.text_input("🏁 Dokąd?", "Celtycka 1, Wrocław")
@@ -91,7 +92,7 @@ if st.button("SPRAWDŹ WSZYSTKIE CENY"):
                     # Bolt Standard (Cel: ~32.90)
                     bolt_std = ((b_base + (km * b_km) + 3.70) * b_surge) * b_mult
                     
-                    # Freenow
+                    # Freenow (Szacunek na bazie Ubera)
                     freenow_lite = ((u_base + (km * u_km) + (dur * 0.15)) * u_surge) + 2.00
                     
                     # Ryba Taxi
