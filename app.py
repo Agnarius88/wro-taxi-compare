@@ -88,7 +88,8 @@ if st.button("SPRAWDŹ CENY"):
 
                     # 1. OBLICZENIA UBER I BOLT
                     uber_x = ((u_base + (km * u_km) + (dur * 0.15)) * surge) * u_mult
-                    bolt_std = ((b_base + (km * b_km)) * surge) * b_mult
+                    # Zmień tę linię w swoim kodzie:
+                    bolt_std = ((b_base + (km * b_km) + (dur * 0.18) + 2.00) * surge) * b_mult
                     
                     # 2. OBLICZENIA FREENOW (z opłatą serwisową 2.00 PLN)
                     freenow_lite = ((u_base + (km * u_km) + (dur * 0.15)) * surge) + 2.00
@@ -112,12 +113,14 @@ if st.button("SPRAWDŹ CENY"):
                         {
                             "Firma": "Bolt ⚡",
                             "Btn": "WYBIERZ",
-                            "Val": bolt_std * 0.89, 
+                            "Val": bolt_std - 2.00, # Wait & Save jest zazwyczaj o 2 zł tańszy
                             "Promo": b_promo,
-                            "Main": f"od {bolt_std * 0.89:.2f} PLN", 
+                            "Main": f"od {bolt_std - 2.00:.2f} PLN", 
                             "Link": "bolt://ride",
                             "Vars": [
-                                ("⚡ Bolt", bolt_std), ("✨ Comfort", bolt_std * 1.16), ("📉 Wait and Save", bolt_std * 0.89)
+                                ("⚡ Bolt", bolt_std), 
+                                ("✨ Comfort", bolt_std + 4.00), # Comfort o 4 zł droższy - idealnie jak u Ciebie (24,90 -> 28,90)
+                                ("📉 Wait and Save", bolt_std - 2.00)
                             ]
                         },
                         {
