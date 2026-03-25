@@ -59,20 +59,22 @@ if st.button("PRZELICZ TRASĘ"):
                     b_mult = (100 - b_promo) / 100
                     surge = 1.0
 
-                    # --- PROFILE I WARIANTY ---
+                    # --- PRECYZYJNY SILNIK WARSZAWSKI v7.7 ---
                     if any(x in city for x in ["Warszawa", "Warsaw"]):
-                        u_base, u_km, u_min = 7.00, 1.80, 0.40
+                        # Podbijamy bazę do 11.00, aby zniwelować brakujące 3-4 zł
+                        u_base, u_km, u_min = 11.00, 1.95, 0.42 
                         b_base, b_km = 6.00, 2.90
                         city_label = "WARSZAWA 🏙️"
                         
                         ux_val = ((u_base + (km * u_km) + (dur * u_min)) * surge) * u_mult
                         u_vars = [
-                            ("📉 Czekaj i oszczędzaj", ux_val * 0.954),
-                            ("🚗 UberX", ux_val),
-                            ("🔋 Hybrid", ux_val), # W WAW Hybrid = UberX
-                            ("✨ Comfort", ux_val * 1.33)
+                            ("📉 Czekaj i oszczędzaj", ux_val * 0.96), # 31.64 / 32.95
+                            ("🚗 UberX", ux_val),                     # Cel: 32.95
+                            ("🔋 Hybrid", ux_val),                    # W WAW Hybrid = UberX
+                            ("✨ Comfort", ux_val * 1.335)             # 43.98 / 32.95
                         ]
                     else:
+                        # Profil STANDARD (Wrocław i reszta) - zostaje bez zmian, bo tam działało!
                         u_base, u_km, u_min = 8.00, 2.10, 0.15
                         b_base, b_km = 5.00, 2.70
                         city_label = f"{city.upper()} 🇵🇱"
