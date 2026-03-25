@@ -41,32 +41,44 @@ u_base, u_km, u_min = 8.00, 2.15, 0.20
 b_base, b_km = 5.50, 2.80
 u_surge, b_surge = 1.0, 1.0
 
-# --- LOGIKA CZASOWA ---
+# --- LOGIKA CZASOWA v8.8 ---
+now = datetime.now()
+h = now.hour  # Usunąłem (now.hour + 1) % 24, Streamlit na serwerze może mieć inny czas, ale lokalnie h=now.hour jest czytelniejsze
+time_val = h + now.minute / 60
+day = now.weekday() 
+
+is_weekend = (day >= 5)
+is_night = (time_val >= 22 or time_val < 6)
+is_peak = not is_weekend and ((7.2 <= time_val <= 9.5) or (15.2 <= time_val <= 18.8))
+
+# DEFINIUJEMY WARTOŚCI DOMYŚLNE (żeby uniknąć błędu "not defined")
+surge = 1.0
+u_base, u_km = 8.00, 2.10
+b_base, b_km = 5.00, 2.70
+
 if is_night:
     t_status = "🌙 NOC"
     u_base, u_km = 7.00, 1.85 
     b_base, b_km = 4.50, 2.30 
-elif (11.0 <= time_val < 13.5): # 11:00 - 13:30 (Standard Lunch)
+elif (11.0 <= time_val < 13.5):
     t_status = "🍴 LUNCH / RUCH PRZEDPOŁUDNIOWY"
     u_base, u_km = 8.00, 2.10
     b_base, b_km = 4.80, 2.70 
-    surge = 1.0 
-elif (13.5 <= time_val <= 14.5): # 13:30 - 14:30 (Twoje okno z 13:40)
+elif (13.5 <= time_val <= 14.5):
     t_status = "📉 PRZEDSZCZYTOWA PROMOCJA BOLT"
     u_base, u_km = 8.00, 2.10
-    # Obniżamy bazę Bolta o 2 PLN względem standardu
     b_base, b_km = 2.80, 2.70 
-    surge = 1.0
-elif (7.2 <= time_val <= 9.5) or (15.2 <= time_val <= 18.8):
+elif is_peak:
     t_status = "🚦 SZCZYT KOMUNIKACYJNY"
-    u_base, u_km = 8.00, 2.10  # Kalibracja pod Twoje 48.95 PLN (Uber)
-    b_base, b_km = 4.80, 2.70  # Kalibracja pod Twoje 32.90 PLN (Bolt)    
+    surge = 1.53  # Tutaj ustawiamy mnożnik szczytowy
+    u_base, u_km = 8.00, 2.15
+    b_base, b_km = 5.50, 2.80
 else:
-    t_status = "☀️ STANDARDOWY DZIEŃ (np. 10:00)"
-    u_base, u_km = 8.00, 2.10 # Uber bez zmian
-    b_base, b_km = 5.00, 2.70 # Twoje stare, dobre ustawienia Bolta
+    t_status = "☀️ STANDARDOWY DZIEŃ"
+    # Tutaj zostają wartości domyślne zdefiniowane wyżej
 
 st.markdown(f"<div class='tariff-info'>{t_status}<br>Aktualna godzina: {h:02d}:{now.minute:02d}</div>", unsafe_allow_html=True)
+
 
 # --- USŁUGI ---
 ORS_KEY = 'eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6Ijc2N2YwMmI0Y2M2OTRkMjE5MDk5MDU4ZTg3NzMxYjYzIiwiaCI6Im11cm11cjY0In0='
