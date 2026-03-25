@@ -38,27 +38,25 @@ is_peak = not is_weekend and ((7.5 <= time_val <= 9.5) or (15.5 <= time_val <= 1
 
 surge = 1.0
 
-# --- LOGIKA CZASOWA DOPASOWANA DO BOLTA ---
+# --- LOGIKA CZASOWA ---
 if is_night:
-    t_status = "🌙 NOC (Parametry nocne)"
+    t_status = "🌙 NOC"
     u_base, u_km = 7.00, 1.85 
     b_base, b_km = 4.50, 2.30 
-elif (11.0 <= time_val <= 13.5): # OKNO LUNCHOWE (Twoja godzina 11:50)
+elif (11.0 <= time_val <= 14.0): # OKNO LUNCHOWE - Tu jesteśmy teraz
     t_status = "🍴 RUCH PRZEDPOŁUDNIOWY / LUNCH"
-    # UBER ZOSTAJE BEZ ZMIAN (jak o 10:00)
-    u_base, u_km = 8.00, 2.10
-    # BOLT DOSTAJE KOREKTĘ (niższa baza, ale wyższy km + opłata serwisowa niżej)
-    b_base, b_km = 4.00, 2.55 
-    surge = 1.0 # Nie ruszamy surge, żeby nie popsuć Ubera
+    u_base, u_km = 8.00, 2.10 # Uber bez zmian - będzie idealny
+    b_base, b_km = 4.80, 2.70 # Bolt skorygowany pod 24,90 PLN
+    surge = 1.0 
 elif is_peak:
     t_status = "🚦 SZCZYT KOMUNIKACYJNY"
     surge = 1.55
     u_base, u_km = 8.00, 2.10
     b_base, b_km = 5.00, 2.70 
-else: # GODZINA 10:00
-    t_status = "☀️ STANDARDOWY DZIEŃ"
-    u_base, u_km = 8.00, 2.10
-    b_base, b_km = 5.00, 2.70 # Twoje stare, dobre parametry
+else:
+    t_status = "☀️ STANDARDOWY DZIEŃ (np. 10:00)"
+    u_base, u_km = 8.00, 2.10 # Uber bez zmian
+    b_base, b_km = 5.00, 2.70 # Twoje stare, dobre ustawienia Bolta
 
 st.markdown(f"<div class='tariff-info'>{t_status}<br>Aktualna godzina: {h:02d}:{now.minute:02d}</div>", unsafe_allow_html=True)
 
@@ -96,9 +94,8 @@ if st.button("SPRAWDŹ CENY"):
 
                     # 1. OBLICZENIA UBER I BOLT
                     uber_x = ((u_base + (km * u_km) + (dur * 0.15)) * surge) * u_mult
-                    # 2. OBLICZENIA BOLT (Dodajemy 3.00 zł opłaty serwisowej tylko w dzień)
-                    bolt_fee = 3.00 if not is_night else 0.00
-                    bolt_std = ((b_base + (km * b_km) + bolt_fee) * surge) * b_mult
+                   # Dodajemy +3.70 opłaty serwisowej, by przy 10km wyjść na ~35.50 przed zniżką
+                    bolt_std = ((b_base + (km * b_km) + 3.70) * surge) * b_mult
                     
                     # 2. OBLICZENIA FREENOW (z opłatą serwisową 2.00 PLN)
                     freenow_lite = ((u_base + (km * u_km) + (dur * 0.15)) * surge) + 2.00
@@ -122,14 +119,14 @@ if st.button("SPRAWDŹ CENY"):
                         {
                             "Firma": "Bolt ⚡",
                             "Btn": "WYBIERZ",
-                            "Val": bolt_std - 2.00, # Wait & Save jest zazwyczaj o 2 zł tańszy
+                            "Val": bolt_std - 2.40, # To będzie 'Wait' - celujemy w 22,50
                             "Promo": b_promo,
-                            "Main": f"od {bolt_std - 2.00:.2f} PLN", 
+                            "Main": f"od {bolt_std - 2.40:.2f} PLN", 
                             "Link": "bolt://ride",
                             "Vars": [
-                                ("⚡ Bolt", bolt_std), 
-                                ("✨ Comfort", bolt_std + 4.00), # Comfort o 4 zł droższy - idealnie jak u Ciebie (24,90 -> 28,90)
-                                ("📉 Wait and Save", bolt_std - 2.00)
+                                ("⚡ Bolt", bolt_std),               # Celujemy w 24,90
+                                ("✨ Comfort", bolt_std + 4.00),     # Celujemy w 28,90 (zawsze +4 zł w Bolcie)
+                                ("📉 Wait and Save", bolt_std - 2.40) # Celujemy w 22,50
                             ]
                         },
                         {
