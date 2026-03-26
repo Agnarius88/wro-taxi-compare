@@ -37,6 +37,7 @@ is_night = (time_val >= 22 or time_val < 6)
 is_peak = not is_weekend and ((7.5 <= time_val <= 9.5) or (15.5 <= time_val <= 18.5))
 
 surge = 1.0
+fn_fix = 2.00
 
 # --- LOGIKA CZASOWA ---
 if is_night:
@@ -106,7 +107,6 @@ if st.button("SPRAWDŹ CENY"):
                     bolt_std = ((b_base + (km * b_km) + 3.70) * surge) * b_mult
                     
                     # 2. OBLICZENIA FREENOW (z opłatą serwisową 2.00 PLN)
-                    fn_fix = 2.00 # Standardowa opłata serwisowa
                     freenow_lite = ((u_base + (km * u_km) + (dur * 0.15)) * surge) + fn_fix
                     
                     # 3. OBLICZENIA RYBA
