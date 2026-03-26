@@ -127,7 +127,7 @@ if st.button("SPRAWDŹ CENY"):
                                     "Main": f"~ {uber_x * 0.86:.2f} PLN",
                                     "Link": f"https://m.uber.com/ul/?action=setPickup&pickup[latitude]={l1.latitude}&pickup[longitude]={l1.longitude}&dropoff[latitude]={l2.latitude}&dropoff[longitude]={l2.longitude}",
                                     "Vars": [
-                                        ("📉 Czekaj i oszczędzaj", '~' ,uber_x * 0.86),
+                                        ("📉 Czekaj i oszczędzaj", uber_x * 0.86),
                                         ("🚗 UberX", uber_x),
                                         ("🔋 Hybrid", uber_x),
                                         ("✨ Comfort", uber_x * 1.18),
@@ -183,7 +183,7 @@ if st.button("SPRAWDŹ CENY"):
                                     
                                     if item['Vars']:
                                         for v_name, v_price in item['Vars']:
-                                            st.markdown(f"<div class='variant-card'><span>{v_name}</span><b>{v_price:.2f} PLN</b></div>", unsafe_allow_html=True)
+                                            st.markdown(f"<div class='variant-card'><span>{v_name}</span><b>~ {v_price:.2f} PLN</b></div>", unsafe_allow_html=True)
                                 with c2:
                                     st.write("")
                                     st.link_button(item['Btn'], item['Link'])
