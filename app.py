@@ -3,6 +3,7 @@ import openrouteservice
 from geopy.geocoders import Nominatim
 import math
 from datetime import datetime
+import pytz
 
 # Konfiguracja strony
 st.set_page_config(page_title="WroTaxi Compare Pro", page_icon="🚕", layout="centered")
@@ -27,10 +28,11 @@ st.markdown("""
 st.title("🚕 WroTaxi Compare v5.5")
 
 # --- LOGIKA CZASOWA ---
-now = datetime.now()
-h = (now.hour + 1) % 24 
-time_val = h + now.minute/60
-day = now.weekday() 
+tz = pytz.timezone('Europe/Warsaw')
+now = datetime.now(tz)
+h = now.hour 
+time_val = h + now.minute / 60
+day = now.weekday()
 
 is_weekend = (day >= 5)
 is_night = (time_val >= 22 or time_val < 6)
