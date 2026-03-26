@@ -3,8 +3,6 @@ import openrouteservice
 from geopy.geocoders import Nominatim
 import math
 from datetime import datetime
-import pytz
-from datetime import datetime, timedelta
 
 # Konfiguracja strony
 st.set_page_config(page_title="WroTaxi Compare Pro", page_icon="🚕", layout="centered")
@@ -28,44 +26,40 @@ st.markdown("""
 
 st.title("🚕 WroTaxi Compare v5.5")
 
-# --- LOGIKA CZASOWA v9.2 (WYMUSZENIE CZASU PL) ---
-from datetime import datetime, timedelta
-
-# Pobieramy czas serwera (UTC) i dodajemy 1 godzinę, żeby mieć czas polski (zimowy)
-# Jeśli po 29 marca (zmiana czasu) znowu będzie godzina do tyłu, zmienisz na hours=2
-now = datetime.now() + timedelta(hours=1) 
-
-h = now.hour 
-m = now.minute
-time_val = h + m / 60
+# --- LOGIKA CZASOWA ---
+now = datetime.now()
+h = (now.hour + 1) % 24 
+time_val = h + now.minute/60
 day = now.weekday() 
 
 is_weekend = (day >= 5)
 is_night = (time_val >= 22 or time_val < 6)
+is_peak = not is_weekend and ((7.5 <= time_val <= 9.5) or (15.5 <= time_val <= 18.5))
 
-# DEFINIUJEMY WARTOŚCI DOMYŚLNE
 surge = 1.0
-u_base, u_km, u_min = 7.00, 1.80, 0.15 
-b_base, b_km, b_service = 4.00, 2.10, 3.00
 
-# SPRAWDZANIE STATUSU
+# --- LOGIKA CZASOWA ---
 if is_night:
     t_status = "🌙 NOC"
-    u_km, b_km = 2.20, 2.80
-elif (7.2 <= time_val <= 9.3) or (15.2 <= time_val <= 18.5):
-    t_status = "🚦 SZCZYT KOMUNIKACYJNY"
-    surge = 1.15 # Delikatny surge, a nie 1.53
-elif (11.0 <= time_val < 13.5):
-    t_status = "🍴 LUNCH"
-elif (13.5 <= time_val <= 14.5):
-    t_status = "📉 OKNO PROMOCYJNE"
-    b_base = 2.50
+    u_base, u_km = 7.00, 1.85 
+    b_base, b_km = 4.50, 2.30 
+elif (11.0 <= time_val < 13.5): # 11:00 - 13:30 (Standard Lunch)
+    t_status = "🍴 LUNCH / RUCH PRZEDPOŁUDNIOWY"
+    u_base, u_km = 8.00, 2.10
+    b_base, b_km = 4.80, 2.70 
+    surge = 1.0 
+elif (13.5 <= time_val <= 14.5): # 13:30 - 14:30 (Twoje okno z 13:40)
+    t_status = "📉 PRZEDSZCZYTOWA PROMOCJA BOLT"
+    u_base, u_km = 8.00, 2.10
+    # Obniżamy bazę Bolta o 2 PLN względem standardu
+    b_base, b_km = 2.80, 2.70 
+    surge = 1.0
 else:
-    t_status = "☀️ STANDARDOWY DZIEŃ"
+    t_status = "☀️ STANDARDOWY DZIEŃ (np. 10:00)"
+    u_base, u_km = 8.00, 2.10 # Uber bez zmian
+    b_base, b_km = 5.00, 2.70 # Twoje stare, dobre ustawienia Bolta
 
-# Wyświetlanie poprawnej godziny w aplikacji
-st.markdown(f"<div class='tariff-info'>{t_status}<br>Aktualna godzina: {h:02d}:{m:02d}</div>", unsafe_allow_html=True)
-
+st.markdown(f"<div class='tariff-info'>{t_status}<br>Aktualna godzina: {h:02d}:{now.minute:02d}</div>", unsafe_allow_html=True)
 
 # --- USŁUGI ---
 ORS_KEY = 'eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6Ijc2N2YwMmI0Y2M2OTRkMjE5MDk5MDU4ZTg3NzMxYjYzIiwiaCI6Im11cm11cjY0In0='
