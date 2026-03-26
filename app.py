@@ -127,7 +127,7 @@ if st.button("SPRAWDŹ CENY"):
                                     "Main": f"~ {uber_x * 0.86:.2f} PLN",
                                     "Link": f"https://m.uber.com/ul/?action=setPickup&pickup[latitude]={l1.latitude}&pickup[longitude]={l1.longitude}&dropoff[latitude]={l2.latitude}&dropoff[longitude]={l2.longitude}",
                                     "Vars": [
-                                        ("📉 Czekaj i oszczędzaj", ~ uber_x * 0.86),
+                                        ("📉 Czekaj i oszczędzaj", ~ ,uber_x * 0.86),
                                         ("🚗 UberX", uber_x),
                                         ("🔋 Hybrid", uber_x),
                                         ("✨ Comfort", uber_x * 1.18),
