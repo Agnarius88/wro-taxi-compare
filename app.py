@@ -48,7 +48,6 @@ elif (11.0 <= time_val < 13.5):
     t_status = "🍴 LUNCH / RUCH PRZEDPOŁUDNIOWY"
     u_base, u_km = 8.00, 2.10
     b_base, b_km = 4.80, 2.70
-    fn_fix = 4.50
     surge = 1.0
 #elif (13.0 <= time_val < 14.0): <--- To jest szablon do korekty cen w zależności od godziny
    #t_status = "🕒 POŁUDNIOWY SKOK CEN"
