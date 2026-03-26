@@ -109,74 +109,74 @@ if st.button("SPRAWDŹ CENY"):
                                     km = res['features'][0]['properties']['summary']['distance'] / 1000
                                     dur = res['features'][0]['properties']['summary']['duration'] / 60
                     
-                    u_mult = (100 - u_promo) / 100
-                    b_mult = (100 - b_promo) / 100
+                                    u_mult = (100 - u_promo) / 100
+                                    b_mult = (100 - b_promo) / 100
 
-                    # 1. OBLICZENIA UBER I BOLT
-                    uber_x = ((u_base + (km * u_km) + (dur * 0.15)) * surge) * u_mult
-                   # Dodajemy +3.70 opłaty serwisowej, by przy 10km wyjść na ~35.50 przed zniżką
-                    bolt_std = ((b_base + (km * b_km) + 3.70) * surge) * b_mult
-                    
-                    # 2. OBLICZENIA FREENOW (z opłatą serwisową 2.00 PLN)
-                    freenow_lite = ((u_base + (km * u_km) + (dur * 0.15)) * surge) + fn_fix
-                    
-                    # 3. OBLICZENIA RYBA
-                    ryba_min = 20.50 + (math.ceil(km - 4) * 2.50 if km > 4 else 0)
-                    ryba_max = (ryba_min * 1.15) + 2.00 
-
-                    dane = [
-                        {
-                            "Firma": "Uber 🚗",
-                            "Btn": "WYBIERZ",
-                            "Val": uber_x * 0.86, 
-                            "Promo": u_promo,
-                            "Main": f"od {uber_x * 0.86:.2f} PLN", 
-                            "Link": f"https://m.uber.com/ul/?action=setPickup&pickup[latitude]={l1.latitude}&pickup[longitude]={l1.longitude}&dropoff[latitude]={l2.latitude}&dropoff[longitude]={l2.longitude}",
-                            "Vars": [
-                                ("📉 Czekaj i oszczędzaj", uber_x * 0.86), ("🚗 UberX", uber_x), ("🔋 Hybrid", uber_x), ("✨ Comfort", uber_x * 1.18), ("🐾 Uber Pets", uber_x + 4)
-                            ]
-                        },
-                        {
-                            "Firma": "Bolt ⚡",
-                            "Btn": "WYBIERZ",
-                            "Val": bolt_std - 2.40, # To będzie 'Wait' - celujemy w 22,50
-                            "Promo": b_promo,
-                            "Main": f"od {bolt_std - 2.40:.2f} PLN", 
-                            "Link": "bolt://ride",
-                            "Vars": [
-                                ("⚡ Bolt", bolt_std),               # Celujemy w 24,90
-                                ("✨ Comfort", bolt_std + 4.00),     # Celujemy w 28,90 (zawsze +4 zł w Bolcie)
-                                ("📉 Wait and Save", bolt_std - 2.40) # Celujemy w 22,50
-                            ]
-                        },
-                        {
-                            "Firma": "FREENOW 🔴",
-                            "Btn": "ZAMÓW W APCE",
-                            "Val": freenow_lite, 
-                            "Promo": 0, 
-                            "Main": f"~{freenow_lite:.2f} PLN", 
-                            "Link": "intent://#Intent;scheme=freenow;package=taxi.android.client;end", 
-                            "Vars": [
-                                ("🚗 Lite / Green", freenow_lite), 
-                                ("✨ Comfort", freenow_lite * 1.30),
-                                ("🐾 Pets", freenow_lite * 1.30),
-                                ("🚐 Taxi XL", freenow_lite * 1.60)
-                            ]
-                        },
-                        {
-                            "Firma": "Ryba Taxi 🐟",
-                            "Btn": "ZADZWOŃ",
-                            "Val": ryba_min, 
-                            "Promo": 0, 
-                            "Main": f"{ryba_min:.2f} - {ryba_max:.2f} PLN", 
-                            "Link": "tel:713441515", 
-                            "Vars": []
-                        }
-                    ]
-
-                    st.success(f"🛣️ {km:.2f} km | ⏱️ {int(dur)} min")
-                else:
-                    st.warning("⚠️ Serwer map nie znalazł trasy. Spróbuj podać dokładniejszą ulicę.")
+                                    # 1. OBLICZENIA UBER I BOLT
+                                    uber_x = ((u_base + (km * u_km) + (dur * 0.15)) * surge) * u_mult
+                                   # Dodajemy +3.70 opłaty serwisowej, by przy 10km wyjść na ~35.50 przed zniżką
+                                    bolt_std = ((b_base + (km * b_km) + 3.70) * surge) * b_mult
+                                    
+                                    # 2. OBLICZENIA FREENOW (z opłatą serwisową 2.00 PLN)
+                                    freenow_lite = ((u_base + (km * u_km) + (dur * 0.15)) * surge) + fn_fix
+                                    
+                                    # 3. OBLICZENIA RYBA
+                                    ryba_min = 20.50 + (math.ceil(km - 4) * 2.50 if km > 4 else 0)
+                                    ryba_max = (ryba_min * 1.15) + 2.00 
+                
+                                    dane = [
+                                        {
+                                            "Firma": "Uber 🚗",
+                                            "Btn": "WYBIERZ",
+                                            "Val": uber_x * 0.86, 
+                                            "Promo": u_promo,
+                                            "Main": f"od {uber_x * 0.86:.2f} PLN", 
+                                            "Link": f"https://m.uber.com/ul/?action=setPickup&pickup[latitude]={l1.latitude}&pickup[longitude]={l1.longitude}&dropoff[latitude]={l2.latitude}&dropoff[longitude]={l2.longitude}",
+                                            "Vars": [
+                                                ("📉 Czekaj i oszczędzaj", uber_x * 0.86), ("🚗 UberX", uber_x), ("🔋 Hybrid", uber_x), ("✨ Comfort", uber_x * 1.18), ("🐾 Uber Pets", uber_x + 4)
+                                            ]
+                                        },
+                                        {
+                                            "Firma": "Bolt ⚡",
+                                            "Btn": "WYBIERZ",
+                                            "Val": bolt_std - 2.40, # To będzie 'Wait' - celujemy w 22,50
+                                            "Promo": b_promo,
+                                            "Main": f"od {bolt_std - 2.40:.2f} PLN", 
+                                            "Link": "bolt://ride",
+                                            "Vars": [
+                                                ("⚡ Bolt", bolt_std),               # Celujemy w 24,90
+                                                ("✨ Comfort", bolt_std + 4.00),     # Celujemy w 28,90 (zawsze +4 zł w Bolcie)
+                                                ("📉 Wait and Save", bolt_std - 2.40) # Celujemy w 22,50
+                                            ]
+                                        },
+                                        {
+                                            "Firma": "FREENOW 🔴",
+                                            "Btn": "ZAMÓW W APCE",
+                                            "Val": freenow_lite, 
+                                            "Promo": 0, 
+                                            "Main": f"~{freenow_lite:.2f} PLN", 
+                                            "Link": "intent://#Intent;scheme=freenow;package=taxi.android.client;end", 
+                                            "Vars": [
+                                                ("🚗 Lite / Green", freenow_lite), 
+                                                ("✨ Comfort", freenow_lite * 1.30),
+                                                ("🐾 Pets", freenow_lite * 1.30),
+                                                ("🚐 Taxi XL", freenow_lite * 1.60)
+                                            ]
+                                        },
+                                        {
+                                            "Firma": "Ryba Taxi 🐟",
+                                            "Btn": "ZADZWOŃ",
+                                            "Val": ryba_min, 
+                                            "Promo": 0, 
+                                            "Main": f"{ryba_min:.2f} - {ryba_max:.2f} PLN", 
+                                            "Link": "tel:713441515", 
+                                            "Vars": []
+                                        }
+                                    ]
+                
+                                    st.success(f"🛣️ {km:.2f} km | ⏱️ {int(dur)} min")
+                                else:
+                                    st.warning("⚠️ Serwer map nie znalazł trasy. Spróbuj podać dokładniejszą ulicę.")
 
             except Exception as e:
                 # To nam powie DOKŁADNIE co jest nie tak w konsoli Streamlit
