@@ -46,7 +46,8 @@ if is_night:
 elif (11.0 <= time_val < 13.5): # 11:00 - 13:30 (Standard Lunch)
     t_status = "🍴 LUNCH / RUCH PRZEDPOŁUDNIOWY"
     u_base, u_km = 8.00, 2.10
-    b_base, b_km = 4.80, 2.70 
+    b_base, b_km = 4.80, 2.70
+    fn_fix = 4.50 # Tutaj FREENOW jest droższe o te 2.50
     surge = 1.0 
 elif (13.5 <= time_val <= 14.5): # 13:30 - 14:30 (Twoje okno z 13:40)
     t_status = "📉 PRZEDSZCZYTOWA PROMOCJA BOLT"
@@ -105,7 +106,8 @@ if st.button("SPRAWDŹ CENY"):
                     bolt_std = ((b_base + (km * b_km) + 3.70) * surge) * b_mult
                     
                     # 2. OBLICZENIA FREENOW (z opłatą serwisową 2.00 PLN)
-                    freenow_lite = ((u_base + (km * u_km) + (dur * 0.15)) * surge) + 2.00
+                    fn_fix = 2.00 # Standardowa opłata serwisowa
+                    freenow_lite = ((u_base + (km * u_km) + (dur * 0.15)) * surge) + fn_fix
                     
                     # 3. OBLICZENIA RYBA
                     ryba_min = 20.50 + (math.ceil(km - 4) * 2.50 if km > 4 else 0)
