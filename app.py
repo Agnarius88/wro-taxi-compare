@@ -94,17 +94,20 @@ if st.button("SPRAWDŹ CENY"):
                 l2 = geolocator.geocode(f"{cel_adr}, Poland")
                 
                 if l1 and l2:
-                    # Dodajemy radiuses=[-1, 3000] co oznacza: start (dowolny), cel (szukaj drogi w promieniu 3km)
-                    res = client.directions(
-                        coordinates=((l1.longitude, l1.latitude), (l2.longitude, l2.latitude)), 
-                        profile='driving-car', 
-                        format='geojson',
-                        radiuses=[-1, 3000] 
-                    )
-                    km = res['features'][0]['properties']['summary']['distance'] / 1000
-                    dur = res['features'][0]['properties']['summary']['duration'] / 60
-                else:
-                    st.error("❌ Nie znaleziono adresu! Spróbuj wpisać dokładniej (np. 'Graniczna 190, Wrocław' zamiast 'Lotnisko').")
+                        with st.spinner("Przeliczanie..."):
+                            try:
+                                # 1. Próbujemy pobrać trasę z dużym promieniem poszukiwania drogi
+                                res = client.directions(
+                                    coordinates=((l1.longitude, l1.latitude), (l2.longitude, l2.latitude)),
+                                    profile='driving-car',
+                                    format='geojson',
+                                    radiuses=[3000, 3000] # Szukaj drogi w promieniu 3km dla STARTU i CELU
+                                )
+                                
+                                # SPRAWDZAMY CZY MAMY DANE (DEBUG)
+                                if 'features' in res and len(res['features']) > 0:
+                                    km = res['features'][0]['properties']['summary']['distance'] / 1000
+                                    dur = res['features'][0]['properties']['summary']['duration'] / 60
                     
                     u_mult = (100 - u_promo) / 100
                     b_mult = (100 - b_promo) / 100
@@ -172,6 +175,12 @@ if st.button("SPRAWDŹ CENY"):
                     ]
 
                     st.success(f"🛣️ {km:.2f} km | ⏱️ {int(dur)} min")
+                else:
+                    st.warning("⚠️ Serwer map nie znalazł trasy. Spróbuj podać dokładniejszą ulicę.")
+
+            except Exception as e:
+                # To nam powie DOKŁADNIE co jest nie tak w konsoli Streamlit
+                st.error(f"Coś poszło nie tak: {e}")
                     
                     for item in sorted(dane, key=lambda x: x['Val']):
                         c1, c2 = st.columns([3, 1])
