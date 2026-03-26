@@ -163,11 +163,11 @@ if st.button("SPRAWDŹ CENY"):
                                 },
                                 {
                                     "Firma": "Ryba Taxi 🐟",
-                                    "Btn": "ZAMÓW W APCE",
+                                    "Btn": "ZADZWOŃ",
                                     "Val": ryba_min,
                                     "Promo": 0,
                                     "Main": f"{ryba_min:.2f} - {ryba_max:.2f} PLN",
-                                    "Link": "intent://#Intent;scheme=itaxi;package=pl.itaxi.taxi7.ryba;end",
+                                    "Link": "tel:713441515",
                                     "Vars": []
                                 }
                             ]
