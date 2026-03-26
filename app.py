@@ -66,7 +66,7 @@ else:
     u_base, u_km = 8.00, 2.10
     b_base, b_km = 5.00, 2.70
 
-st.markdown(f"<div class='tariff-info'>{t_status}<br>Aktualna godzina: {h:02d}:{now.minute:02d}</div>", unsafe_allow_html=True)
+st.markdown(f"<div class='tariff-info'>Aktualna godzina: {h:02d}:{now.minute:02d}</div>", unsafe_allow_html=True)
 
 # --- USŁUGI ---
 ORS_KEY = 'eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6Ijc2N2YwMmI0Y2M2OTRkMjE5MDk5MDU4ZTg3NzMxYjYzIiwiaCI6Im11cm11cjY0In0='
@@ -183,7 +183,7 @@ if st.button("SPRAWDŹ CENY"):
                                     
                                     if item['Vars']:
                                         for v_name, v_price in item['Vars']:
-                                            st.write(f"🕒 Aktualna godzina: **{h:02d}:{now.minute:02d}**")
+                                            st.markdown(f"<div class='tariff-info'>Aktualna godzina: {h:02d}:{now.minute:02d}</div>", unsafe_allow_html=True)
                                 with c2:
                                     st.write("")
                                     st.link_button(item['Btn'], item['Link'])
