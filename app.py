@@ -54,6 +54,12 @@ elif (13.5 <= time_val <= 14.5): # 13:30 - 14:30 (Twoje okno z 13:40)
     # Obniżamy bazę Bolta o 2 PLN względem standardu
     b_base, b_km = 2.80, 2.70 
     surge = 1.0
+#elif (13.0 <= time_val < 14.0): <--- To jest szablon do korekty cen w zależności od godziny
+   #t_status = "🕒 POŁUDNIOWY SKOK CEN"
+    #u_base = 9.00  # było 8.00, więc dodajemy 1 zł
+    #b_base = 6.00  # było 5.00, więc dodajemy 1 zł
+    #u_km = 2.10    # stawka za km zostaje standardowa
+    #b_km = 2.70    
 else:
     t_status = "☀️ STANDARDOWY DZIEŃ (np. 10:00)"
     u_base, u_km = 8.00, 2.10 # Uber bez zmian
