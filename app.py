@@ -94,7 +94,13 @@ if st.button("SPRAWDŹ CENY"):
                 l2 = geolocator.geocode(f"{cel_adr}, Poland")
                 
                 if l1 and l2:
-                    res = client.directions(coordinates=((l1.longitude, l1.latitude), (l2.longitude, l2.latitude)), profile='driving-car', format='geojson')
+                    # Dodajemy radiuses=[-1, 3000] co oznacza: start (dowolny), cel (szukaj drogi w promieniu 3km)
+                    res = client.directions(
+                        coordinates=((l1.longitude, l1.latitude), (l2.longitude, l2.latitude)), 
+                        profile='driving-car', 
+                        format='geojson',
+                        radiuses=[-1, 3000] 
+                    )
                     km = res['features'][0]['properties']['summary']['distance'] / 1000
                     dur = res['features'][0]['properties']['summary']['duration'] / 60
                 else:
