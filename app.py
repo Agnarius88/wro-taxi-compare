@@ -178,22 +178,22 @@ if st.button("SPRAWDŹ CENY"):
                                 else:
                                     st.warning("⚠️ Serwer map nie znalazł trasy. Spróbuj podać dokładniejszą ulicę.")
 
-            except Exception as e:
-                # To nam powie DOKŁADNIE co jest nie tak w konsoli Streamlit
-                st.error(f"Coś poszło nie tak: {e}")
-                    
-                    for item in sorted(dane, key=lambda x: x['Val']):
-                        c1, c2 = st.columns([3, 1])
-                        with c1:
-                            disc = f" <span class='discount-tag'>-{item['Promo']}%</span>" if item['Promo'] > 0 else ""
-                            st.markdown(f"**{item['Firma']}**{disc}", unsafe_allow_html=True)
-                            st.markdown(f"### {item['Main']}")
-                            
-                            if item['Vars']:
-                                for v_name, v_price in item['Vars']:
-                                    st.markdown(f"<div class='variant-card'><span>{v_name}</span><b>{v_price:.2f} PLN</b></div>", unsafe_allow_html=True)
-                        with c2:
-                            st.write("")
-                            st.link_button(item['Btn'], item['Link'])
-                        st.write("---")
-            except Exception as e: st.error(f"Błąd mapy: {e}")
+                        except Exception as e:
+                            # To nam powie DOKŁADNIE co jest nie tak w konsoli Streamlit
+                            st.error(f"Coś poszło nie tak: {e}")
+                                
+                                for item in sorted(dane, key=lambda x: x['Val']):
+                                    c1, c2 = st.columns([3, 1])
+                                    with c1:
+                                        disc = f" <span class='discount-tag'>-{item['Promo']}%</span>" if item['Promo'] > 0 else ""
+                                        st.markdown(f"**{item['Firma']}**{disc}", unsafe_allow_html=True)
+                                        st.markdown(f"### {item['Main']}")
+                                        
+                                        if item['Vars']:
+                                            for v_name, v_price in item['Vars']:
+                                                st.markdown(f"<div class='variant-card'><span>{v_name}</span><b>{v_price:.2f} PLN</b></div>", unsafe_allow_html=True)
+                                    with c2:
+                                        st.write("")
+                                        st.link_button(item['Btn'], item['Link'])
+                                    st.write("---")
+                        except Exception as e: st.error(f"Błąd mapy: {e}")
