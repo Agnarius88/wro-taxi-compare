@@ -4,6 +4,7 @@ from geopy.geocoders import Nominatim
 import math
 from datetime import datetime
 import pytz
+from datetime import datetime, timedelta
 
 # Konfiguracja strony
 st.set_page_config(page_title="WroTaxi Compare Pro", page_icon="🚕", layout="centered")
@@ -27,9 +28,9 @@ st.markdown("""
 
 st.title("🚕 WroTaxi Compare v5.5")
 
-# --- LOGIKA CZASOWA ---
-tz = pytz.timezone('Europe/Warsaw')
-now = datetime.now(tz)
+# --- LOGIKA CZASOWA v9.1 (HOTFIX GODZINY) ---
+# Pobieramy czas serwera i dodajemy 1 godzinę (dla czasu zimowego w PL)
+now = datetime.now() + timedelta(hours=1) 
 h = now.hour 
 time_val = h + now.minute / 60
 day = now.weekday()
