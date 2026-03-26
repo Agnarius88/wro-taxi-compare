@@ -28,59 +28,43 @@ st.markdown("""
 
 st.title("🚕 WroTaxi Compare v5.5")
 
-# --- LOGIKA CZASOWA v9.1 (PRO) ---
-tz = pytz.timezone('Europe/Warsaw')
-now = datetime.now(tz)
+# --- LOGIKA CZASOWA v9.2 (WYMUSZENIE CZASU PL) ---
+from datetime import datetime, timedelta
+
+# Pobieramy czas serwera (UTC) i dodajemy 1 godzinę, żeby mieć czas polski (zimowy)
+# Jeśli po 29 marca (zmiana czasu) znowu będzie godzina do tyłu, zmienisz na hours=2
+now = datetime.now() + timedelta(hours=1) 
+
 h = now.hour 
-time_val = h + now.minute / 60
-day = now.weekday()
-
-is_weekend = (day >= 5)
-is_night = (time_val >= 22 or time_val < 6)
-is_peak = not is_weekend and ((7.5 <= time_val <= 9.5) or (15.5 <= time_val <= 18.5))
-
-# Ustawienia bazowe stawek
-u_base, u_km, u_min = 8.00, 2.15, 0.20
-b_base, b_km = 5.50, 2.80
-u_surge, b_surge = 1.0, 1.0
-
-# --- LOGIKA CZASOWA v8.8 ---
-now = datetime.now()
-h = now.hour  # Usunąłem (now.hour + 1) % 24, Streamlit na serwerze może mieć inny czas, ale lokalnie h=now.hour jest czytelniejsze
-time_val = h + now.minute / 60
+m = now.minute
+time_val = h + m / 60
 day = now.weekday() 
 
 is_weekend = (day >= 5)
 is_night = (time_val >= 22 or time_val < 6)
-is_peak = not is_weekend and ((7.2 <= time_val <= 9.5) or (15.2 <= time_val <= 18.8))
 
-# DEFINIUJEMY WARTOŚCI DOMYŚLNE (żeby uniknąć błędu "not defined")
+# DEFINIUJEMY WARTOŚCI DOMYŚLNE
 surge = 1.0
-u_base, u_km = 8.00, 2.10
-b_base, b_km = 5.00, 2.70
+u_base, u_km, u_min = 7.00, 1.80, 0.15 
+b_base, b_km, b_service = 4.00, 2.10, 3.00
 
+# SPRAWDZANIE STATUSU
 if is_night:
     t_status = "🌙 NOC"
-    u_base, u_km = 7.00, 1.85 
-    b_base, b_km = 4.50, 2.30 
-elif (11.0 <= time_val < 13.5):
-    t_status = "🍴 LUNCH / RUCH PRZEDPOŁUDNIOWY"
-    u_base, u_km = 8.00, 2.10
-    b_base, b_km = 4.80, 2.70 
-elif (13.5 <= time_val <= 14.5):
-    t_status = "📉 PRZEDSZCZYTOWA PROMOCJA BOLT"
-    u_base, u_km = 8.00, 2.10
-    b_base, b_km = 2.80, 2.70 
-elif is_peak:
+    u_km, b_km = 2.20, 2.80
+elif (7.2 <= time_val <= 9.3) or (15.2 <= time_val <= 18.5):
     t_status = "🚦 SZCZYT KOMUNIKACYJNY"
-    surge = 1.53  # Tutaj ustawiamy mnożnik szczytowy
-    u_base, u_km = 8.00, 2.15
-    b_base, b_km = 5.50, 2.80
+    surge = 1.15 # Delikatny surge, a nie 1.53
+elif (11.0 <= time_val < 13.5):
+    t_status = "🍴 LUNCH"
+elif (13.5 <= time_val <= 14.5):
+    t_status = "📉 OKNO PROMOCYJNE"
+    b_base = 2.50
 else:
     t_status = "☀️ STANDARDOWY DZIEŃ"
-    # Tutaj zostają wartości domyślne zdefiniowane wyżej
 
-st.markdown(f"<div class='tariff-info'>{t_status}<br>Aktualna godzina: {h:02d}:{now.minute:02d}</div>", unsafe_allow_html=True)
+# Wyświetlanie poprawnej godziny w aplikacji
+st.markdown(f"<div class='tariff-info'>{t_status}<br>Aktualna godzina: {h:02d}:{m:02d}</div>", unsafe_allow_html=True)
 
 
 # --- USŁUGI ---
