@@ -124,7 +124,7 @@ if st.button("SPRAWDŹ CENY"):
                                     "Btn": "WYBIERZ",
                                     "Val": uber_x * 0.86,
                                     "Promo": u_promo,
-                                    "Main": f"od {uber_x * 0.86:.2f} PLN",
+                                    "Main": f"~ {uber_x * 0.86:.2f} PLN",
                                     "Link": f"https://m.uber.com/ul/?action=setPickup&pickup[latitude]={l1.latitude}&pickup[longitude]={l1.longitude}&dropoff[latitude]={l2.latitude}&dropoff[longitude]={l2.longitude}",
                                     "Vars": [
                                         ("📉 Czekaj i oszczędzaj", uber_x * 0.86),
@@ -139,7 +139,7 @@ if st.button("SPRAWDŹ CENY"):
                                     "Btn": "WYBIERZ",
                                     "Val": bolt_std - 2.40,
                                     "Promo": b_promo,
-                                    "Main": f"od {bolt_std - 2.40:.2f} PLN",
+                                    "Main": f"~ {bolt_std - 2.40:.2f} PLN",
                                     "Link": "bolt://ride",
                                     "Vars": [
                                         ("⚡ Bolt", bolt_std),
@@ -163,11 +163,11 @@ if st.button("SPRAWDŹ CENY"):
                                 },
                                 {
                                     "Firma": "Ryba Taxi 🐟",
-                                    "Btn": "ZADZWOŃ",
+                                    "Btn": "ZAMÓW W APCE",
                                     "Val": ryba_min,
                                     "Promo": 0,
                                     "Main": f"{ryba_min:.2f} - {ryba_max:.2f} PLN",
-                                    "Link": "tel:713441515",
+                                    "Link": "intent://#Intent;scheme=itaxi;package=pl.itaxi.taxi7.ryba;end",
                                     "Vars": []
                                 }
                             ]
@@ -183,7 +183,7 @@ if st.button("SPRAWDŹ CENY"):
                                     
                                     if item['Vars']:
                                         for v_name, v_price in item['Vars']:
-                                            st.markdown(f"<div class='variant-card'><span>{v_name}</span><b>{v_price:.2f} PLN</b></div>", unsafe_allow_html=True)
+                                            st.write(f"🕒 Aktualna godzina: **{h:02d}:{now.minute:02d}**")
                                 with c2:
                                     st.write("")
                                     st.link_button(item['Btn'], item['Link'])
