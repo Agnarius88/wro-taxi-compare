@@ -28,9 +28,9 @@ st.markdown("""
 
 st.title("🚕 WroTaxi Compare v5.5")
 
-# --- LOGIKA CZASOWA v9.1 (HOTFIX GODZINY) ---
-# Pobieramy czas serwera i dodajemy 1 godzinę (dla czasu zimowego w PL)
-now = datetime.now() + timedelta(hours=1) 
+# --- LOGIKA CZASOWA v9.1 (PRO) ---
+tz = pytz.timezone('Europe/Warsaw')
+now = datetime.now(tz)
 h = now.hour 
 time_val = h + now.minute / 60
 day = now.weekday()
