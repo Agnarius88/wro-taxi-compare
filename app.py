@@ -97,8 +97,8 @@ if st.button("SPRAWDŹ CENY"):
                     res = client.directions(coordinates=((l1.longitude, l1.latitude), (l2.longitude, l2.latitude)), profile='driving-car', format='geojson')
                     km = res['features'][0]['properties']['summary']['distance'] / 1000
                     dur = res['features'][0]['properties']['summary']['duration'] / 60
-                    else:
-                        st.error("❌ Nie znaleziono adresu! Spróbuj wpisać dokładniej (np. 'Graniczna 190, Wrocław' zamiast 'Lotnisko').")
+                else:
+                    st.error("❌ Nie znaleziono adresu! Spróbuj wpisać dokładniej (np. 'Graniczna 190, Wrocław' zamiast 'Lotnisko').")
                     
                     u_mult = (100 - u_promo) / 100
                     b_mult = (100 - b_promo) / 100
