@@ -97,6 +97,8 @@ if st.button("SPRAWDŹ CENY"):
                     res = client.directions(coordinates=((l1.longitude, l1.latitude), (l2.longitude, l2.latitude)), profile='driving-car', format='geojson')
                     km = res['features'][0]['properties']['summary']['distance'] / 1000
                     dur = res['features'][0]['properties']['summary']['duration'] / 60
+                    else:
+                        st.error("❌ Nie znaleziono adresu! Spróbuj wpisać dokładniej (np. 'Graniczna 190, Wrocław' zamiast 'Lotnisko').")
                     
                     u_mult = (100 - u_promo) / 100
                     b_mult = (100 - b_promo) / 100
@@ -122,7 +124,7 @@ if st.button("SPRAWDŹ CENY"):
                             "Main": f"od {uber_x * 0.86:.2f} PLN", 
                             "Link": f"https://m.uber.com/ul/?action=setPickup&pickup[latitude]={l1.latitude}&pickup[longitude]={l1.longitude}&dropoff[latitude]={l2.latitude}&dropoff[longitude]={l2.longitude}",
                             "Vars": [
-                                ("📉 Czekaj i oszczędzaj", uber_x * 0.86), ("🚗 UberX", uber_x), ("🔋 Hybrid", uber_x * 1.01), ("✨ Comfort", uber_x * 1.18)
+                                ("📉 Czekaj i oszczędzaj", uber_x * 0.86), ("🚗 UberX", uber_x), ("🔋 Hybrid", uber_x), ("✨ Comfort", uber_x * 1.18), ("🐾 Uber Pets", uber_x + 4)
                             ]
                         },
                         {
