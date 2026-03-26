@@ -183,7 +183,7 @@ if st.button("SPRAWDŹ CENY"):
                                     
                                     if item['Vars']:
                                         for v_name, v_price in item['Vars']:
-                                            st.markdown(f"<div class='tariff-info'>Aktualna godzina: {h:02d}:{now.minute:02d}</div>", unsafe_allow_html=True)
+                                            st.markdown(f"<div class='variant-card'><span>{v_name}</span><b>{v_price:.2f} PLN</b></div>", unsafe_allow_html=True)
                                 with c2:
                                     st.write("")
                                     st.link_button(item['Btn'], item['Link'])
