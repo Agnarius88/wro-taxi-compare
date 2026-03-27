@@ -182,7 +182,7 @@ if st.button("SPRAWDŹ CENY"):
                                 freenow_lite = freenow_raw * surge
                                 
                                 # --- CHAOS ALGORYTMU ---
-                                noise = 1
+                                noise = random.uniform(0.99, 1.01)
                                 uber_x *= noise
                                 bolt_std *= noise
                                 freenow_lite *= noise
