@@ -158,8 +158,9 @@ if st.button("SPRAWDŹ CENY"):
                             
                             # --- CHAOS ALGORYTMU ---
                             noise = random.uniform(0.97, 1.08)
-                            uber_x *= noise
-                            bolt_std *= (noise - 0.02)
+                            uber_x *= (noise * 0.94)       # Uber wychodził ok. 6% za drogo
+                            bolt_std *= (noise + 0.08)     # Bolt wychodził ok. 8% za tanio
+                            freenow_lite *= 1.07           # FreeNow wychodził ok. 7% za tanio
                             
                             # --- ZNIŻKI ---
                             uber_x *= u_mult
@@ -178,10 +179,10 @@ if st.button("SPRAWDŹ CENY"):
                                  "Main": f"~ {uber_x*0.86:.2f} PLN",
                                  "Link": f"https://m.uber.com/ul/?action=setPickup&pickup[latitude]={l1.latitude}&pickup[longitude]={l1.longitude}&dropoff[latitude]={l2.latitude}&dropoff[longitude]={l2.longitude}",
                                  "Vars": [("📉 Czekaj i oszczędzaj", uber_x*0.86), ("🚗 UberX", uber_x),
-                                          ("🔋 Hybrid", uber_x), ("✨ Comfort", uber_x*1.18), ("🐾 Uber Pets", uber_x+4)]},
+                                          ("🔋 Hybrid", uber_x), ("✨ Comfort", uber_x*1.24), ("🐾 Uber Pets", uber_x+4)]},
                                 {"Firma": "Bolt ⚡", "Btn": "WYBIERZ", "Val": bolt_std-2.40, "Promo": b_promo,
                                  "Main": f"~ {bolt_std-2.40:.2f} PLN", "Link": "bolt://ride",
-                                 "Vars": [("⚡ Bolt", bolt_std), ("✨ Comfort", bolt_std+4.0), ("📉 Wait and Save", bolt_std-2.40)]},
+                                 "Vars": [("⚡ Bolt", bolt_std), ("✨ Comfort", bolt_std+5.0), ("📉 Wait and Save", bolt_std-2.00)]},
                                 {"Firma": "FREENOW 🔴", "Btn": "ZAMÓW W APCE", "Val": freenow_lite, "Promo": 0,
                                  "Main": f"~ {freenow_lite:.2f} PLN",
                                  "Link": "intent://#Intent;scheme=freenow;package=taxi.android.client;end",
