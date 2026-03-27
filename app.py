@@ -130,17 +130,6 @@ if st.button("SPRAWDŹ CENY"):
         st.warning("⚠️ Podaj adres początkowy i końcowy")
     else:
         surge, drivers, requests, market_status = simulate_smart_market(is_peak, is_night)
-
-        st.markdown(f"""
-        <div class='tariff-info'>
-        🚦 {market_status}<br>
-        🚗 Kierowcy: {drivers} | 🧍 Klienci: {requests}<br>
-        📊 Surge: x{surge:.2f}
-        </div>
-        """, unsafe_allow_html=True)
-        
-        if drivers < 40:
-            st.warning("⚠️ Mało kierowców w okolicy — możliwe wyższe ceny")
         
         if start_adr and cel_adr:
             with st.spinner("Przeliczanie..."):
