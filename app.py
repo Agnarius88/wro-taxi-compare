@@ -11,9 +11,9 @@ def simulate_smart_market(is_peak, is_night):
     
     if is_peak:
         # W szczycie (8:00-9:30, 15:30-18:30) popyt jest zawsze wysoki
-        surge = random.uniform(1.30, 1.50)
+        surge = random.uniform(1.25, 1.40)
         drivers = random.randint(2, 5)
-        requests = random.randint(25, 45)
+        requests = random.randint(30, 50)
         status = "🔴 BARDZO WYSOKI POPYT (Szczyt)"
     elif is_night:
         # W nocy mało aut, ale też mało chętnych (chyba że weekend, ale to uproszczony model)
@@ -203,8 +203,8 @@ if st.button("SPRAWDŹ CENY"):
                                     {"Firma": "Uber 🚗", "Btn": "WYBIERZ", "Val": uber_x*0.86, "Promo": u_promo,
                                      "Main": f"~ {uber_x*0.86:.2f} PLN",
                                      "Link": f"https://m.uber.com/ul/?action=setPickup&pickup[latitude]={l1.latitude}&pickup[longitude]={l1.longitude}&dropoff[latitude]={l2.latitude}&dropoff[longitude]={l2.longitude}",
-                                     "Vars": [("📉 Czekaj i oszczędzaj", uber_x*0.86), ("🚗 UberX", uber_x),
-                                              ("🔋 Hybrid", uber_x), ("✨ Comfort", uber_x*1.24), ("🐾 Uber Pets", uber_x+4)]},
+                                     "Vars": [("📉 Czekaj i oszczędzaj", uber_x*0.95), ("🚗 UberX", uber_x),
+                                              ("🔋 Hybrid", uber_x), ("✨ Comfort", uber_x*1.42), ("🐾 Uber Pets", uber_x+4)]},
                                     {"Firma": "Bolt ⚡", "Btn": "WYBIERZ", "Val": bolt_std-2.40, "Promo": b_promo,
                                      "Main": f"~ {bolt_std-2.40:.2f} PLN", "Link": "bolt://ride",
                                      "Vars": [("⚡ Bolt", bolt_std), ("✨ Comfort", bolt_std+4.0), ("📉 Wait and Save", bolt_std-2.40)]},
