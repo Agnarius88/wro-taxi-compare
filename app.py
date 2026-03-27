@@ -91,7 +91,7 @@ elif (13.5 <= time_val <= 14.5):
     time_rate = 0.15
 elif is_peak:
     # Szczyt (Twoje 15:22 - korki + wysoki popyt)
-    u_base, u_km = 10.50, 2.25 # Tu dowalamy "bazę", żeby dobić do Twoich 36 zł
+    u_base, u_km = 12, 2.25 # Tu dowalamy "bazę", żeby dobić do Twoich 36 zł
     b_base, b_km = 5.00, 2.70
     time_rate = 0.45           # Minuta droższa, bo stoisz na światłach
 else:
