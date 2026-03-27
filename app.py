@@ -128,14 +128,14 @@ if st.button("SPRAWDŹ CENY"):
             st.warning("⚠️ Mało kierowców w okolicy — możliwe wyższe ceny")
         
         if start_adr and cel_adr:
-        with st.spinner("Przeliczanie..."):
-            try:
-                l1 = geolocator.geocode(f"{start_adr}, Poland")
-                l2 = geolocator.geocode(f"{cel_adr}, Poland")
-                    
-                if l1 and l2:
-                    if is_center(l1.latitude, l1.longitude) or is_center(l2.latitude, l2.longitude):
-                        surge *= random.uniform(1.1, 1.25)
+            with st.spinner("Przeliczanie..."):
+                try:
+                    l1 = geolocator.geocode(f"{start_adr}, Poland")
+                    l2 = geolocator.geocode(f"{cel_adr}, Poland")
+                        
+                    if l1 and l2:
+                        if is_center(l1.latitude, l1.longitude) or is_center(l2.latitude, l2.longitude):
+                            surge *= random.uniform(1.1, 1.25)
                     
                     # --- GŁÓWNA FUNKCJA MAPOWA Z TRY-EXCEPT ---
                     try:
