@@ -91,7 +91,7 @@ elif (13.5 <= time_val <= 14.5):
     time_rate = 0.15
 elif is_peak:
     # Szczyt (Twoje 15:22 - korki + wysoki popyt)
-    u_base, u_km = 10.50, 2.40 # Tu dowalamy "bazę", żeby dobić do Twoich 36 zł
+    u_base, u_km = 10.50, 2.25 # Tu dowalamy "bazę", żeby dobić do Twoich 36 zł
     b_base, b_km = 5.00, 2.70
     time_rate = 0.45           # Minuta droższa, bo stoisz na światłach
 else:
@@ -203,8 +203,8 @@ if st.button("SPRAWDŹ CENY"):
                                     {"Firma": "Uber 🚗", "Btn": "WYBIERZ", "Val": uber_x*0.86, "Promo": u_promo,
                                      "Main": f"~ {uber_x*0.86:.2f} PLN",
                                      "Link": f"https://m.uber.com/ul/?action=setPickup&pickup[latitude]={l1.latitude}&pickup[longitude]={l1.longitude}&dropoff[latitude]={l2.latitude}&dropoff[longitude]={l2.longitude}",
-                                     "Vars": [("📉 Czekaj i oszczędzaj", uber_x*0.95), ("🚗 UberX", uber_x),
-                                              ("🔋 Hybrid", uber_x), ("✨ Comfort", uber_x*1.42), ("🐾 Uber Pets", uber_x+4)]},
+                                     "Vars": [("📉 Czekaj i oszczędzaj", uber_x*0.951), ("🚗 UberX", uber_x),
+                                              ("🔋 Hybrid", uber_x), ("✨ Comfort", uber_x*1.427), ("🐾 Uber Pets", uber_x+4)]},
                                     {"Firma": "Bolt ⚡", "Btn": "WYBIERZ", "Val": bolt_std-2.40, "Promo": b_promo,
                                      "Main": f"~ {bolt_std-2.40:.2f} PLN", "Link": "bolt://ride",
                                      "Vars": [("⚡ Bolt", bolt_std), ("✨ Comfort", bolt_std+4.0), ("📉 Wait and Save", bolt_std-2.40)]},
