@@ -198,4 +198,38 @@ if st.button("SPRAWDŹ CENY"):
                                      "Link": f"https://m.uber.com/ul/?action=setPickup&pickup[latitude]={l1.latitude}&pickup[longitude]={l1.longitude}&dropoff[latitude]={l2.latitude}&dropoff[longitude]={l2.longitude}",
                                      "Vars": [("📉 Czekaj i oszczędzaj", uber_x*0.86), ("🚗 UberX", uber_x),
                                               ("🔋 Hybrid", uber_x), ("✨ Comfort", uber_x*1.24), ("🐾 Uber Pets", uber_x+4)]},
-                                    {"F
+                                    {"Firma": "Bolt ⚡", "Btn": "WYBIERZ", "Val": bolt_std-2.40, "Promo": b_promo,
+                                     "Main": f"~ {bolt_std-2.40:.2f} PLN", "Link": "bolt://ride",
+                                     "Vars": [("⚡ Bolt", bolt_std), ("✨ Comfort", bolt_std+4.0), ("📉 Wait and Save", bolt_std-2.40)]},
+                                    {"Firma": "FREENOW 🔴", "Btn": "ZAMÓW W APCE", "Val": freenow_lite, "Promo": 0,
+                                     "Main": f"~ {freenow_lite:.2f} PLN",
+                                     "Link": "intent://#Intent;scheme=freenow;package=taxi.android.client;end",
+                                     "Vars": [("🚗 Lite / Green", freenow_lite), ("✨ Comfort", freenow_lite*1.3),
+                                              ("🐾 Pets", freenow_lite*1.3), ("🚐 Taxi XL", freenow_lite*1.6)]},
+                                    {"Firma": "Ryba Taxi 🐟", "Btn": "ZADZWOŃ", "Val": ryba_min, "Promo": 0,
+                                     "Main": f"{ryba_min:.2f} - {ryba_max:.2f} PLN", "Link": "tel:713441515", "Vars": []}
+                                ]
+
+                                st.success(f"🛣️ {km:.2f} km | ⏱️ {int(dur)} min")
+
+                                for item in sorted(dane, key=lambda x: x['Val']):
+                                    c1, c2 = st.columns([3, 1])
+                                    with c1:
+                                        disc = f" <span class='discount-tag'>-{item['Promo']}%</span>" if item['Promo'] > 0 else ""
+                                        st.markdown(f"**{item['Firma']}**{disc}", unsafe_allow_html=True)
+                                        st.markdown(f"### {item['Main']}")
+                                        if item['Vars']:
+                                            for v_name, v_price in item['Vars']:
+                                                st.markdown(f"<div class='variant-card'><span>{v_name}</span><b>~ {v_price:.2f} PLN</b></div>", unsafe_allow_html=True)
+                                    with c2:
+                                        st.write("")
+                                        st.link_button(item['Btn'], item['Link'])
+                                    st.write("---")
+                            else:
+                                st.warning("⚠️ Serwer map nie znalazł trasy.")
+                        except Exception as e:
+                            st.error(f"⚠️ Błąd obliczeń trasy: {e}")
+                    else:
+                        st.warning("⚠️ Nie znaleziono adresu.")
+                except Exception as e:
+                    st.error(f"⚠️ Błąd mapy: {e}")
