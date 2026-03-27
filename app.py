@@ -149,19 +149,28 @@ if st.button("SPRAWDŹ CENY"):
                             u_mult = (100 - u_promo) / 100
                             b_mult = (100 - b_promo) / 100
         
-                            time_rate = random.uniform(0.30, 0.50) if is_peak else random.uniform(0.18, 0.28)
+                            # --- KALIBRACJA POD REALNE CENY (Wojaczka -> Celtycka) ---
+                            # Zmieniamy time_rate na stabilniejsze 0.25 (standard Wrocław)
+                            time_rate = 0.25 if not is_peak else 0.40
         
-                            # --- CENA BAZOWA ---
-                            uber_x = (u_base + (km * u_km) + (dur * time_rate)) * surge
-                            bolt_std = (b_base + (km * b_km) + 3.70) * surge
-                            freenow_lite = ((u_base + (km * u_km) + (dur * time_rate)) * surge) + fn_fix
+                            # Obliczamy bazę (bez surge i bez zniżek)
+                            # Podbijamy u_base i u_km, bo Uber we Wrocławiu ostatnio podrożał
+                            uber_raw = (u_base + 1.50) + (km * (u_km + 0.10)) + (dur * time_rate)
+                            bolt_raw = (b_base + 1.00) + (km * (b_km + 0.05)) + 4.00
+                            freenow_raw = uber_raw + fn_fix + 1.50
                             
-                            # --- CHAOS ALGORYTMU ---
-                            noise = random.uniform(0.97, 1.08)
+                            #Nakładamy symulację rynku (Surge)
+                            uber_x = uber_raw * surge
+                            bolt_std = bolt_raw * surge
+                            freenow_lite = freenow_raw * surge
+                            
+                            # --- CHAOS ALGORYTMU (minimalny, by nie psuć precyzji) ---
+                            noise = random.uniform(0.98, 1.03)
                             uber_x *= noise
-                            bolt_std *= (noise - 0.02)
+                            bolt_std *= noise
+                            freenow_lite *= noise
                             
-                            # --- ZNIŻKI ---
+                            # --- NAKŁADAMY ZNIŻKI UŻYTKOWNIKA ---
                             uber_x *= u_mult
                             bolt_std *= b_mult
                             
@@ -178,7 +187,7 @@ if st.button("SPRAWDŹ CENY"):
                                  "Main": f"~ {uber_x*0.86:.2f} PLN",
                                  "Link": f"https://m.uber.com/ul/?action=setPickup&pickup[latitude]={l1.latitude}&pickup[longitude]={l1.longitude}&dropoff[latitude]={l2.latitude}&dropoff[longitude]={l2.longitude}",
                                  "Vars": [("📉 Czekaj i oszczędzaj", uber_x*0.86), ("🚗 UberX", uber_x),
-                                          ("🔋 Hybrid", uber_x), ("✨ Comfort", uber_x*1.18), ("🐾 Uber Pets", uber_x+4)]},
+                                          ("🔋 Hybrid", uber_x), ("✨ Comfort", uber_x*1.24), ("🐾 Uber Pets", uber_x+4)]},
                                 {"Firma": "Bolt ⚡", "Btn": "WYBIERZ", "Val": bolt_std-2.40, "Promo": b_promo,
                                  "Main": f"~ {bolt_std-2.40:.2f} PLN", "Link": "bolt://ride",
                                  "Vars": [("⚡ Bolt", bolt_std), ("✨ Comfort", bolt_std+4.0), ("📉 Wait and Save", bolt_std-2.40)]},
