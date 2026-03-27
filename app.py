@@ -60,7 +60,7 @@ day = now.weekday()
 
 is_weekend = (day >= 5)
 is_night = (time_val >= 22 or time_val < 6)
-is_peak = not is_weekend and ((7.5 <= time_val <= 9.5) or (15.5 <= time_val <= 18.5))
+is_peak = not is_weekend and ((7.5 <= time_val <= 9.5) or (15.0 <= time_val <= 18.5))
 
 # Uwaga: poniższa linia może wymagać istnienia starej funkcji simulate_market() 
 # lub zmiany na simulate_smart_market(is_peak, is_night) przed kliknięciem przycisku
@@ -85,7 +85,7 @@ elif (11.0 <= time_val < 13.5):
     surge *= 0.95
 elif (13.5 <= time_val <= 14.5):
     t_status = "📉 PRZEDSZCZYTOWA PROMOCJA BOLT"
-    u_base, u_km = 8.00, 2.10
+    u_base, u_km = 9.00, 2.35
     b_base, b_km = 2.80, 2.70 
     surge *= 0.9
 else:
