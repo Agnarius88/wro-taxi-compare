@@ -11,9 +11,9 @@ def simulate_smart_market(is_peak, is_night):
     
     if is_peak:
         # W szczycie (8:00-9:30, 15:30-18:30) popyt jest zawsze wysoki
-        surge = random.uniform(1.25, 1.55)
-        drivers = random.randint(2, 6)
-        requests = random.randint(15, 30)
+        surge = random.uniform(1.30, 1.50)
+        drivers = random.randint(2, 5)
+        requests = random.randint(25, 45)
         status = "🔴 BARDZO WYSOKI POPYT (Szczyt)"
     elif is_night:
         # W nocy mało aut, ale też mało chętnych (chyba że weekend, ale to uproszczony model)
@@ -23,9 +23,9 @@ def simulate_smart_market(is_peak, is_night):
         status = "🌙 NOCNY SPOKÓJ"
     else:
         # Standardowy dzień (np. 11:00)
-        surge = random.uniform(0.98, 1.08)
-        drivers = random.randint(10, 20)
-        requests = random.randint(5, 15)
+        surge = random.uniform(1.0, 1.08)
+        drivers = random.randint(15, 25)
+        requests = random.randint(5, 12)
         status = "🟢 DUŻA DOSTĘPNOŚĆ"
     
     return surge, drivers, requests, status
@@ -60,7 +60,7 @@ day = now.weekday()
 
 is_weekend = (day >= 5)
 is_night = (time_val >= 22 or time_val < 6)
-is_peak = not is_weekend and ((7.5 <= time_val <= 9.5) or (15.0 <= time_val <= 18.5))
+is_peak = not is_weekend and ((7.5 <= time_val <= 9.5) or (15.5 <= time_val <= 18.5))
 
 # Uwaga: poniższa linia może wymagać istnienia starej funkcji simulate_market() 
 # lub zmiany na simulate_smart_market(is_peak, is_night) przed kliknięciem przycisku
