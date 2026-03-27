@@ -151,15 +151,15 @@ if st.button("SPRAWDŹ CENY"):
         
                             # --- KALIBRACJA POD REALNE CENY (Wojaczka -> Celtycka) ---
                             # Zmieniamy time_rate na stabilniejsze 0.25 (standard Wrocław)
-                            time_rate = 0.25 if not is_peak else 0.40
+                            time_rate = 0.15 if not is_peak else 0.40
         
-                            # Obliczamy bazę (bez surge i bez zniżek)
-                            # Podbijamy u_base i u_km, bo Uber we Wrocławiu ostatnio podrożał
-                            uber_raw = (u_base + 1.50) + (km * (u_km + 0.10)) + (dur * time_rate)
-                            bolt_raw = (b_base + 1.00) + (km * (b_km + 0.05)) + 4.00
-                            freenow_raw = uber_raw + fn_fix + 1.50
+                            # Obliczamy "gołą" bazę
+                            uber_raw = u_base + (km * u_km) + (dur * time_rate)
+                            bolt_raw = b_base + (km * b_km) + 3.70
+                            freenow_raw = uber_raw + fn_fix
                             
-                            #Nakładamy symulację rynku (Surge)
+                            # Nakładamy surge z symulacji rynku
+                            # Jeśli surge wynosi np. 1.1, to 31.80 * 1.1 = ~35 PLN (Idealnie!)
                             uber_x = uber_raw * surge
                             bolt_std = bolt_raw * surge
                             freenow_lite = freenow_raw * surge
