@@ -5,26 +5,29 @@ import math
 from datetime import datetime
 import random
 
-# --- SYMULACJA RYNKU ---
-def simulate_market():
-    drivers = random.randint(20, 120)     # liczba kierowców
-    requests = random.randint(30, 150)    # liczba klientów
+def simulate_smart_market(is_peak, is_night):
+    # Domyślne wartości
+    base_surge = 1.0
     
-    demand_ratio = requests / drivers
-    
-    if demand_ratio > 1.5:
-        surge = random.uniform(1.5, 2.3)
-        status = "🔥 DUŻY POPYT"
-    elif demand_ratio > 1.2:
-        surge = random.uniform(1.2, 1.6)
-        status = "📈 WZMOŻONY RUCH"
-    elif demand_ratio < 0.8:
-        surge = random.uniform(0.85, 1.0)
-        status = "🟢 NISKI RUCH"
+    if is_peak:
+        # W szczycie (8:00-9:30, 15:30-18:30) popyt jest zawsze wysoki
+        surge = random.uniform(1.25, 1.55)
+        drivers = random.randint(2, 6)
+        requests = random.randint(15, 30)
+        status = "🔴 BARDZO WYSOKI POPYT (Szczyt)"
+    elif is_night:
+        # W nocy mało aut, ale też mało chętnych (chyba że weekend, ale to uproszczony model)
+        surge = random.uniform(1.0, 1.15)
+        drivers = random.randint(3, 8)
+        requests = random.randint(2, 10)
+        status = "🌙 NOCNY SPOKÓJ"
     else:
-        surge = random.uniform(1.0, 1.2)
-        status = "⚖️ NORMALNY RUCH"
-
+        # Standardowy dzień (np. 11:00)
+        surge = random.uniform(0.98, 1.08)
+        drivers = random.randint(10, 20)
+        requests = random.randint(5, 15)
+        status = "🟢 DUŻA DOSTĘPNOŚĆ"
+    
     return surge, drivers, requests, status
 
 # --- KONFIGURACJA STREAMLIT ---
@@ -111,7 +114,7 @@ if st.button("SPRAWDŹ CENY"):
     if not start_adr or not cel_adr:
         st.warning("⚠️ Podaj adres początkowy i końcowy")
     else:
-        surge, drivers, requests, market_status = simulate_market()
+        surge, drivers, requests, market_status = simulate_smart_market(is_peak, is_night)
 
         st.markdown(f"""
         <div class='tariff-info'>
@@ -124,6 +127,7 @@ if st.button("SPRAWDŹ CENY"):
         if drivers < 40:
             st.warning("⚠️ Mało kierowców w okolicy — możliwe wyższe ceny")
         
+        if start_adr and cel_adr:
         with st.spinner("Przeliczanie..."):
             try:
                 l1 = geolocator.geocode(f"{start_adr}, Poland")
