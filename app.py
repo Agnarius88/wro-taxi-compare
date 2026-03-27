@@ -66,7 +66,7 @@ else:
     u_base, u_km = 8.00, 2.10
     b_base, b_km = 5.00, 2.70
 
-st.markdown(f"<div class='tariff-info'>Aktualna godzina: {h:02d}:{now.minute:02d}</div>", unsafe_allow_html=True)
+st.markdown(f"<div class='tariff-info'>{t_status}<br>Aktualna godzina: {h:02d}:{now.minute:02d}</div>", unsafe_allow_html=True)
 
 # --- USŁUGI ---
 ORS_KEY = 'eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6Ijc2N2YwMmI0Y2M2OTRkMjE5MDk5MDU4ZTg3NzMxYjYzIiwiaCI6Im11cm11cjY0In0='
@@ -124,7 +124,7 @@ if st.button("SPRAWDŹ CENY"):
                                     "Btn": "WYBIERZ",
                                     "Val": uber_x * 0.86,
                                     "Promo": u_promo,
-                                    "Main": f"~ {uber_x * 0.86:.2f} PLN",
+                                    "Main": f"od {uber_x * 0.86:.2f} PLN",
                                     "Link": f"https://m.uber.com/ul/?action=setPickup&pickup[latitude]={l1.latitude}&pickup[longitude]={l1.longitude}&dropoff[latitude]={l2.latitude}&dropoff[longitude]={l2.longitude}",
                                     "Vars": [
                                         ("📉 Czekaj i oszczędzaj", uber_x * 0.86),
@@ -139,7 +139,7 @@ if st.button("SPRAWDŹ CENY"):
                                     "Btn": "WYBIERZ",
                                     "Val": bolt_std - 2.40,
                                     "Promo": b_promo,
-                                    "Main": f"~ {bolt_std - 2.40:.2f} PLN",
+                                    "Main": f"od {bolt_std - 2.40:.2f} PLN",
                                     "Link": "bolt://ride",
                                     "Vars": [
                                         ("⚡ Bolt", bolt_std),
@@ -183,7 +183,7 @@ if st.button("SPRAWDŹ CENY"):
                                     
                                     if item['Vars']:
                                         for v_name, v_price in item['Vars']:
-                                            st.markdown(f"<div class='variant-card'><span>{v_name}</span><b>~ {v_price:.2f} PLN</b></div>", unsafe_allow_html=True)
+                                            st.markdown(f"<div class='variant-card'><span>{v_name}</span><b>{v_price:.2f} PLN</b></div>", unsafe_allow_html=True)
                                 with c2:
                                     st.write("")
                                     st.link_button(item['Btn'], item['Link'])
