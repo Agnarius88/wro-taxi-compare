@@ -81,7 +81,7 @@ if is_night:
     time_rate = 0.15
 elif is_weekend:  # <--- NOWY BLOK TYLKO DLA WEEKENDU (w ciągu dnia)
     t_status = "🎉 WEEKEND (Dzień)"
-    u_base, u_km = 4.70, 2.20  # Twoje wyliczone wartości dla 31,95 zł
+    u_base, u_km = 5.70, 2.20  
     b_base, b_km = 5.00, 2.70
     time_rate = 0.20
 elif (11.0 <= time_val < 13.5):
