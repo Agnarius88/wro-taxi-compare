@@ -70,8 +70,8 @@ if is_night:
     time_rate = 0.15
 elif is_weekend:  # <--- NOWY BLOK TYLKO DLA WEEKENDU (w ciągu dnia)
     t_status = "🎉 WEEKEND (Dzień)"
-    u_base, u_km = 5.60, 2.20  
-    b_base, b_km = 2.00, 2.70
+    u_base, u_km = 6.60, 2.20  
+    b_base, b_km = 3.00, 2.70
     time_rate = 0.20
 elif (11.0 <= time_val < 13.5):
     t_status = "🍴 LUNCH / RUCH PRZEDPOŁUDNIOWY"
@@ -186,16 +186,21 @@ if st.button("SPRAWDŹ CENY"):
                                     {"Firma": "Uber 🚗", "Btn": "WYBIERZ", "Val": uber_x*0.86, "Promo": u_promo,
                                      "Main": f"~ {uber_x*0.86:.2f} PLN",
                                      "Link": f"https://m.uber.com/ul/?action=setPickup&pickup[latitude]={l1.latitude}&pickup[longitude]={l1.longitude}&dropoff[latitude]={l2.latitude}&dropoff[longitude]={l2.longitude}",
-                                     "Vars": [("📉 Czekaj i oszczędzaj", uber_x*0.85), ("🚗 UberX", uber_x),
-                                              ("🔋 Hybrid", uber_x), ("✨ Comfort", uber_x*1.314), ("🐾 Uber Pets", uber_x+4)]},
+                                     "Vars": [("📉 Czekaj i oszczędzaj", uber_x*0.85), 
+                                              ("🚗 UberX", uber_x),
+                                              ("🔋 Hybrid", uber_x),                                                
+                                              ("🐾 Uber Pets", uber_x+4)]},
                                     {"Firma": "Bolt ⚡", "Btn": "WYBIERZ", "Val": bolt_std * 0.956, "Promo": b_promo,
                                      "Main": f"~ {bolt_std * 0.956:.2f} PLN", "Link": "bolt://ride",
-                                     "Vars": [("⚡ Bolt", bolt_std), ("✨ Comfort", bolt_std * 1.157), ("📉 Wait and Save", bolt_std * 0.956)]},
+                                     "Vars": [("⚡ Bolt", bolt_std), 
+                                              ("🔋 Hybrid", bolt_std), 
+                                              ("📉 Wait and Save", bolt_std * 0.956)]},
                                     {"Firma": "FREENOW 🔴", "Btn": "ZAMÓW W APCE", "Val": freenow_lite, "Promo": 0,
                                      "Main": f"~ {freenow_lite:.2f} PLN",
                                      "Link": "intent://#Intent;scheme=freenow;package=taxi.android.client;end",
-                                     "Vars": [("🚗 Lite / Green", freenow_lite), ("✨ Comfort", freenow_lite*1.3),
-                                              ("🐾 Pets", freenow_lite*1.3), ("🚐 Taxi XL", freenow_lite*1.6)]},
+                                     "Vars": [("🚗 Lite / Green", freenow_lite), 
+                                              ("🐾 Pets", freenow_lite*1.3), 
+                                              ("🚐 Taxi XL", freenow_lite*1.6)]},
                                     {"Firma": "Ryba Taxi 🐟", "Btn": "ZADZWOŃ", "Val": ryba_min, "Promo": 0,
                                      "Main": f"{ryba_min:.2f} - {ryba_max:.2f} PLN", "Link": "tel:713441515", "Vars": []}
                                 ]
