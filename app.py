@@ -79,6 +79,11 @@ if is_night:
     u_base, u_km = 7.00, 1.85 
     b_base, b_km = 4.50, 2.30
     time_rate = 0.15
+elif is_weekend:  # <--- NOWY BLOK TYLKO DLA WEEKENDU (w ciągu dnia)
+    t_status = "🎉 WEEKEND (Dzień)"
+    u_base, u_km = 4.70, 2.20  # Twoje wyliczone wartości dla 31,95 zł
+    b_base, b_km = 5.00, 2.70
+    time_rate = 0.20
 elif (11.0 <= time_val < 13.5):
     t_status = "🍴 LUNCH / RUCH PRZEDPOŁUDNIOWY"
     u_base, u_km = 10.50, 2.40
@@ -96,7 +101,7 @@ elif is_peak:
     time_rate = 0.45           # Minuta droższa, bo stoisz na światłach
 else:
     t_status = "☀️ STANDARDOWY DZIEŃ (np. 10:00)"
-    u_base, u_km = 9.00, 2.20
+    u_base, u_km = 8.00, 2.10
     b_base, b_km = 5.00, 2.70
     time_rate = 0.20
 
@@ -192,8 +197,8 @@ if st.button("SPRAWDŹ CENY"):
                                     {"Firma": "Uber 🚗", "Btn": "WYBIERZ", "Val": uber_x*0.86, "Promo": u_promo,
                                      "Main": f"~ {uber_x*0.86:.2f} PLN",
                                      "Link": f"https://m.uber.com/ul/?action=setPickup&pickup[latitude]={l1.latitude}&pickup[longitude]={l1.longitude}&dropoff[latitude]={l2.latitude}&dropoff[longitude]={l2.longitude}",
-                                     "Vars": [("📉 Czekaj i oszczędzaj", uber_x*0.951), ("🚗 UberX", uber_x),
-                                              ("🔋 Hybrid", uber_x), ("✨ Comfort", uber_x*1.427), ("🐾 Uber Pets", uber_x+4)]},
+                                     "Vars": [("📉 Czekaj i oszczędzaj", uber_x*0.85), ("🚗 UberX", uber_x),
+                                              ("🔋 Hybrid", uber_x), ("✨ Comfort", uber_x*1.314), ("🐾 Uber Pets", uber_x+4)]},
                                     {"Firma": "Bolt ⚡", "Btn": "WYBIERZ", "Val": bolt_std-2.40, "Promo": b_promo,
                                      "Main": f"~ {bolt_std-2.40:.2f} PLN", "Link": "bolt://ride",
                                      "Vars": [("⚡ Bolt", bolt_std), ("✨ Comfort", bolt_std+4.0), ("📉 Wait and Save", bolt_std-2.40)]},
