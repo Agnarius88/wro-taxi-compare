@@ -6,29 +6,18 @@ from datetime import datetime
 import random
 
 def simulate_smart_market(is_peak, is_night):
-    # Domyślne wartości
-    base_surge = 1.0
-    
     if is_peak:
-        # W szczycie (8:00-9:30, 15:30-18:30) popyt jest zawsze wysoki
-        surge = random.uniform(1.25, 1.40)
-        drivers = random.randint(2, 5)
-        requests = random.randint(30, 50)
+        surge = 1.35
         status = "🔴 BARDZO WYSOKI POPYT (Szczyt)"
     elif is_night:
-        # W nocy mało aut, ale też mało chętnych (chyba że weekend, ale to uproszczony model)
-        surge = random.uniform(1.0, 1.15)
-        drivers = random.randint(3, 8)
-        requests = random.randint(2, 10)
+        surge = 1.10
         status = "🌙 NOCNY SPOKÓJ"
     else:
-        # Standardowy dzień (np. 11:00)
-        surge = random.uniform(1.0, 1.08)
-        drivers = random.randint(15, 25)
-        requests = random.randint(5, 12)
+        surge = 1.00 # Stały mnożnik 1.0 dla weekendu i zwykłego dnia
         status = "🟢 DUŻA DOSTĘPNOŚĆ"
     
-    return surge, drivers, requests, status
+    # Zwracamy stałe wartości zamiast random
+    return surge, 20, 10, status
 
 # --- KONFIGURACJA STREAMLIT ---
 st.set_page_config(page_title="WroTaxi Compare Pro", page_icon="🚕", layout="centered")
@@ -82,7 +71,7 @@ if is_night:
 elif is_weekend:  # <--- NOWY BLOK TYLKO DLA WEEKENDU (w ciągu dnia)
     t_status = "🎉 WEEKEND (Dzień)"
     u_base, u_km = 5.40, 2.20  
-    b_base, b_km = 5.00, 2.70
+    b_base, b_km = 0.50, 2.70
     time_rate = 0.20
 elif (11.0 <= time_val < 13.5):
     t_status = "🍴 LUNCH / RUCH PRZEDPOŁUDNIOWY"
@@ -144,7 +133,7 @@ if st.button("SPRAWDŹ CENY"):
                         
                     if l1 and l2:
                         if is_center(l1.latitude, l1.longitude) or is_center(l2.latitude, l2.longitude):
-                            surge *= random.uniform(1.1, 1.25)
+                            surge *= 1.15
                     
                         # --- GŁÓWNA FUNKCJA MAPOWA Z TRY-EXCEPT ---
                         try:
