@@ -60,39 +60,37 @@ except NameError:
     # Zabezpieczenie na wypadek braku starej funkcji przed uruchomieniem smart
     surge, drivers, requests, market_status = 1.0, 10, 5, "Inicjalizacja..."
 
-fn_fix = 2.00
-
 # --- CENY W ZALEŻNOŚCI OD PORY DNIA ---
 if is_night:
     t_status = "🌙 NOC"
     u_base, u_km = 7.00, 1.85 
     b_base, b_km = 4.50, 2.30
-    time_rate = 0.15
+    time_rate = 0.15, fn_fix = 0.15, 2.00
 elif is_weekend:  # <--- NOWY BLOK TYLKO DLA WEEKENDU (w ciągu dnia)
     t_status = "🎉 WEEKEND (Dzień)"
     u_base, u_km = 6.60, 2.20  
     b_base, b_km = 3.00, 2.70
-    time_rate = 0.20
+    time_rate = 0.20, fn_fix = 0.20, 8.00
 elif (11.0 <= time_val < 13.5):
     t_status = "🍴 LUNCH / RUCH PRZEDPOŁUDNIOWY"
     u_base, u_km = 10.50, 2.40
     b_base, b_km = 4.80, 2.70
-    time_rate = 0.15
+    time_rate = 0.15, fn_fix = 0.15, 2.00
 elif (13.5 <= time_val <= 14.5):
     t_status = "📉 PRZEDSZCZYTOWA PROMOCJA BOLT"
     u_base, u_km = 9.00, 2.35
     b_base, b_km = 2.80, 2.70 
-    time_rate = 0.15
+    time_rate = 0.15, fn_fix = 0.15, 2.00
 elif is_peak:
     # Szczyt (Twoje 15:22 - korki + wysoki popyt)
     u_base, u_km = 10.5, 2.25 # Tu dowalamy "bazę", żeby dobić do Twoich 36 zł
     b_base, b_km = 5.00, 2.70
-    time_rate = 0.45           # Minuta droższa, bo stoisz na światłach
+    time_rate = 0.45, fn_fix = 0.45, 3.50           # Minuta droższa, bo stoisz na światłach
 else:
     t_status = "☀️ STANDARDOWY DZIEŃ (np. 10:00)"
     u_base, u_km = 8.00, 2.10
     b_base, b_km = 5.00, 2.70
-    time_rate = 0.20
+    time_rate = 0.20,fn_fix = 0.20, 2.00
 
 st.markdown(f"<div class='tariff-info'>Aktualna godzina: {h:02d}:{now.minute:02d}</div>", unsafe_allow_html=True)
 
