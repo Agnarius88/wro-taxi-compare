@@ -115,7 +115,7 @@ else:
     t_status = "☀️ STANDARDOWY DZIEŃ (np. 10:00)"
     u_base, u_km = 8.00, 2.10
     b_base, b_km = 3.00, 2.70
-    fn_fix = 2.00
+    fn_fix = 2.50
     time_rate = 0.20
 
 st.markdown(f"<div class='tariff-info'>Aktualna godzina: {h:02d}:{now.minute:02d}</div>", unsafe_allow_html=True)
