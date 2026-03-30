@@ -111,8 +111,8 @@ def get_data():
     except:
         return None, None
 
-def is_center(lat, lon):
-    return 51.105 < lat < 51.115 and 17.025 < lon < 17.045
+#def is_center(lat, lon):
+    #return 51.105 < lat < 51.115 and 17.025 < lon < 17.045
 
 client, geolocator = get_data()
 
