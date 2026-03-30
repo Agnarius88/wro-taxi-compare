@@ -83,14 +83,15 @@ elif (10.25 <= time_val < 10.4):
     fn_fix = 2.00
     time_rate = 0.15
 elif (11.5 <= time_val < 12.25):
-    t_status = "📉 PRZEDPOŁUDNIOWY DOŁEK (Bardzo niski popyt)"
-    # UBER: Ścinamy bazę do 4.00 i km do 1.45 (to zdejmie ok. 12-14 zł z Twojej trasy)
-    u_base, u_km = 4.00, 1.45  
-    # BOLT: Ścinamy, żeby dogonić te 4 zł różnicy
-    b_base, b_km = 3.50, 1.70
-    # FREENOW: Zerujemy fix i tniemy bazę (to zdejmie ok. 8-10 zł)
-    fn_fix = 0.00
-    time_rate = 0.12            # Bardzo tanie minuty
+    t_status = "⚖️ STABILIZACJA PRZEDPOŁUDNIOWA (11:30-12:15)"
+    # UBER: Baza w górę o 3 zł, kilometr w górę o 55 gr (co na 10 km daje 5.50 zł). 
+    # Razem z czasem da to idealnie ok. 10 zł więcej.
+    u_base, u_km = 7.00, 2.00  
+    # BOLT: Ustawiamy go proporcjonalnie, żeby zachować te 4 zł różnicy, o których pisałeś wcześniej.
+    b_base, b_km = 4.50, 2.00
+    # FREENOW: Przywracamy standardową opłatę serwisową
+    fn_fix = 2.00
+    time_rate = 0.25            # Normalna stawka czasowa
 elif (11.0 <= time_val < 13.5):
     t_status = "📉 PRZEDPOŁUDNIOWY DOŁEK"
     u_base, u_km = 7.50, 1.90    # To Twoje "standardowe" ceny, które były o 10:00
