@@ -83,11 +83,14 @@ elif (10.25 <= time_val < 10.4):
     fn_fix = 2.00
     time_rate = 0.15
 elif (11.5 <= time_val < 12.25):
-    t_status = "📈 LOKALNY SKOK POPYTU (11:30-12:15)"
-    u_base, u_km = 12.50, 2.60   # Podbite wartości, żeby wymusić skok o 5-7 zł
-    b_base, b_km = 6.50, 2.90
-    fn_fix = 3.50
-    time_rate = 0.40             # Wyższa stawka za minutę
+    t_status = "📉 PRZEDPOŁUDNIOWY DOŁEK (Bardzo niski popyt)"
+    # UBER: Ścinamy bazę do 4.00 i km do 1.45 (to zdejmie ok. 12-14 zł z Twojej trasy)
+    u_base, u_km = 4.00, 1.45  
+    # BOLT: Ścinamy, żeby dogonić te 4 zł różnicy
+    b_base, b_km = 3.50, 1.70
+    # FREENOW: Zerujemy fix i tniemy bazę (to zdejmie ok. 8-10 zł)
+    fn_fix = 0.00
+    time_rate = 0.12            # Bardzo tanie minuty
 elif (11.0 <= time_val < 13.5):
     t_status = "📉 PRZEDPOŁUDNIOWY DOŁEK"
     u_base, u_km = 7.50, 1.90    # To Twoje "standardowe" ceny, które były o 10:00
