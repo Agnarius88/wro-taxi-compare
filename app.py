@@ -81,24 +81,30 @@ elif (10.25 <= time_val < 10.4):
     b_base, b_km = 3.50, 1.90
     fn_fix = 2.00
     time_rate = 0.15
-elif (11.5 <= time_val < 12.25):
-    t_status = "⚖️ STABILIZACJA PRZEDPOŁUDNIOWA (11:30-12:15)"
-    u_base, u_km = 7.00, 2.00  
-    b_base, b_km = 8.50, 2.35
-    fn_fix = 2.00
-    time_rate = 0.25            # Normalna stawka czasowa
-elif (11.0 <= time_val < 13.5):
+elif (11.0 <= time_val < 11.5):
     t_status = "📉 PRZEDPOŁUDNIOWY DOŁEK"
     u_base, u_km = 7.50, 1.90    # To Twoje "standardowe" ceny, które były o 10:00
     b_base, b_km = 4.80, 2.30
     fn_fix = 2.00
-    time_rate = 0.15
+    time_rate = 0.15    
+elif (11.5 <= time_val < 12.25):
+    t_status = "⚖️ STABILIZACJA PRZEDPOŁUDNIOWA (11:30-12:15)"
+    u_base, u_km = 7.00, 2.00  
+    b_base, b_km = 6.50, 2.35
+    fn_fix = 2.00
+    time_rate = 0.25            # Normalna stawka czasowa
 elif (13.5 <= time_val <= 14.5):
     t_status = "📉 PRZEDSZCZYTOWA PROMOCJA BOLT"
     u_base, u_km = 9.00, 2.35
     b_base, b_km = 2.80, 2.70 
     fn_fix = 2.00
-    time_rate = 0.15 
+    time_rate = 0.15
+#elif (13.0 <= time_val < 14.0): <--- To jest szablon do korekty cen w zależności od godziny
+   #t_status = "🕒 POŁUDNIOWY SKOK CEN"
+    #u_base = 9.00  # było 8.00, więc dodajemy 1 zł
+    #b_base = 6.00  # było 5.00, więc dodajemy 1 zł
+    #u_km = 2.10    # stawka za km zostaje standardowa
+    #b_km = 2.70  
 elif is_peak:
     # Szczyt (Twoje 15:22 - korki + wysoki popyt)
     u_base, u_km = 10.5, 2.25 # Tu dowalamy "bazę", żeby dobić do Twoich 36 zł
@@ -210,7 +216,7 @@ if st.button("SPRAWDŹ CENY"):
                                      "Main": f"~ {bolt_std * 0.956:.2f} PLN", "Link": "bolt://ride",
                                      "Vars": [("⚡ Bolt", bolt_std), 
                                               ("🔋 Hybrid", bolt_std),
-                                              ("🐾 Pet", bolt_std+4), # Dodałem wariant Pets, względem zwykłego Bolta, Pet był droższy ok 4 zł
+                                              ("🐾 Pet", bolt_std+4), # Dodałem wariant Pet, względem zwykłego Bolta, Pet był droższy ok 4 zł
                                               ("📉 Wait and Save", bolt_std * 0.956)]},
                                     {"Firma": "FREENOW 🔴", "Btn": "ZAMÓW W APCE", "Val": freenow_lite, "Promo": 0,
                                      "Main": f"~ {freenow_lite:.2f} PLN",
