@@ -99,6 +99,11 @@ elif (13.5 <= time_val <= 14.5):
     b_base, b_km = 2.80, 2.70 
     fn_fix = 2.00
     time_rate = 0.15
+elif (15.67 <= time_val < 16.0):
+    u_base, u_km = 4.5, 2.25 
+    b_base, b_km = 5.00, 2.70
+    fn_fix = -10  
+    time_rate = 0.45  
 #elif (13.0 <= time_val < 14.0): <--- To jest szablon do korekty cen w zależności od godziny
    #t_status = "🕒 POŁUDNIOWY SKOK CEN"
     #u_base = 9.00  # było 8.00, więc dodajemy 1 zł
