@@ -4,6 +4,7 @@ from geopy.geocoders import Nominatim
 import math
 from datetime import datetime
 import random
+import pytz
 
 def simulate_smart_market(is_peak, is_night):
     if is_peak:
@@ -41,11 +42,12 @@ st.markdown("""
 
 st.title("🚕 WroTaxi Compare v5.5")
 
-# --- LOGIKA CZASOWA ---
-now = datetime.now()
-h = (now.hour + 1) % 24 
+# --- LOGIKA CZASOWA (Automatyczna dla Polski) ---
+tz_PL = pytz.timezone('Europe/Warsaw') 
+now = datetime.now(tz_PL) # Pobiera aktualny czas w Polsce, uwzględniając zmianę czasu
+h = now.hour
 time_val = h + now.minute/60
-day = now.weekday() 
+day = now.weekday()
 
 is_weekend = (day >= 5)
 is_night = (time_val >= 22 or time_val < 6)
