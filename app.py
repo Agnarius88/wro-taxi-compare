@@ -74,7 +74,14 @@ elif is_weekend:  # <--- NOWY BLOK TYLKO DLA WEEKENDU (w ciągu dnia)
     u_base, u_km = 6.60, 2.20  
     b_base, b_km = 3.00, 2.70
     fn_fix = 8.00
-    time_rate = 0.20 
+    time_rate = 0.20
+elif (10.25 <= time_val < 11.0):
+    t_status = "📉 SPOKÓJ PRZEDPOŁUDNIOWY"
+    # Obniżamy bazę o 3 zł i kilometr o 0.40 zł -> na 10 km daje to ~7.50-8.00 zł różnicy
+    u_base, u_km = 5.00, 1.70  
+    b_base, b_km = 3.50, 1.90
+    fn_fix = 2.00
+    time_rate = 0.15
 elif (11.0 <= time_val < 13.5):
     t_status = "🍴 LUNCH / RUCH PRZEDPOŁUDNIOWY"
     u_base, u_km = 10.50, 2.40
@@ -92,7 +99,7 @@ elif is_peak:
     u_base, u_km = 10.5, 2.25 # Tu dowalamy "bazę", żeby dobić do Twoich 36 zł
     b_base, b_km = 5.00, 2.70
     fn_fix = 3.50  
-    time_rate = 0.45,         # Minuta droższa, bo stoisz na światłach
+    time_rate = 0.45         # Minuta droższa, bo stoisz na światłach
 else:
     t_status = "☀️ STANDARDOWY DZIEŃ (np. 10:00)"
     u_base, u_km = 8.00, 2.10
@@ -156,9 +163,7 @@ if st.button("SPRAWDŹ CENY"):
                         
                                 u_mult = (100 - u_promo) / 100
                                 b_mult = (100 - b_promo) / 100
-        
-                                # --- KALIBRACJA POD REALNE CENY (Wojaczka -> Celtycka) ---
-                                time_rate = 0.15 if not is_peak else 0.40
+                                        
         
                                 # Obliczamy "gołą" bazę
                                 uber_raw = u_base + (km * u_km) + (dur * time_rate)
