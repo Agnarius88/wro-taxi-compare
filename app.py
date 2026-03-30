@@ -75,7 +75,7 @@ elif is_weekend:  # <--- NOWY BLOK TYLKO DLA WEEKENDU (w ciągu dnia)
     b_base, b_km = 3.00, 2.70
     fn_fix = 8.00
     time_rate = 0.20
-elif (10.25 <= time_val < 11.0):
+elif (10.25 <= time_val < 10.4):
     t_status = "📉 SPOKÓJ PRZEDPOŁUDNIOWY"
     # Obniżamy bazę o 3 zł i kilometr o 0.40 zł -> na 10 km daje to ~7.50-8.00 zł różnicy
     u_base, u_km = 5.00, 1.70  
