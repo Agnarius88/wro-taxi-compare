@@ -248,6 +248,8 @@ if st.button("SPRAWDŹ CENY"):
                                         st.write("")
                                         st.link_button(item['Btn'], item['Link'])
                                     st.write("---")
+
+                                st.caption("ℹ️ Ceny dojazdu są szacunkowe i mogą różnić się w oficjalnych aplikacjach.")
                             else:
                                 st.warning("⚠️ Serwer map nie znalazł trasy.")
                         except Exception as e:
