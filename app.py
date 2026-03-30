@@ -4,6 +4,7 @@ from geopy.geocoders import Nominatim
 import math
 from datetime import datetime
 import random
+import pytz
 
 def simulate_smart_market(is_peak, is_night):
     if is_peak:
