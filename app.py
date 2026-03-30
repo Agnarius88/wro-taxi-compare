@@ -77,19 +77,14 @@ elif is_weekend:  # <--- NOWY BLOK TYLKO DLA WEEKENDU (w ciągu dnia)
     time_rate = 0.20
 elif (10.25 <= time_val < 10.4):
     t_status = "📉 SPOKÓJ PRZEDPOŁUDNIOWY"
-    # Obniżamy bazę o 3 zł i kilometr o 0.40 zł -> na 10 km daje to ~7.50-8.00 zł różnicy
     u_base, u_km = 5.00, 1.70  
     b_base, b_km = 3.50, 1.90
     fn_fix = 2.00
     time_rate = 0.15
 elif (11.5 <= time_val < 12.25):
     t_status = "⚖️ STABILIZACJA PRZEDPOŁUDNIOWA (11:30-12:15)"
-    # UBER: Baza w górę o 3 zł, kilometr w górę o 55 gr (co na 10 km daje 5.50 zł). 
-    # Razem z czasem da to idealnie ok. 10 zł więcej.
     u_base, u_km = 7.00, 2.00  
-    # BOLT: Ustawiamy go proporcjonalnie, żeby zachować te 4 zł różnicy, o których pisałeś wcześniej.
-    b_base, b_km = 6.50, 2.35
-    # FREENOW: Przywracamy standardową opłatę serwisową
+    b_base, b_km = 8.50, 2.35
     fn_fix = 2.00
     time_rate = 0.25            # Normalna stawka czasowa
 elif (11.0 <= time_val < 13.5):
