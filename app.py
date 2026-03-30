@@ -137,9 +137,9 @@ if st.button("SPRAWDŹ CENY"):
                     l1 = geolocator.geocode(f"{start_adr}, Poland")
                     l2 = geolocator.geocode(f"{cel_adr}, Poland")
                         
-                    if l1 and l2:
-                        if is_center(l1.latitude, l1.longitude) or is_center(l2.latitude, l2.longitude):
-                            surge *= 1.15
+                    #if l1 and l2:
+                        #if is_center(l1.latitude, l1.longitude) or is_center(l2.latitude, l2.longitude):
+                         #   surge *= 1.15
                     
                         # --- GŁÓWNA FUNKCJA MAPOWA Z TRY-EXCEPT ---
                         try:
