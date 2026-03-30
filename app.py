@@ -41,9 +41,10 @@ st.markdown("""
 
 st.title("🚕 WroTaxi Compare v5.5")
 
-# --- LOGIKA CZASOWA ---
-now = datetime.now()
-h = (now.hour + 1) % 24 
+# --- LOGIKA CZASOWA (Automatyczna dla Polski) ---
+tz_PL = pytz.timezone('Europe/Warsaw') 
+now = datetime.now(tz_PL) # Pobiera aktualny czas w Polsce, uwzględniając zmianę czasu
+h = now.hour
 time_val = h + now.minute/60
 day = now.weekday() 
 
