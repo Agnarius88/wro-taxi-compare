@@ -222,7 +222,7 @@ if st.button("SPRAWDŹ CENY"):
                                      "Vars": [("⚡ Bolt", bolt_std), 
                                               ("🔋 Hybrid", bolt_std),
                                               ("🐾 Pet", bolt_std+4), # Dodałem wariant Pet, względem zwykłego Bolta, Pet był droższy ok 4 zł
-                                              ("📉 Wait and Save", bolt_std * 0.956)]},
+                                              ("📉 Wait and Save", bolt_std * 0.77 if (is_peak or 15.67 <= time_val < 16.0) else bolt_std * 0.956)]},
                                     {"Firma": "FREENOW 🔴", "Btn": "ZAMÓW W APCE", "Val": freenow_lite, "Promo": 0,
                                      "Main": f"~ {freenow_lite:.2f} PLN",
                                      "Link": "intent://#Intent;scheme=freenow;package=taxi.android.client;end",
