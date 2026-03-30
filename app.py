@@ -218,6 +218,22 @@ if st.button("SPRAWDŹ CENY"):
 
                                 st.success(f"🛣️ {km:.2f} km | ⏱️ {int(dur)} min")
 
+                                # --- AUTOMATYCZNE PORÓWNANIE ---
+                                # Szukamy firmy z najniższą wartością 'Val'
+                                najtansza = min(dane, key=lambda x: x['Val'])
+                                
+                                # Wyświetlamy baner z informacją
+                                st.info(f"🏆 **NAJLEPSZY WYBÓR:** Obecnie najtaniej pojedziesz z **{najtansza['Firma']}**!")
+                                
+                                # Opcjonalnie: Obliczamy ile oszczędzasz względem najdroższej opcji
+                                najdrozsza = max(dane, key=lambda x: x['Val'])
+                                oszczednosc = najdrozsza['Val'] - najtansza['Val']
+                                
+                                if oszczednosc > 2: # Pokazuj tylko, jeśli różnica jest większa niż 2 zł
+                                    st.markdown(f"💡 Wybierając tę opcję, oszczędzasz ok. **{oszczednosc:.2f} PLN** względem najdroższego przewoźnika.")
+                                
+                                st.write("---") # Oddzielenie kreską od szczegółowej listy
+
                                 for item in sorted(dane, key=lambda x: x['Val']):
                                     c1, c2 = st.columns([3, 1])
                                     with c1:
