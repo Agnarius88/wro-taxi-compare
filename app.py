@@ -204,7 +204,8 @@ if st.button("SPRAWDŹ CENY"):
                                     {"Firma": "Bolt ⚡", "Btn": "WYBIERZ", "Val": bolt_std * 0.956, "Promo": b_promo,
                                      "Main": f"~ {bolt_std * 0.956:.2f} PLN", "Link": "bolt://ride",
                                      "Vars": [("⚡ Bolt", bolt_std), 
-                                              ("🔋 Hybrid", bolt_std), 
+                                              ("🔋 Hybrid", bolt_std),
+                                              ("🐾 Pets", bolt_std+3,6), # Dodałem wariant Pets, względem zwykłego Bolta, Pets był droższy o 3,6 zł
                                               ("📉 Wait and Save", bolt_std * 0.956)]},
                                     {"Firma": "FREENOW 🔴", "Btn": "ZAMÓW W APCE", "Val": freenow_lite, "Promo": 0,
                                      "Main": f"~ {freenow_lite:.2f} PLN",
