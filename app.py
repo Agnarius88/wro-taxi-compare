@@ -88,7 +88,7 @@ elif (11.5 <= time_val < 12.25):
     # Razem z czasem da to idealnie ok. 10 zł więcej.
     u_base, u_km = 7.00, 2.00  
     # BOLT: Ustawiamy go proporcjonalnie, żeby zachować te 4 zł różnicy, o których pisałeś wcześniej.
-    b_base, b_km = 4.50, 2.00
+    b_base, b_km = 6.50, 2.35
     # FREENOW: Przywracamy standardową opłatę serwisową
     fn_fix = 2.00
     time_rate = 0.25            # Normalna stawka czasowa
