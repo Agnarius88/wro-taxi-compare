@@ -83,14 +83,11 @@ elif (10.25 <= time_val < 10.4):
     fn_fix = 2.00
     time_rate = 0.15
 elif (11.0 <= time_val < 13.5):
-    t_status = "📉 PRZEDPOŁUDNIOWY DOŁEK (Niski popyt)"
-    # UBER: Drastyczne cięcie bazy i km, żeby zbić te 5 zł
-    u_base, u_km = 4.00, 1.50  
-    # BOLT: Obniżamy, żeby 'Wait & Save' był realnie tani
-    b_base, b_km = 3.20, 1.80
-    # FREENOW: Usuwamy dodatkową opłatę serwisową w tym oknie
-    fn_fix = 0.00
-    time_rate = 0.12            # Bardzo tani czas (puste ulice)
+    t_status = "🍴 LUNCH / RUCH PRZEDPOŁUDNIOWY"
+    u_base, u_km = 10.50, 2.40
+    b_base, b_km = 4.80, 2.70
+    fn_fix = 2.00
+    time_rate = 0.15
 elif (13.5 <= time_val <= 14.5):
     t_status = "📉 PRZEDSZCZYTOWA PROMOCJA BOLT"
     u_base, u_km = 9.00, 2.35
