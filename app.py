@@ -92,7 +92,7 @@ elif is_peak:
     u_base, u_km = 10.5, 2.25 # Tu dowalamy "bazę", żeby dobić do Twoich 36 zł
     b_base, b_km = 5.00, 2.70
     fn_fix = 3.50  
-    time_rate = 0.45,         # Minuta droższa, bo stoisz na światłach
+    time_rate = 0.45         # Minuta droższa, bo stoisz na światłach
 else:
     t_status = "☀️ STANDARDOWY DZIEŃ (np. 10:00)"
     u_base, u_km = 8.00, 2.10
@@ -111,8 +111,8 @@ def get_data():
     except:
         return None, None
 
-#def is_center(lat, lon):
-    #return 51.105 < lat < 51.115 and 17.025 < lon < 17.045
+def is_center(lat, lon):
+    return 51.105 < lat < 51.115 and 17.025 < lon < 17.045
 
 client, geolocator = get_data()
 
@@ -137,103 +137,103 @@ if st.button("SPRAWDŹ CENY"):
                     l1 = geolocator.geocode(f"{start_adr}, Poland")
                     l2 = geolocator.geocode(f"{cel_adr}, Poland")
                         
-                    #if l1 and l2:
+                    if l1 and l2:
                         #if is_center(l1.latitude, l1.longitude) or is_center(l2.latitude, l2.longitude):
                          #   surge *= 1.15
                     
                         # --- GŁÓWNA FUNKCJA MAPOWA Z TRY-EXCEPT ---
-                try:
-                    res = client.directions(
-                        coordinates=((l1.longitude, l1.latitude), (l2.longitude, l2.latitude)),
-                        profile='driving-car',
-                        format='geojson',
-                        radiuses=[3000, 3000]
-                    )
-                    
-                    if 'features' in res and len(res['features']) > 0:
-                        km = res['features'][0]['properties']['summary']['distance'] / 1000
-                        dur = res['features'][0]['properties']['summary']['duration'] / 60
                 
-                        u_mult = (100 - u_promo) / 100
-                        b_mult = (100 - b_promo) / 100
-
-                        # --- KALIBRACJA POD REALNE CENY (Wojaczka -> Celtycka) ---
-                        time_rate = 0.15 if not is_peak else 0.40
-
-                        # Obliczamy "gołą" bazę
-                        uber_raw = u_base + (km * u_km) + (dur * time_rate)
-                        bolt_raw = b_base + (km * b_km) + 3.70
-                        freenow_raw = uber_raw + fn_fix
+                        res = client.directions(
+                            coordinates=((l1.longitude, l1.latitude), (l2.longitude, l2.latitude)),
+                            profile='driving-car',
+                            format='geojson',
+                            radiuses=[3000, 3000]
+                        )
                         
-                        # Nakładamy surge z symulacji rynku
-                        uber_x = uber_raw * surge
-                        bolt_std = bolt_raw * surge
-                        freenow_lite = freenow_raw * surge
-                        
-                        # --- CHAOS ALGORYTMU ---
-                        noise = 1
-                        uber_x *= noise
-                        bolt_std *= noise
-                        freenow_lite *= noise
-                        
-                        # --- NAKŁADAMY ZNIŻKI UŻYTKOWNIKA ---
-                        uber_x *= u_mult
-                        bolt_std *= b_mult
-                        
-                        # --- MINIMALNE CENY ---
-                        uber_x = max(uber_x, 12)
-                        bolt_std = max(bolt_std, 11)
-                        
-                        # --- LOKALNA TAXI ---
-                        ryba_min = 20.50 + (math.ceil(km - 4) * 2.50 if km > 4 else 0)
-                        ryba_max = (ryba_min * 1.15) + 2.00
-
-                        dane = [
-                            {"Firma": "Uber 🚗", "Btn": "WYBIERZ", "Val": uber_x*0.86, "Promo": u_promo,
-                             "Main": f"~ {uber_x*0.86:.2f} PLN",
-                             "Link": f"https://m.uber.com/ul/?action=setPickup&pickup[latitude]={l1.latitude}&pickup[longitude]={l1.longitude}&dropoff[latitude]={l2.latitude}&dropoff[longitude]={l2.longitude}",
-                             "Vars": [("📉 Czekaj i oszczędzaj", uber_x*0.85), 
-                                      ("🚗 UberX", uber_x),
-                                      ("🔋 Hybrid", uber_x),                                                
-                                      ("🐾 Uber Pets", uber_x+4)]},
-                            {"Firma": "Bolt ⚡", "Btn": "WYBIERZ", "Val": bolt_std * 0.956, "Promo": b_promo,
-                             "Main": f"~ {bolt_std * 0.956:.2f} PLN", "Link": "bolt://ride",
-                             "Vars": [("⚡ Bolt", bolt_std), 
-                                      ("🔋 Hybrid", bolt_std), 
-                                      ("📉 Wait and Save", bolt_std * 0.956)]},
-                            {"Firma": "FREENOW 🔴", "Btn": "ZAMÓW W APCE", "Val": freenow_lite, "Promo": 0,
-                             "Main": f"~ {freenow_lite:.2f} PLN",
-                             "Link": "intent://#Intent;scheme=freenow;package=taxi.android.client;end",
-                             "Vars": [("🚗 Lite / Green", freenow_lite), 
-                                      ("🐾 Pets", freenow_lite*1.3), 
-                                      ("🚐 Taxi XL", freenow_lite*1.6)]},
-                            {"Firma": "Ryba Taxi 🐟", "Btn": "ZADZWOŃ", "Val": ryba_min, "Promo": 0,
-                             "Main": f"{ryba_min:.2f} - {ryba_max:.2f} PLN", "Link": "tel:713441515", "Vars": []}
-                        ]
-
-                        st.success(f"🛣️ {km:.2f} km | ⏱️ {int(dur)} min")
-
-                        for item in sorted(dane, key=lambda x: x['Val']):
-                            c1, c2 = st.columns([3, 1])
-                            with c1:
-                                disc = f" <span class='discount-tag'>-{item['Promo']}%</span>" if item['Promo'] > 0 else ""
-                                st.markdown(f"**{item['Firma']}**{disc}", unsafe_allow_html=True)
-                                st.markdown(f"### {item['Main']}")
-                                if item['Vars']:
-                                    for v_name, v_price in item['Vars']:
-                                        st.markdown(f"<div class='variant-card'><span>{v_name}</span><b>~ {v_price:.2f} PLN</b></div>", unsafe_allow_html=True)
-                            with c2:
-                                st.write("")
-                                st.link_button(item['Btn'], item['Link'])
-                            st.write("---")
-                    else:
-                        st.warning("⚠️ Serwer map nie znalazł trasy.")
-                except Exception as e:
-                    st.error(f"⚠️ Błąd obliczeń trasy: {e}")
-            else:
-                st.warning("⚠️ Nie znaleziono adresu.")
-        except Exception as e:
-            st.error(f"⚠️ Błąd mapy: {e}")
+                        if 'features' in res and len(res['features']) > 0:
+                            km = res['features'][0]['properties']['summary']['distance'] / 1000
+                            dur = res['features'][0]['properties']['summary']['duration'] / 60
+                    
+                            u_mult = (100 - u_promo) / 100
+                            b_mult = (100 - b_promo) / 100
+    
+                            # --- KALIBRACJA POD REALNE CENY (Wojaczka -> Celtycka) ---
+                            time_rate = 0.15 if not is_peak else 0.40
+    
+                            # Obliczamy "gołą" bazę
+                            uber_raw = u_base + (km * u_km) + (dur * time_rate)
+                            bolt_raw = b_base + (km * b_km) + 3.70
+                            freenow_raw = uber_raw + fn_fix
+                            
+                            # Nakładamy surge z symulacji rynku
+                            uber_x = uber_raw * surge
+                            bolt_std = bolt_raw * surge
+                            freenow_lite = freenow_raw * surge
+                            
+                            # --- CHAOS ALGORYTMU ---
+                            noise = 1
+                            uber_x *= noise
+                            bolt_std *= noise
+                            freenow_lite *= noise
+                            
+                            # --- NAKŁADAMY ZNIŻKI UŻYTKOWNIKA ---
+                            uber_x *= u_mult
+                            bolt_std *= b_mult
+                            
+                            # --- MINIMALNE CENY ---
+                            uber_x = max(uber_x, 12)
+                            bolt_std = max(bolt_std, 11)
+                            
+                            # --- LOKALNA TAXI ---
+                            ryba_min = 20.50 + (math.ceil(km - 4) * 2.50 if km > 4 else 0)
+                            ryba_max = (ryba_min * 1.15) + 2.00
+    
+                            dane = [
+                                {"Firma": "Uber 🚗", "Btn": "WYBIERZ", "Val": uber_x*0.86, "Promo": u_promo,
+                                 "Main": f"~ {uber_x*0.86:.2f} PLN",
+                                 "Link": f"https://m.uber.com/ul/?action=setPickup&pickup[latitude]={l1.latitude}&pickup[longitude]={l1.longitude}&dropoff[latitude]={l2.latitude}&dropoff[longitude]={l2.longitude}",
+                                 "Vars": [("📉 Czekaj i oszczędzaj", uber_x*0.85), 
+                                          ("🚗 UberX", uber_x),
+                                          ("🔋 Hybrid", uber_x),                                                
+                                          ("🐾 Uber Pets", uber_x+4)]},
+                                {"Firma": "Bolt ⚡", "Btn": "WYBIERZ", "Val": bolt_std * 0.956, "Promo": b_promo,
+                                 "Main": f"~ {bolt_std * 0.956:.2f} PLN", "Link": "bolt://ride",
+                                 "Vars": [("⚡ Bolt", bolt_std), 
+                                          ("🔋 Hybrid", bolt_std), 
+                                          ("📉 Wait and Save", bolt_std * 0.956)]},
+                                {"Firma": "FREENOW 🔴", "Btn": "ZAMÓW W APCE", "Val": freenow_lite, "Promo": 0,
+                                 "Main": f"~ {freenow_lite:.2f} PLN",
+                                 "Link": "intent://#Intent;scheme=freenow;package=taxi.android.client;end",
+                                 "Vars": [("🚗 Lite / Green", freenow_lite), 
+                                          ("🐾 Pets", freenow_lite*1.3), 
+                                          ("🚐 Taxi XL", freenow_lite*1.6)]},
+                                {"Firma": "Ryba Taxi 🐟", "Btn": "ZADZWOŃ", "Val": ryba_min, "Promo": 0,
+                                 "Main": f"{ryba_min:.2f} - {ryba_max:.2f} PLN", "Link": "tel:713441515", "Vars": []}
+                            ]
+    
+                            st.success(f"🛣️ {km:.2f} km | ⏱️ {int(dur)} min")
+    
+                            for item in sorted(dane, key=lambda x: x['Val']):
+                                c1, c2 = st.columns([3, 1])
+                                with c1:
+                                    disc = f" <span class='discount-tag'>-{item['Promo']}%</span>" if item['Promo'] > 0 else ""
+                                    st.markdown(f"**{item['Firma']}**{disc}", unsafe_allow_html=True)
+                                    st.markdown(f"### {item['Main']}")
+                                    if item['Vars']:
+                                        for v_name, v_price in item['Vars']:
+                                            st.markdown(f"<div class='variant-card'><span>{v_name}</span><b>~ {v_price:.2f} PLN</b></div>", unsafe_allow_html=True)
+                                with c2:
+                                    st.write("")
+                                    st.link_button(item['Btn'], item['Link'])
+                                st.write("---")
+                        else:
+                            st.warning("⚠️ Serwer map nie znalazł trasy.")
+                    except Exception as e:
+                        st.error(f"⚠️ Błąd obliczeń trasy: {e}")
+                else:
+                    st.warning("⚠️ Nie znaleziono adresu.")
+            except Exception as e:
+                st.error(f"⚠️ Błąd mapy: {e}")
 
 
 
