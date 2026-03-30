@@ -114,7 +114,7 @@ elif is_peak:
 else:
     t_status = "☀️ STANDARDOWY DZIEŃ (np. 10:00)"
     u_base, u_km = 8.00, 2.10
-    b_base, b_km = 5.00, 2.70
+    b_base, b_km = 3.00, 2.70
     fn_fix = 2.00
     time_rate = 0.20
 
