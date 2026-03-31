@@ -6,23 +6,39 @@ from datetime import datetime
 import random
 import pytz
 import json
+from google.cloud import firestore
+from google.oauth2 import service_account
 import os
 
-PATH = r"C:\Users\user\Desktop\ai_memory.json"
+# Łączymy się z bazą używając "Secrets"
+if "db" not in st.session_state:
+    try:
+        key_dict = json.loads(json.dumps(st.secrets["textkey"]))
+        creds = service_account.Credentials.from_service_account_info(key_dict)
+        st.session_state.db = firestore.Client(credentials=creds, project="taxi-compare-pro")
+    except Exception as e:
+        st.error(f"Błąd połączenia z bazą: {e}")
+
+def load_data():
+    try:
+        doc_ref = st.session_state.db.collection("taxi_data").document("memory")
+        doc = doc_ref.get()
+        return doc.to_dict() if doc.exists else {}
+    except:
+        return {}
+
+def save_data(data):
+    try:
+        doc_ref = st.session_state.db.collection("taxi_data").document("memory")
+        doc_ref.set(data)
+        return True
+    except Exception as e:
+        st.error(f"Błąd zapisu do chmury: {e}")
+        return False
 
 # --- LOAD AI MEMORY FROM FILE ---
-if "ai_data" not in st.session_state:
-    if os.path.exists(PATH): # Sprawdza czy plik fizycznie leży na pulpicie
-        try:
-            with open(PATH, "r") as f:
-                st.session_state.ai_data = json.load(f)
-        except:
-            st.session_state.ai_data = {}
-    else:
-        st.session_state.ai_data = {}
-        
-if "show_results" not in st.session_state:
-    st.session_state.show_results = False  
+if 'ai_data' not in st.session_state:
+    st.session_state.ai_data = load_data() # Korzysta z nowej funkcji
 
 # --- AI LEARNING MEMORY ---
 if "correction_uber" not in st.session_state:
@@ -341,13 +357,11 @@ if st.session_state.show_results:  # <--- To sprawi, że formularz nie zniknie!
                                             factor = real_fn / st.session_state.freenow_lite
                                             ctx["freenow"] *= (0.8 + 0.2 * factor)
                                 
-                                        try:
-                                            with open(PATH, "w") as f:
-                                                json.dump(st.session_state.ai_data, f)
-                                            st.toast("Mózg AI zaktualizowany na Pulpicie!", icon="🧠")
-                                            st.success(f"✅ Dane zapisane w: {PATH}")
-                                        except Exception as e:
-                                            st.error(f"❌ Nie udało się zapisać pliku na Pulpicie. Błąd: {e}")
+                                        if save_data(st.session_state.ai_data):
+                                        st.toast("Mózg AI zaktualizowany w chmurze!", icon="🧠")
+                                        st.success("✅ Dane zapisane pomyślnie w Firebase! Teraz każde urządzenie je zobaczy.")
+                                        # Opcjonalnie odśwież apkę, żeby od razu przeliczyła ceny z nowym mnożnikiem
+                                        st.rerun()
                             else:
                                 st.warning("⚠️ Serwer map nie znalazł trasy.")
                         except Exception as e:
