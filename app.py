@@ -8,7 +8,16 @@ import pytz
 import json
 import os
 
-PATH = r"C:\Users\user\Desktop\ai_memory.json"
+# 1. Budujemy ścieżkę do konkretnego folderu
+desktop = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop')
+folder_path = os.path.join(desktop, "Apka", "raport")
+
+# 2. To kluczowe: tworzymy foldery, jeśli nie istnieją (mkdir -p)
+if not os.path.exists(folder_path):
+    os.makedirs(folder_path)
+
+# 3. Pełna ścieżka do pliku
+PATH = os.path.join(folder_path, "ai_memory.json")
 
 # --- LOAD AI MEMORY FROM FILE ---
 if "ai_data" not in st.session_state:
