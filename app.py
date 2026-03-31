@@ -6,13 +6,19 @@ from datetime import datetime
 import random
 import pytz
 import json
+import os
+
+PATH = r"C:\Users\user\Desktop\ai_memory.json"
 
 # --- LOAD AI MEMORY FROM FILE ---
 if "ai_data" not in st.session_state:
-    try:
-        with open("ai_memory.json", "r") as f:
-            st.session_state.ai_data = json.load(f)
-    except:
+    if os.path.exists(PATH): # Sprawdza czy plik fizycznie leży na pulpicie
+        try:
+            with open(PATH, "r") as f:
+                st.session_state.ai_data = json.load(f)
+        except:
+            st.session_state.ai_data = {}
+    else:
         st.session_state.ai_data = {}
         
 if "show_results" not in st.session_state:
@@ -84,14 +90,8 @@ if context_key not in st.session_state.ai_data:
 
 
 
-# Uwaga: poniższa linia może wymagać istnienia starej funkcji simulate_market() 
-# lub zmiany na simulate_smart_market(is_peak, is_night) przed kliknięciem przycisku
-# Na razie zostawiam zgodnie z prośbą o nic nie dodawanie/usuwanie.
-try:
-    surge, drivers, requests, market_status = simulate_market()
-except NameError:
-    # Zabezpieczenie na wypadek braku starej funkcji przed uruchomieniem smart
-    surge, drivers, requests, market_status = 1.0, 10, 5, "Inicjalizacja..."
+# Wywołujemy nową funkcję, aby zainicjować zmienne dla interfejsu
+surge, drivers, requests, market_status = simulate_smart_market(is_peak, is_night)
 
 # --- CENY W ZALEŻNOŚCI OD PORY DNIA ---
 if is_night:
@@ -347,10 +347,13 @@ if st.session_state.show_results:  # <--- To sprawi, że formularz nie zniknie!
                                             factor = real_fn / st.session_state.freenow_lite
                                             ctx["freenow"] *= (0.8 + 0.2 * factor)
                                 
-                                        with open("ai_memory.json", "w") as f:
-                                            json.dump(st.session_state.ai_data, f)
-                                
-                                        st.success("✅ AI nauczyło się dla tej godziny!")
+                                        try:
+                                            with open(PATH, "w") as f:
+                                                json.dump(st.session_state.ai_data, f)
+                                            st.toast("Mózg AI zaktualizowany na Pulpicie!", icon="🧠")
+                                            st.success(f"✅ Dane zapisane w: {PATH}")
+                                    except Exception as e:
+                                        st.error(f"❌ Nie udało się zapisać pliku na Pulpicie. Błąd: {e}")
                             else:
                                 st.warning("⚠️ Serwer map nie znalazł trasy.")
                         except Exception as e:
