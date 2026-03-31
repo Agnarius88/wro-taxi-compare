@@ -241,6 +241,11 @@ if st.button("SPRAWDŹ CENY"):
                                 uber_x = max(uber_x, 12)
                                 bolt_std = max(bolt_std, 11)
                                 freenow_lite = max(freenow_lite, 12)
+
+                                # Zapisujemy aktualne ceny do session_state
+                                st.session_state.uber_x = uber_x
+                                st.session_state.bolt_std = bolt_std
+                                st.session_state.freenow_lite = freenow_lite
                                 
                                 # --- LOKALNA TAXI ---
                                 ryba_min = 20.50 + (math.ceil(km - 4) * 2.50 if km > 4 else 0)
@@ -316,31 +321,31 @@ if st.button("SPRAWDŹ CENY"):
                                     st.session_state.real_fn = 0.0
                                 
                                 with st.form("correction_form"):
-                                    real_uber = st.number_input("Rzeczywista cena UberX", min_value=0.0, step=1.0)
-                                    real_bolt = st.number_input("Rzeczywista cena Bolt", min_value=0.0, step=1.0)
-                                    real_fn = st.number_input("Rzeczywista cena FreeNow", min_value=0.0, step=1.0)
-                                    
-                                    submitted = st.form_submit_button("Zapisz korektę AI")
-                                    
-                                    if submitted:
-                                        ctx = st.session_state.ai_data[context_key]
+                                real_uber = st.number_input("Rzeczywista cena UberX", min_value=0.0, step=1.0)
+                                real_bolt = st.number_input("Rzeczywista cena Bolt", min_value=0.0, step=1.0)
+                                real_fn = st.number_input("Rzeczywista cena FreeNow", min_value=0.0, step=1.0)
                                 
-                                        if real_uber > 0:
-                                            factor = real_uber / uber_x
-                                            ctx["uber"] *= (0.8 + 0.2 * factor)
+                                submitted = st.form_submit_button("Zapisz korektę AI")
                                 
-                                        if real_bolt > 0:
-                                            factor = real_bolt / bolt_std
-                                            ctx["bolt"] *= (0.8 + 0.2 * factor)
-                                
-                                        if real_fn > 0:
-                                            factor = real_fn / freenow_lite
-                                            ctx["freenow"] *= (0.8 + 0.2 * factor)
-                                
-                                        with open("ai_memory.json", "w") as f:
-                                            json.dump(st.session_state.ai_data, f)
-                                
-                                        st.success("✅ AI nauczyło się dla tej godziny!")
+                                if submitted:
+                                    ctx = st.session_state.ai_data[context_key]
+                            
+                                    if real_uber > 0:
+                                        factor = real_uber / st.session_state.uber_x
+                                        ctx["uber"] *= (0.8 + 0.2 * factor)
+                            
+                                    if real_bolt > 0:
+                                        factor = real_bolt / st.session_state.bolt_std
+                                        ctx["bolt"] *= (0.8 + 0.2 * factor)
+                            
+                                    if real_fn > 0:
+                                        factor = real_fn / st.session_state.freenow_lite
+                                        ctx["freenow"] *= (0.8 + 0.2 * factor)
+                            
+                                    with open("ai_memory.json", "w") as f:
+                                        json.dump(st.session_state.ai_data, f)
+                            
+                                    st.success("✅ AI nauczyło się dla tej godziny!")
                             else:
                                 st.warning("⚠️ Serwer map nie znalazł trasy.")
                         except Exception as e:
