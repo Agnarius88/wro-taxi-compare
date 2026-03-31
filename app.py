@@ -75,6 +75,10 @@ def simulate_smart_market(is_peak, is_night):
 # --- KONFIGURACJA STREAMLIT ---
 st.set_page_config(page_title="WroTaxi Compare Pro", page_icon="🚕", layout="centered")
 
+# --- INICJALIZACJA STANU SESJI ---
+if "show_results" not in st.session_state:
+    st.session_state.show_results = False
+
 st.markdown("""
     <style>
     .stButton>button { width: 100%; border-radius: 10px; height: 3.5em; font-weight: bold; background-color: #2e3136; color: white; }
