@@ -15,7 +15,8 @@ if "ai_data" not in st.session_state:
     except:
         st.session_state.ai_data = {}
         
-        
+if "show_results" not in st.session_state:
+    st.session_state.show_results = False  
 
 # --- AI LEARNING MEMORY ---
 if "correction_uber" not in st.session_state:
@@ -181,8 +182,12 @@ with col3:
     f_promo = st.slider("Zniżka FreeNow %", 0, 90, 0, 5)    
 
 if st.button("SPRAWDŹ CENY"):
+    st.session_state.show_results = True  # Aktywujemy pamięć kliknięcia
+
+if st.session_state.show_results:  # <--- To sprawi, że formularz nie zniknie!
     if not start_adr or not cel_adr:
         st.warning("⚠️ Podaj adres początkowy i końcowy")
+        st.session_state.show_results = False # Resetujemy, jak user zapomniał wpisać adresów
     else:
         surge, drivers, requests, market_status = simulate_smart_market(is_peak, is_night)
         
