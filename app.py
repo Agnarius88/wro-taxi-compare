@@ -88,8 +88,6 @@ if context_key not in st.session_state.ai_data:
         "freenow": 1.0
     }
 
-
-
 # Wywołujemy nową funkcję, aby zainicjować zmienne dla interfejsu
 surge, drivers, requests, market_status = simulate_smart_market(is_peak, is_night)
 
@@ -165,9 +163,6 @@ def get_data():
     except:
         return None, None
 
-def is_center(lat, lon):
-    return 51.105 < lat < 51.115 and 17.025 < lon < 17.045
-
 client, geolocator = get_data()
 
 start_adr = st.text_input("📍 Skąd?", placeholder="np. Wojaczka 10")
@@ -218,7 +213,6 @@ if st.session_state.show_results:  # <--- To sprawi, że formularz nie zniknie!
                                 b_mult = (100 - b_promo) / 100
                                 f_mult = (100 - f_promo) / 100
                                         
-        
                                 # Obliczamy "gołą" bazę
                                 uber_raw = u_base + (km * u_km) + (dur * time_rate)
                                 bolt_raw = b_base + (km * b_km) + 3.70
@@ -262,7 +256,7 @@ if st.session_state.show_results:  # <--- To sprawi, że formularz nie zniknie!
                                      "Link": f"https://m.uber.com/ul/?action=setPickup&pickup[latitude]={l1.latitude}&pickup[longitude]={l1.longitude}&dropoff[latitude]={l2.latitude}&dropoff[longitude]={l2.longitude}",
                                      "Vars": [("📉 Czekaj i oszczędzaj", uber_x*0.85), 
                                               ("🚗 UberX", uber_x),
-                                              ("🔋 Hybrid", uber_x),                                                
+                                              ("🔋 Hybrid", uber_x),                                              
                                               ("🐾 Uber Pets", uber_x+4)]},
                                     {"Firma": "Bolt ⚡", "Btn": "WYBIERZ", "Val": bolt_std * 0.956, "Promo": b_promo,
                                      "Main": f"~ {bolt_std * 0.956:.2f} PLN", "Link": "bolt://ride",
@@ -352,8 +346,8 @@ if st.session_state.show_results:  # <--- To sprawi, że formularz nie zniknie!
                                                 json.dump(st.session_state.ai_data, f)
                                             st.toast("Mózg AI zaktualizowany na Pulpicie!", icon="🧠")
                                             st.success(f"✅ Dane zapisane w: {PATH}")
-                                    except Exception as e:
-                                        st.error(f"❌ Nie udało się zapisać pliku na Pulpicie. Błąd: {e}")
+                                        except Exception as e:
+                                            st.error(f"❌ Nie udało się zapisać pliku na Pulpicie. Błąd: {e}")
                             else:
                                 st.warning("⚠️ Serwer map nie znalazł trasy.")
                         except Exception as e:
@@ -362,5 +356,3 @@ if st.session_state.show_results:  # <--- To sprawi, że formularz nie zniknie!
                         st.warning("⚠️ Nie znaleziono adresu.")
                 except Exception as e:
                     st.error(f"⚠️ Błąd mapy: {e}")
-
-
