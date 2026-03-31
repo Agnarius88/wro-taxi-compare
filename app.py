@@ -75,7 +75,7 @@ elif is_weekend:  # <--- NOWY BLOK TYLKO DLA WEEKENDU (w ciągu dnia)
     b_base, b_km = 3.00, 2.70
     fn_fix = 8.00
     time_rate = 0.20
-elif (10.25 <= time_val < 10.4):
+elif (10.25 <= time_val < 10.67):
     t_status = "📉 SPOKÓJ PRZEDPOŁUDNIOWY"
     u_base, u_km = 5.00, 1.70  
     b_base, b_km = 3.50, 1.90
@@ -110,9 +110,9 @@ elif (15.67 <= time_val < 16.0):
     #b_base = 6.00  # było 5.00, więc dodajemy 1 zł
     #u_km = 2.10    # stawka za km zostaje standardowa
     #b_km = 2.70  
-elif is_peak:
+elif is_peak: #  peak jest ustawiony 7:30 - 9:30 i 15:30 - 18:30
     # Szczyt (Twoje 15:22 - korki + wysoki popyt)
-    u_base, u_km = 10.5, 2.25 # Tu dowalamy "bazę", żeby dobić do Twoich 36 zł
+    u_base, u_km = 10.5, 2.25 
     b_base, b_km = 5.00, 2.70
     fn_fix = 3.50  
     time_rate = 0.45         # Minuta droższa, bo stoisz na światłach
@@ -142,11 +142,13 @@ client, geolocator = get_data()
 start_adr = st.text_input("📍 Skąd?", placeholder="np. Wojaczka 10")
 cel_adr = st.text_input("🏁 Dokąd?", placeholder="np. Rynek")
 
-col1, col2 = st.columns(2)
+col1, col2, col3 = st.columns(3)
 with col1:
     u_promo = st.slider("Zniżka Uber %", 0, 90, 0, 5)
 with col2:
     b_promo = st.slider("Zniżka Bolt %", 0, 90, 0, 5)
+with col3:
+    f_promo = st.slider("Zniżka FreeNow %", 0, 90, 0, 5)    
 
 if st.button("SPRAWDŹ CENY"):
     if not start_adr or not cel_adr:
@@ -179,6 +181,7 @@ if st.button("SPRAWDŹ CENY"):
                         
                                 u_mult = (100 - u_promo) / 100
                                 b_mult = (100 - b_promo) / 100
+                                f_mult = (100 - f_promo) / 100
                                         
         
                                 # Obliczamy "gołą" bazę
@@ -200,10 +203,12 @@ if st.button("SPRAWDŹ CENY"):
                                 # --- NAKŁADAMY ZNIŻKI UŻYTKOWNIKA ---
                                 uber_x *= u_mult
                                 bolt_std *= b_mult
+                                freenow_lite *= f_mult
                                 
                                 # --- MINIMALNE CENY ---
                                 uber_x = max(uber_x, 12)
                                 bolt_std = max(bolt_std, 11)
+                                freenow_lite = max(freenow_lite, 12)
                                 
                                 # --- LOKALNA TAXI ---
                                 ryba_min = 20.50 + (math.ceil(km - 4) * 2.50 if km > 4 else 0)
@@ -223,7 +228,7 @@ if st.button("SPRAWDŹ CENY"):
                                               ("🔋 Hybrid", bolt_std),
                                               ("🐾 Pet", bolt_std+4), # Dodałem wariant Pet, względem zwykłego Bolta, Pet był droższy ok 4 zł
                                               ("📉 Wait and Save", bolt_std * 0.77 if (is_peak or 15.67 <= time_val < 16.0) else bolt_std * 0.956)]},
-                                    {"Firma": "FREENOW 🔴", "Btn": "ZAMÓW W APCE", "Val": freenow_lite, "Promo": 0,
+                                    {"Firma": "FREENOW 🔴", "Btn": "ZAMÓW W APCE", "Val": freenow_lite, "Promo": f_promo,
                                      "Main": f"~ {freenow_lite:.2f} PLN",
                                      "Link": "intent://#Intent;scheme=freenow;package=taxi.android.client;end",
                                      "Vars": [("🚗 Lite / Green", freenow_lite), 
