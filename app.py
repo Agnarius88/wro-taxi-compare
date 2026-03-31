@@ -6,55 +6,29 @@ from datetime import datetime
 import random
 import pytz
 import json
-from google.cloud import firestore
-from google.oauth2 import service_account
 import os
 
-# Łączymy się z bazą używając "Secrets"
-# Łączymy się z bazą używając "Secrets"
-if "db" not in st.session_state:
-    try:
-        # Zamieniamy AttrDict ze Streamlit na zwykły słownik
-        key_dict = dict(st.secrets["textkey"])
-        
-        # Ważne: Naprawa znaków nowej linii w kluczu prywatnym
-        # Często przy wklejaniu do Streamlit Secrets, \n zamienia się na \\n
-        if "private_key" in key_dict:
-            key_dict["private_key"] = key_dict["private_key"].replace("\\n", "\n")
-            
-        creds = service_account.Credentials.from_service_account_info(key_dict)
-        st.session_state.db = firestore.Client(credentials=creds, project="taxi-compare-pro")
-    except Exception as e:
-        st.error(f"Błąd połączenia z bazą: {e}")
-
-def load_data():
-    try:
-        doc_ref = st.session_state.db.collection("taxi_data").document("memory")
-        doc = doc_ref.get()
-        return doc.to_dict() if doc.exists else {}
-    except:
-        return {}
-
-def save_data(data):
-    try:
-        doc_ref = st.session_state.db.collection("taxi_data").document("memory")
-        doc_ref.set(data)
-        return True
-    except Exception as e:
-        st.error(f"Błąd zapisu do chmury: {e}")
-        return False
+PATH = r"C:\Users\user\Desktop\ai_memory.json"
 
 # --- LOAD AI MEMORY FROM FILE ---
-if 'ai_data' not in st.session_state:
-    st.session_state.ai_data = load_data() # Korzysta z nowej funkcji
+if "ai_data" not in st.session_state:
+    if os.path.exists(PATH): # Sprawdza czy plik fizycznie leży na pulpicie
+        try:
+            with open(PATH, "r") as f:
+                st.session_state.ai_data = json.load(f)
+        except:
+            st.session_state.ai_data = {}
+    else:
+        st.session_state.ai_data = {}
+        
+if "show_results" not in st.session_state:
+    st.session_state.show_results = False  
 
 # --- AI LEARNING MEMORY ---
 if "correction_uber" not in st.session_state:
     st.session_state.correction_uber = 1.0
-
 if "correction_bolt" not in st.session_state:
     st.session_state.correction_bolt = 1.0
-
 if "correction_freenow" not in st.session_state:
     st.session_state.correction_freenow = 1.0
 
@@ -74,11 +48,6 @@ def simulate_smart_market(is_peak, is_night):
 
 # --- KONFIGURACJA STREAMLIT ---
 st.set_page_config(page_title="WroTaxi Compare Pro", page_icon="🚕", layout="centered")
-
-# --- INICJALIZACJA STANU SESJI ---
-if "show_results" not in st.session_state:
-    st.session_state.show_results = False
-
 st.markdown("""
     <style>
     .stButton>button { width: 100%; border-radius: 10px; height: 3.5em; font-weight: bold; background-color: #2e3136; color: white; }
@@ -107,8 +76,8 @@ day = now.weekday()
 is_weekend = (day >= 5)
 is_night = (time_val >= 22 or time_val < 6)
 is_peak = not is_weekend and ((7.5 <= time_val <= 9.5) or (15.5 <= time_val <= 18.5))
-
 context_key = f"{int(time_val)}_{'weekend' if is_weekend else 'weekday'}"
+
 if context_key not in st.session_state.ai_data:
     st.session_state.ai_data[context_key] = {
         "uber": 1.0,
@@ -191,6 +160,9 @@ def get_data():
     except:
         return None, None
 
+def is_center(lat, lon):
+    return 51.105 < lat < 51.115 and 17.025 < lon < 17.045
+
 client, geolocator = get_data()
 
 start_adr = st.text_input("📍 Skąd?", placeholder="np. Wojaczka 10")
@@ -221,6 +193,10 @@ if st.session_state.show_results:  # <--- To sprawi, że formularz nie zniknie!
                     l2 = geolocator.geocode(f"{cel_adr}, Poland")
                     
                     if l1 and l2:
+                        #if is_center(l1.latitude, l1.longitude) or is_center(l2.latitude, l2.longitude):
+                            #surge *= 1.15
+                        
+                        # --- GŁÓWNA FUNKCJA MAPOWA Z TRY-EXCEPT ---
                         try:
                             res = client.directions(
                                 coordinates=((l1.longitude, l1.latitude), (l2.longitude, l2.latitude)),
@@ -232,38 +208,43 @@ if st.session_state.show_results:  # <--- To sprawi, że formularz nie zniknie!
                             if 'features' in res and len(res['features']) > 0:
                                 km = res['features'][0]['properties']['summary']['distance'] / 1000
                                 dur = res['features'][0]['properties']['summary']['duration'] / 60
-                                
+                        
                                 u_mult = (100 - u_promo) / 100
                                 b_mult = (100 - b_promo) / 100
                                 f_mult = (100 - f_promo) / 100
-                                        
+                                
+                                # Obliczamy "gołą" bazę
                                 uber_raw = u_base + (km * u_km) + (dur * time_rate)
                                 bolt_raw = b_base + (km * b_km) + 3.70
                                 freenow_raw = uber_raw + fn_fix
                                 
+                                # Nakładamy surge z symulacji rynku
                                 ctx = st.session_state.ai_data[context_key]
-
                                 uber_x = uber_raw * surge * ctx["uber"]
                                 bolt_std = bolt_raw * surge * ctx["bolt"]
                                 freenow_lite = freenow_raw * surge * ctx["freenow"]
                                 
+                                # --- CHAOS ALGORYTMU ---
                                 noise = 1
                                 uber_x *= noise
                                 bolt_std *= noise
                                 freenow_lite *= noise
                                 
+                                # --- NAKŁADAMY ZNIŻKI UŻYTKOWNIKA ---
                                 uber_x *= u_mult
                                 bolt_std *= b_mult
                                 freenow_lite *= f_mult
                                 
+                                # --- MINIMALNE CENY ---
                                 uber_x = max(uber_x, 12)
                                 bolt_std = max(bolt_std, 11)
                                 freenow_lite = max(freenow_lite, 12)
-
+                                # Zapisujemy aktualne ceny do session_state
                                 st.session_state.uber_x = uber_x
                                 st.session_state.bolt_std = bolt_std
                                 st.session_state.freenow_lite = freenow_lite
                                 
+                                # --- LOKALNA TAXI ---
                                 ryba_min = 20.50 + (math.ceil(km - 4) * 2.50 if km > 4 else 0)
                                 ryba_max = (ryba_min * 1.15) + 2.00
         
@@ -273,13 +254,13 @@ if st.session_state.show_results:  # <--- To sprawi, że formularz nie zniknie!
                                      "Link": f"https://m.uber.com/ul/?action=setPickup&pickup[latitude]={l1.latitude}&pickup[longitude]={l1.longitude}&dropoff[latitude]={l2.latitude}&dropoff[longitude]={l2.longitude}",
                                      "Vars": [("📉 Czekaj i oszczędzaj", uber_x*0.85), 
                                               ("🚗 UberX", uber_x),
-                                              ("🔋 Hybrid", uber_x),                                              
+                                              ("🔋 Hybrid", uber_x),                                                
                                               ("🐾 Uber Pets", uber_x+4)]},
                                     {"Firma": "Bolt ⚡", "Btn": "WYBIERZ", "Val": bolt_std * 0.956, "Promo": b_promo,
                                      "Main": f"~ {bolt_std * 0.956:.2f} PLN", "Link": "bolt://ride",
                                      "Vars": [("⚡ Bolt", bolt_std), 
                                               ("🔋 Hybrid", bolt_std),
-                                              ("🐾 Pet", bolt_std+4),
+                                              ("🐾 Pet", bolt_std+4), # Dodałem wariant Pet, względem zwykłego Bolta, Pet był droższy ok 4 zł
                                               ("📉 Wait and Save", bolt_std * 0.77 if (is_peak or 15.67 <= time_val < 16.0) else bolt_std * 0.956)]},
                                     {"Firma": "FREENOW 🔴", "Btn": "ZAMÓW W APCE", "Val": freenow_lite, "Promo": f_promo,
                                      "Main": f"~ {freenow_lite:.2f} PLN",
@@ -290,20 +271,22 @@ if st.session_state.show_results:  # <--- To sprawi, że formularz nie zniknie!
                                     {"Firma": "Ryba Taxi 🐟", "Btn": "ZADZWOŃ", "Val": ryba_min, "Promo": 0,
                                      "Main": f"{ryba_min:.2f} - {ryba_max:.2f} PLN", "Link": "tel:713441515", "Vars": []}
                                 ]
-
                                 st.success(f"🛣️ {km:.2f} km | ⏱️ {int(dur)} min")
-
+                                # --- AUTOMATYCZNE PORÓWNANIE ---
+                                # Szukamy firmy z najniższą wartością 'Val'
                                 najtansza = min(dane, key=lambda x: x['Val'])
+                                
+                                # Wyświetlamy baner z informacją
                                 st.info(f"🏆 **NAJLEPSZY WYBÓR:** Obecnie najtaniej pojedziesz z **{najtansza['Firma']}**!")
                                 
+                                # Opcjonalnie: Obliczamy ile oszczędzasz względem najdroższej opcji
                                 najdrozsza = max(dane, key=lambda x: x['Val'])
                                 oszczednosc = najdrozsza['Val'] - najtansza['Val']
                                 
-                                if oszczednosc > 2:
+                                if oszczednosc > 2: # Pokazuj tylko, jeśli różnica jest większa niż 2 zł
                                     st.markdown(f"💡 Wybierając tę opcję, oszczędzasz ok. **{oszczednosc:.2f} PLN** względem najdroższego przewoźnika.")
                                 
-                                st.write("---")
-
+                                st.write("---") # Oddzielenie kreską od szczegółowej listy
                                 for item in sorted(dane, key=lambda x: x['Val']):
                                     c1, c2 = st.columns([3, 1])
                                     with c1:
@@ -317,45 +300,52 @@ if st.session_state.show_results:  # <--- To sprawi, że formularz nie zniknie!
                                         st.write("")
                                         st.link_button(item['Btn'], item['Link'])
                                     st.write("---")
-
                                 st.caption("ℹ️ Ceny dojazdu są szacunkowe i mogą różnić się w oficjalnych aplikacjach.")
-
+                                # --- formularz korekty AI ---
                                 st.markdown("### 🧠 Pomóż ulepszyć AI (opcjonalne)")
+                                
+                                # zapisujemy aktualne wartości w session_state, żeby nie znikały po odświeżeniu
+                                if "real_uber" not in st.session_state:
+                                    st.session_state.real_uber = 0.0
+                                if "real_bolt" not in st.session_state:
+                                    st.session_state.real_bolt = 0.0
+                                if "real_fn" not in st.session_state:
+                                    st.session_state.real_fn = 0.0
+                                
                                 with st.form("correction_form"):
-                                    col_c1, col_c2, col_c3 = st.columns(3)
-                                    with col_c1:
-                                        real_uber = st.number_input("Cena UberX w aplikacji", min_value=0.0, step=0.5)
-                                    with col_c2:
-                                        real_bolt = st.number_input("Cena Bolt w aplikacji", min_value=0.0, step=0.5)
-                                    with col_c3:
-                                        real_fn = st.number_input("Cena FreeNow w aplikacji", min_value=0.0, step=0.5)
+                                    real_uber = st.number_input("Rzeczywista cena UberX", min_value=0.0, step=1.0)
+                                    real_bolt = st.number_input("Rzeczywista cena Bolt", min_value=0.0, step=1.0)
+                                    real_fn = st.number_input("Rzeczywista cena FreeNow", min_value=0.0, step=1.0)
                                     
                                     submitted = st.form_submit_button("Zapisz korektę AI")
                                     
                                     if submitted:
-                                        ctx = st.session_state.ai_data.get(context_key, {"uber": 1.0, "bolt": 1.0, "freenow": 1.0})
-                                        
-                                        if real_uber > 0 and st.session_state.get('uber_x', 0) > 0:
+                                        ctx = st.session_state.ai_data[context_key]
+                                
+                                        if real_uber > 0:
                                             factor = real_uber / st.session_state.uber_x
-                                            ctx["uber"] = ctx.get("uber", 1.0) * (0.8 + 0.2 * factor)
+                                            ctx["uber"] *= (0.8 + 0.2 * factor)
                                 
-                                        if real_bolt > 0 and st.session_state.get('bolt_std', 0) > 0:
+                                        if real_bolt > 0:
                                             factor = real_bolt / st.session_state.bolt_std
-                                            ctx["bolt"] = ctx.get("bolt", 1.0) * (0.8 + 0.2 * factor)
+                                            ctx["bolt"] *= (0.8 + 0.2 * factor)
                                 
-                                        if real_fn > 0 and st.session_state.get('freenow_lite', 0) > 0:
+                                        if real_fn > 0:
                                             factor = real_fn / st.session_state.freenow_lite
-                                            ctx["freenow"] = ctx.get("freenow", 1.0) * (0.8 + 0.2 * factor)
-                                        
-                                        st.session_state.ai_data[context_key] = ctx
-                                        
-                                        if save_data(st.session_state.ai_data):
-                                            st.toast("Mózg AI zaktualizowany!", icon="🧠")
-                                            st.success("✅ Dane zapisane w chmurze.")
-                                            st.rerun()
+                                            ctx["freenow"] *= (0.8 + 0.2 * factor)
+                                
+                                        try:
+                                            with open(PATH, "w") as f:
+                                                json.dump(st.session_state.ai_data, f)
+                                            st.toast("Mózg AI zaktualizowany na Pulpicie!", icon="🧠")
+                                            st.success(f"✅ Dane zapisane w: {PATH}")
+                                        except Exception as e:
+                                            st.error(f"❌ Nie udało się zapisać pliku na Pulpicie. Błąd: {e}")
+                            else:
+                                st.warning("⚠️ Serwer map nie znalazł trasy.")
                         except Exception as e:
-                            st.error(f"⚠️ Błąd API tras: {e}")
+                            st.error(f"⚠️ Błąd obliczeń trasy: {e}")
                     else:
-                        st.warning("⚠️ Nie znaleziono jednego z adresów we Wrocławiu.")
+                        st.warning("⚠️ Nie znaleziono adresu.")
                 except Exception as e:
-                    st.error(f"⚠️ Błąd geolokalizacji lub połączenia: {e}")
+                    st.error(f"⚠️ Błąd mapy: {e}")
