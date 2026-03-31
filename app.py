@@ -365,8 +365,8 @@ if st.session_state.show_results:  # <--- To sprawi, że formularz nie zniknie!
                                             st.success("✅ Dane zapisane w chmurze. Przy następnym sprawdzeniu ceny będą dokładniejsze!")
                                             st.rerun() # Odświeżamy, by zastosować nowe mnożniki
                                             
-            # --- KONIEC GŁÓWNEJ LOGIKI ---
-            except Exception as e:
-                st.error(f"⚠️ Błąd podczas pobierania trasy: {e}")
-        else:
-            st.warning("⚠️ Nie znaleziono jednego z adresów we Wrocławiu.")
+                                        # --- KONIEC GŁÓWNEJ LOGIKI ---
+                                        except Exception as e:
+                                            st.error(f"⚠️ Błąd podczas pobierania trasy: {e}")
+                                    else:
+                                        st.warning("⚠️ Nie znaleziono jednego z adresów we Wrocławiu.")
