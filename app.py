@@ -207,12 +207,8 @@ if st.session_state.show_results:  # <--- To sprawi, że formularz nie zniknie!
                 try:
                     l1 = geolocator.geocode(f"{start_adr}, Poland")
                     l2 = geolocator.geocode(f"{cel_adr}, Poland")
-                        
-                    if l1 and l2:
-                        #if is_center(l1.latitude, l1.longitude) or is_center(l2.latitude, l2.longitude):
-                            #surge *= 1.15
                     
-                        # --- GŁÓWNA FUNKCJA MAPOWA Z TRY-EXCEPT ---
+                    if l1 and l2:
                         try:
                             res = client.directions(
                                 coordinates=((l1.longitude, l1.latitude), (l2.longitude, l2.latitude)),
@@ -224,45 +220,38 @@ if st.session_state.show_results:  # <--- To sprawi, że formularz nie zniknie!
                             if 'features' in res and len(res['features']) > 0:
                                 km = res['features'][0]['properties']['summary']['distance'] / 1000
                                 dur = res['features'][0]['properties']['summary']['duration'] / 60
-                        
+                                
                                 u_mult = (100 - u_promo) / 100
                                 b_mult = (100 - b_promo) / 100
                                 f_mult = (100 - f_promo) / 100
                                         
-                                # Obliczamy "gołą" bazę
                                 uber_raw = u_base + (km * u_km) + (dur * time_rate)
                                 bolt_raw = b_base + (km * b_km) + 3.70
                                 freenow_raw = uber_raw + fn_fix
                                 
-                                # Nakładamy surge z symulacji rynku
                                 ctx = st.session_state.ai_data[context_key]
 
                                 uber_x = uber_raw * surge * ctx["uber"]
                                 bolt_std = bolt_raw * surge * ctx["bolt"]
                                 freenow_lite = freenow_raw * surge * ctx["freenow"]
                                 
-                                # --- CHAOS ALGORYTMU ---
                                 noise = 1
                                 uber_x *= noise
                                 bolt_std *= noise
                                 freenow_lite *= noise
                                 
-                                # --- NAKŁADAMY ZNIŻKI UŻYTKOWNIKA ---
                                 uber_x *= u_mult
                                 bolt_std *= b_mult
                                 freenow_lite *= f_mult
                                 
-                                # --- MINIMALNE CENY ---
                                 uber_x = max(uber_x, 12)
                                 bolt_std = max(bolt_std, 11)
                                 freenow_lite = max(freenow_lite, 12)
 
-                                # Zapisujemy aktualne ceny do session_state
                                 st.session_state.uber_x = uber_x
                                 st.session_state.bolt_std = bolt_std
                                 st.session_state.freenow_lite = freenow_lite
                                 
-                                # --- LOKALNA TAXI ---
                                 ryba_min = 20.50 + (math.ceil(km - 4) * 2.50 if km > 4 else 0)
                                 ryba_max = (ryba_min * 1.15) + 2.00
         
@@ -278,7 +267,7 @@ if st.session_state.show_results:  # <--- To sprawi, że formularz nie zniknie!
                                      "Main": f"~ {bolt_std * 0.956:.2f} PLN", "Link": "bolt://ride",
                                      "Vars": [("⚡ Bolt", bolt_std), 
                                               ("🔋 Hybrid", bolt_std),
-                                              ("🐾 Pet", bolt_std+4), # Dodałem wariant Pet, względem zwykłego Bolta, Pet był droższy ok 4 zł
+                                              ("🐾 Pet", bolt_std+4),
                                               ("📉 Wait and Save", bolt_std * 0.77 if (is_peak or 15.67 <= time_val < 16.0) else bolt_std * 0.956)]},
                                     {"Firma": "FREENOW 🔴", "Btn": "ZAMÓW W APCE", "Val": freenow_lite, "Promo": f_promo,
                                      "Main": f"~ {freenow_lite:.2f} PLN",
@@ -292,21 +281,16 @@ if st.session_state.show_results:  # <--- To sprawi, że formularz nie zniknie!
 
                                 st.success(f"🛣️ {km:.2f} km | ⏱️ {int(dur)} min")
 
-                                # --- AUTOMATYCZNE PORÓWNANIE ---
-                                # Szukamy firmy z najniższą wartością 'Val'
                                 najtansza = min(dane, key=lambda x: x['Val'])
-                                
-                                # Wyświetlamy baner z informacją
                                 st.info(f"🏆 **NAJLEPSZY WYBÓR:** Obecnie najtaniej pojedziesz z **{najtansza['Firma']}**!")
                                 
-                                # Opcjonalnie: Obliczamy ile oszczędzasz względem najdroższej opcji
                                 najdrozsza = max(dane, key=lambda x: x['Val'])
                                 oszczednosc = najdrozsza['Val'] - najtansza['Val']
                                 
-                                if oszczednosc > 2: # Pokazuj tylko, jeśli różnica jest większa niż 2 zł
+                                if oszczednosc > 2:
                                     st.markdown(f"💡 Wybierając tę opcję, oszczędzasz ok. **{oszczednosc:.2f} PLN** względem najdroższego przewoźnika.")
                                 
-                                st.write("---") # Oddzielenie kreską od szczegółowej listy
+                                st.write("---")
 
                                 for item in sorted(dane, key=lambda x: x['Val']):
                                     c1, c2 = st.columns([3, 1])
@@ -324,10 +308,7 @@ if st.session_state.show_results:  # <--- To sprawi, że formularz nie zniknie!
 
                                 st.caption("ℹ️ Ceny dojazdu są szacunkowe i mogą różnić się w oficjalnych aplikacjach.")
 
-                                # --- formularz korekty AI ---
-                                # --- formularz korekty AI (POPRAWIONY) ---
                                 st.markdown("### 🧠 Pomóż ulepszyć AI (opcjonalne)")
-                                
                                 with st.form("correction_form"):
                                     col_c1, col_c2, col_c3 = st.columns(3)
                                     with col_c1:
@@ -340,10 +321,8 @@ if st.session_state.show_results:  # <--- To sprawi, że formularz nie zniknie!
                                     submitted = st.form_submit_button("Zapisz korektę AI")
                                     
                                     if submitted:
-                                        # Pobieramy aktualne dane kontekstowe
                                         ctx = st.session_state.ai_data.get(context_key, {"uber": 1.0, "bolt": 1.0, "freenow": 1.0})
                                         
-                                        # Logika nauki: porównujemy cenę wyliczoną z rzeczywistą
                                         if real_uber > 0 and st.session_state.get('uber_x', 0) > 0:
                                             factor = real_uber / st.session_state.uber_x
                                             ctx["uber"] = ctx.get("uber", 1.0) * (0.8 + 0.2 * factor)
@@ -356,17 +335,15 @@ if st.session_state.show_results:  # <--- To sprawi, że formularz nie zniknie!
                                             factor = real_fn / st.session_state.freenow_lite
                                             ctx["freenow"] = ctx.get("freenow", 1.0) * (0.8 + 0.2 * factor)
                                         
-                                        # Nadpisujemy w pamięci sesji
                                         st.session_state.ai_data[context_key] = ctx
                                         
-                                        # Zapisujemy do bazy danych
                                         if save_data(st.session_state.ai_data):
                                             st.toast("Mózg AI zaktualizowany!", icon="🧠")
-                                            st.success("✅ Dane zapisane w chmurze. Przy następnym sprawdzeniu ceny będą dokładniejsze!")
-                                            st.rerun() # Odświeżamy, by zastosować nowe mnożniki
-                                            
-            # --- KONIEC GŁÓWNEJ LOGIKI ---
-            except Exception as e:
-                st.error(f"⚠️ Błąd podczas pobierania trasy: {e}")
-        else:
-            st.warning("⚠️ Nie znaleziono jednego z adresów we Wrocławiu.")
+                                            st.success("✅ Dane zapisane w chmurze.")
+                                            st.rerun()
+                        except Exception as e:
+                            st.error(f"⚠️ Błąd API tras: {e}")
+                    else:
+                        st.warning("⚠️ Nie znaleziono jednego z adresów we Wrocławiu.")
+                except Exception as e:
+                    st.error(f"⚠️ Błąd geolokalizacji lub połączenia: {e}")
