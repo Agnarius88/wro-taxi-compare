@@ -325,48 +325,48 @@ if st.session_state.show_results:  # <--- To sprawi, że formularz nie zniknie!
                                 st.caption("ℹ️ Ceny dojazdu są szacunkowe i mogą różnić się w oficjalnych aplikacjach.")
 
                                 # --- formularz korekty AI ---
+                                # --- formularz korekty AI (POPRAWIONY) ---
                                 st.markdown("### 🧠 Pomóż ulepszyć AI (opcjonalne)")
                                 
-                                # zapisujemy aktualne wartości w session_state, żeby nie znikały po odświeżeniu
-                                if "real_uber" not in st.session_state:
-                                    st.session_state.real_uber = 0.0
-                                if "real_bolt" not in st.session_state:
-                                    st.session_state.real_bolt = 0.0
-                                if "real_fn" not in st.session_state:
-                                    st.session_state.real_fn = 0.0
-                                
                                 with st.form("correction_form"):
-                                    real_uber = st.number_input("Rzeczywista cena UberX", min_value=0.0, step=1.0)
-                                    real_bolt = st.number_input("Rzeczywista cena Bolt", min_value=0.0, step=1.0)
-                                    real_fn = st.number_input("Rzeczywista cena FreeNow", min_value=0.0, step=1.0)
+                                    col_c1, col_c2, col_c3 = st.columns(3)
+                                    with col_c1:
+                                        real_uber = st.number_input("Cena UberX w aplikacji", min_value=0.0, step=0.5)
+                                    with col_c2:
+                                        real_bolt = st.number_input("Cena Bolt w aplikacji", min_value=0.0, step=0.5)
+                                    with col_c3:
+                                        real_fn = st.number_input("Cena FreeNow w aplikacji", min_value=0.0, step=0.5)
                                     
                                     submitted = st.form_submit_button("Zapisz korektę AI")
                                     
                                     if submitted:
-                                        ctx = st.session_state.ai_data[context_key]
-                                
-                                        if real_uber > 0:
+                                        # Pobieramy aktualne dane kontekstowe
+                                        ctx = st.session_state.ai_data.get(context_key, {"uber": 1.0, "bolt": 1.0, "freenow": 1.0})
+                                        
+                                        # Logika nauki: porównujemy cenę wyliczoną z rzeczywistą
+                                        if real_uber > 0 and st.session_state.get('uber_x', 0) > 0:
                                             factor = real_uber / st.session_state.uber_x
-                                            ctx["uber"] *= (0.8 + 0.2 * factor)
+                                            ctx["uber"] = ctx.get("uber", 1.0) * (0.8 + 0.2 * factor)
                                 
-                                        if real_bolt > 0:
+                                        if real_bolt > 0 and st.session_state.get('bolt_std', 0) > 0:
                                             factor = real_bolt / st.session_state.bolt_std
-                                            ctx["bolt"] *= (0.8 + 0.2 * factor)
+                                            ctx["bolt"] = ctx.get("bolt", 1.0) * (0.8 + 0.2 * factor)
                                 
-                                        if real_fn > 0:
+                                        if real_fn > 0 and st.session_state.get('freenow_lite', 0) > 0:
                                             factor = real_fn / st.session_state.freenow_lite
-                                            ctx["freenow"] *= (0.8 + 0.2 * factor)
-                                
+                                            ctx["freenow"] = ctx.get("freenow", 1.0) * (0.8 + 0.2 * factor)
+                                        
+                                        # Nadpisujemy w pamięci sesji
+                                        st.session_state.ai_data[context_key] = ctx
+                                        
+                                        # Zapisujemy do bazy danych
                                         if save_data(st.session_state.ai_data):
-                                        st.toast("Mózg AI zaktualizowany w chmurze!", icon="🧠")
-                                        st.success("✅ Dane zapisane pomyślnie w Firebase! Teraz każde urządzenie je zobaczy.")
-                                        # Opcjonalnie odśwież apkę, żeby od razu przeliczyła ceny z nowym mnożnikiem
-                                        st.rerun()
-                            else:
-                                st.warning("⚠️ Serwer map nie znalazł trasy.")
-                        except Exception as e:
-                            st.error(f"⚠️ Błąd obliczeń trasy: {e}")
-                    else:
-                        st.warning("⚠️ Nie znaleziono adresu.")
-                except Exception as e:
-                    st.error(f"⚠️ Błąd mapy: {e}")
+                                            st.toast("Mózg AI zaktualizowany!", icon="🧠")
+                                            st.success("✅ Dane zapisane w chmurze. Przy następnym sprawdzeniu ceny będą dokładniejsze!")
+                                            st.rerun() # Odświeżamy, by zastosować nowe mnożniki
+                                            
+            # --- KONIEC GŁÓWNEJ LOGIKI ---
+            except Exception as e:
+                st.error(f"⚠️ Błąd podczas pobierania trasy: {e}")
+        else:
+            st.warning("⚠️ Nie znaleziono jednego z adresów we Wrocławiu.")
