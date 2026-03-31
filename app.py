@@ -5,6 +5,27 @@ import math
 from datetime import datetime
 import random
 import pytz
+import json
+
+# --- LOAD AI MEMORY FROM FILE ---
+if "ai_data" not in st.session_state:
+    try:
+        with open("ai_memory.json", "r") as f:
+            st.session_state.ai_data = json.load(f)
+    except:
+        st.session_state.ai_data = {}
+        
+        
+
+# --- AI LEARNING MEMORY ---
+if "correction_uber" not in st.session_state:
+    st.session_state.correction_uber = 1.0
+
+if "correction_bolt" not in st.session_state:
+    st.session_state.correction_bolt = 1.0
+
+if "correction_freenow" not in st.session_state:
+    st.session_state.correction_freenow = 1.0
 
 def simulate_smart_market(is_peak, is_night):
     if is_peak:
@@ -48,10 +69,19 @@ now = datetime.now(tz_PL) # Pobiera aktualny czas w Polsce, uwzględniając zmia
 h = now.hour
 time_val = h + now.minute/60
 day = now.weekday() 
-
 is_weekend = (day >= 5)
 is_night = (time_val >= 22 or time_val < 6)
 is_peak = not is_weekend and ((7.5 <= time_val <= 9.5) or (15.5 <= time_val <= 18.5))
+
+context_key = f"{int(time_val)}_{'weekend' if is_weekend else 'weekday'}"
+if context_key not in st.session_state.ai_data:
+    st.session_state.ai_data[context_key] = {
+        "uber": 1.0,
+        "bolt": 1.0,
+        "freenow": 1.0
+    }
+
+
 
 # Uwaga: poniższa linia może wymagać istnienia starej funkcji simulate_market() 
 # lub zmiany na simulate_smart_market(is_peak, is_night) przed kliknięciem przycisku
@@ -190,9 +220,11 @@ if st.button("SPRAWDŹ CENY"):
                                 freenow_raw = uber_raw + fn_fix
                                 
                                 # Nakładamy surge z symulacji rynku
-                                uber_x = uber_raw * surge
-                                bolt_std = bolt_raw * surge
-                                freenow_lite = freenow_raw * surge
+                                ctx = st.session_state.ai_data[context_key]
+
+                                uber_x = uber_raw * surge * ctx["uber"]
+                                bolt_std = bolt_raw * surge * ctx["bolt"]
+                                freenow_lite = freenow_raw * surge * ctx["freenow"]
                                 
                                 # --- CHAOS ALGORYTMU ---
                                 noise = 1
@@ -271,6 +303,33 @@ if st.button("SPRAWDŹ CENY"):
                                     st.write("---")
 
                                 st.caption("ℹ️ Ceny dojazdu są szacunkowe i mogą różnić się w oficjalnych aplikacjach.")
+
+                                st.markdown("### 🧠 Pomóż ulepszyć AI (opcjonalne)")
+
+                                real_uber = st.number_input("Rzeczywista cena Uber", min_value=0.0, step=1.0)
+                                real_bolt = st.number_input("Rzeczywista cena Bolt", min_value=0.0, step=1.0)
+                                real_fn = st.number_input("Rzeczywista cena FreeNow", min_value=0.0, step=1.0)
+                                
+                                if st.button("Zapisz korektę AI"):
+                                    ctx = st.session_state.ai_data[context_key]
+                                
+                                    if real_uber > 0:
+                                        factor = real_uber / uber_x
+                                        ctx["uber"] *= (0.8 + 0.2 * factor)
+                                
+                                    if real_bolt > 0:
+                                        factor = real_bolt / bolt_std
+                                        ctx["bolt"] *= (0.8 + 0.2 * factor)
+                                
+                                    if real_fn > 0:
+                                        factor = real_fn / freenow_lite
+                                        ctx["freenow"] *= (0.8 + 0.2 * factor)
+                                
+                                    # 💾 zapis do pliku
+                                    with open("ai_memory.json", "w") as f:
+                                        json.dump(st.session_state.ai_data, f)
+                                
+                                    st.success("✅ AI nauczyło się dla tej godziny!")
                             else:
                                 st.warning("⚠️ Serwer map nie znalazł trasy.")
                         except Exception as e:
@@ -279,3 +338,5 @@ if st.button("SPRAWDŹ CENY"):
                         st.warning("⚠️ Nie znaleziono adresu.")
                 except Exception as e:
                     st.error(f"⚠️ Błąd mapy: {e}")
+
+
