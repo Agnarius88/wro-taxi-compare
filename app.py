@@ -321,31 +321,31 @@ if st.button("SPRAWDŹ CENY"):
                                     st.session_state.real_fn = 0.0
                                 
                                 with st.form("correction_form"):
-                                real_uber = st.number_input("Rzeczywista cena UberX", min_value=0.0, step=1.0)
-                                real_bolt = st.number_input("Rzeczywista cena Bolt", min_value=0.0, step=1.0)
-                                real_fn = st.number_input("Rzeczywista cena FreeNow", min_value=0.0, step=1.0)
+                                    real_uber = st.number_input("Rzeczywista cena UberX", min_value=0.0, step=1.0)
+                                    real_bolt = st.number_input("Rzeczywista cena Bolt", min_value=0.0, step=1.0)
+                                    real_fn = st.number_input("Rzeczywista cena FreeNow", min_value=0.0, step=1.0)
+                                    
+                                    submitted = st.form_submit_button("Zapisz korektę AI")
+                                    
+                                    if submitted:
+                                        ctx = st.session_state.ai_data[context_key]
                                 
-                                submitted = st.form_submit_button("Zapisz korektę AI")
+                                        if real_uber > 0:
+                                            factor = real_uber / st.session_state.uber_x
+                                            ctx["uber"] *= (0.8 + 0.2 * factor)
                                 
-                                if submitted:
-                                    ctx = st.session_state.ai_data[context_key]
-                            
-                                    if real_uber > 0:
-                                        factor = real_uber / st.session_state.uber_x
-                                        ctx["uber"] *= (0.8 + 0.2 * factor)
-                            
-                                    if real_bolt > 0:
-                                        factor = real_bolt / st.session_state.bolt_std
-                                        ctx["bolt"] *= (0.8 + 0.2 * factor)
-                            
-                                    if real_fn > 0:
-                                        factor = real_fn / st.session_state.freenow_lite
-                                        ctx["freenow"] *= (0.8 + 0.2 * factor)
-                            
-                                    with open("ai_memory.json", "w") as f:
-                                        json.dump(st.session_state.ai_data, f)
-                            
-                                    st.success("✅ AI nauczyło się dla tej godziny!")
+                                        if real_bolt > 0:
+                                            factor = real_bolt / st.session_state.bolt_std
+                                            ctx["bolt"] *= (0.8 + 0.2 * factor)
+                                
+                                        if real_fn > 0:
+                                            factor = real_fn / st.session_state.freenow_lite
+                                            ctx["freenow"] *= (0.8 + 0.2 * factor)
+                                
+                                        with open("ai_memory.json", "w") as f:
+                                            json.dump(st.session_state.ai_data, f)
+                                
+                                        st.success("✅ AI nauczyło się dla tej godziny!")
                             else:
                                 st.warning("⚠️ Serwer map nie znalazł trasy.")
                         except Exception as e:
