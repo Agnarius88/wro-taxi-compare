@@ -1,4 +1,4 @@
 openrouteservice==2.3.3
 geopy==2.4.1
 pandas
-google-cloud-firestore
+supabase
