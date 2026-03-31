@@ -11,9 +11,17 @@ from google.oauth2 import service_account
 import os
 
 # Łączymy się z bazą używając "Secrets"
+# Łączymy się z bazą używając "Secrets"
 if "db" not in st.session_state:
     try:
-        key_dict = json.loads(json.dumps(st.secrets["textkey"]))
+        # Zamieniamy AttrDict ze Streamlit na zwykły słownik
+        key_dict = dict(st.secrets["textkey"])
+        
+        # Ważne: Naprawa znaków nowej linii w kluczu prywatnym
+        # Często przy wklejaniu do Streamlit Secrets, \n zamienia się na \\n
+        if "private_key" in key_dict:
+            key_dict["private_key"] = key_dict["private_key"].replace("\\n", "\n")
+            
         creds = service_account.Credentials.from_service_account_info(key_dict)
         st.session_state.db = firestore.Client(credentials=creds, project="taxi-compare-pro")
     except Exception as e:
