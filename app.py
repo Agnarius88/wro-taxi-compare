@@ -316,25 +316,25 @@ if st.button("SPRAWDŹ CENY"):
                                     st.session_state.real_fn = 0.0
                                 
                                 with st.form("correction_form"):
-                                    st.session_state.real_uber = st.number_input("Rzeczywista cena UberX", min_value=0.0, step=1.0, value=st.session_state.real_uber)
-                                    st.session_state.real_bolt = st.number_input("Rzeczywista cena Bolt", min_value=0.0, step=1.0, value=st.session_state.real_bolt)
-                                    st.session_state.real_fn = st.number_input("Rzeczywista cena FreeNow", min_value=0.0, step=1.0, value=st.session_state.real_fn)
+                                    real_uber = st.number_input("Rzeczywista cena UberX", min_value=0.0, step=1.0)
+                                    real_bolt = st.number_input("Rzeczywista cena Bolt", min_value=0.0, step=1.0)
+                                    real_fn = st.number_input("Rzeczywista cena FreeNow", min_value=0.0, step=1.0)
                                     
                                     submitted = st.form_submit_button("Zapisz korektę AI")
                                     
                                     if submitted:
                                         ctx = st.session_state.ai_data[context_key]
                                 
-                                        if st.session_state.real_uber > 0:
-                                            factor = st.session_state.real_uber / uber_x
+                                        if real_uber > 0:
+                                            factor = real_uber / uber_x
                                             ctx["uber"] *= (0.8 + 0.2 * factor)
                                 
-                                        if st.session_state.real_bolt > 0:
-                                            factor = st.session_state.real_bolt / bolt_std
+                                        if real_bolt > 0:
+                                            factor = real_bolt / bolt_std
                                             ctx["bolt"] *= (0.8 + 0.2 * factor)
                                 
-                                        if st.session_state.real_fn > 0:
-                                            factor = st.session_state.real_fn / freenow_lite
+                                        if real_fn > 0:
+                                            factor = real_fn / freenow_lite
                                             ctx["freenow"] *= (0.8 + 0.2 * factor)
                                 
                                         with open("ai_memory.json", "w") as f:
