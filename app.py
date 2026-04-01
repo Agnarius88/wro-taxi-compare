@@ -299,81 +299,102 @@ if st.session_state.show_results:  # <--- To sprawi, że formularz nie zniknie!
                             ]
 
                                 
-                                st.success(f"🛣️ {km:.2f} km | ⏱️ {int(dur)} min")
-                                # --- AUTOMATYCZNE PORÓWNANIE ---
-                                # Szukamy firmy z najniższą wartością 'Val'
-                                najtansza = min(dane, key=lambda x: x['Val'])
+                            st.success(f"🛣️ {km:.2f} km | ⏱️ {int(dur)} min")
+                            # --- AUTOMATYCZNE PORÓWNANIE ---
+                            # Szukamy firmy z najniższą wartością 'Val'
+                            najtansza = min(dane, key=lambda x: x['Val'])
+                            
+                            # Wyświetlamy baner z informacją
+                            st.info(f"🏆 **NAJLEPSZY WYBÓR:** Obecnie najtaniej pojedziesz z **{najtansza['Firma']}**!")
+                            
+                            # Opcjonalnie: Obliczamy ile oszczędzasz względem najdroższej opcji
+                            najdrozsza = max(dane, key=lambda x: x['Val'])
+                            oszczednosc = najdrozsza['Val'] - najtansza['Val']
+                            
+                            if oszczednosc > 2: # Pokazuj tylko, jeśli różnica jest większa niż 2 zł
+                                st.markdown(f"💡 Wybierając tę opcję, oszczędzasz ok. **{oszczednosc:.2f} PLN** względem najdroższego przewoźnika.")
+                            
+                            st.write("---") # Oddzielenie kreską od szczegółowej listy
+                            for item in sorted(dane, key=lambda x: x['Val']):
+                                c1, c2 = st.columns([3, 1])
+                                with c1:
+                                    disc = f" <span class='discount-tag'>-{item['Promo']}%</span>" if item['Promo'] > 0 else ""
+                                    st.markdown(f"**{item['Firma']}**{disc}", unsafe_allow_html=True)
+                                    st.markdown(f"### {item['Main']}")
+                                    if item['Vars']:
+                                        for v_name, v_price in item['Vars']:
+                                            st.markdown(f"<div class='variant-card'><span>{v_name}</span><b>~ {v_price:.2f} PLN</b></div>", unsafe_allow_html=True)
+                                with c2:
+                                    st.write("")
+                                    st.link_button(item['Btn'], item['Link'])
+                                st.write("---")
+                            st.caption("ℹ️ Ceny dojazdu są szacunkowe i mogą różnić się w oficjalnych aplikacjach.")
+                            # --- formularz korekty AI ---
+                            st.markdown("### 🧠 Pomóż ulepszyć AI (opcjonalne)")
+                            
+                            # zapisujemy aktualne wartości w session_state, żeby nie znikały po odświeżeniu
+                            if "real_uber" not in st.session_state:
+                                st.session_state.real_uber = 0.0
+                            if "real_bolt" not in st.session_state:
+                                st.session_state.real_bolt = 0.0
+                            if "real_fn" not in st.session_state:
+                                st.session_state.real_fn = 0.0
+                            
+                            with st.form("correction_form"):
+                                real_uber = st.number_input("Rzeczywista cena UberX", min_value=0.0, step=1.0)
+                                real_bolt = st.number_input("Rzeczywista cena Bolt", min_value=0.0, step=1.0)
+                                real_fn = st.number_input("Rzeczywista cena FreeNow", min_value=0.0, step=1.0)
                                 
-                                # Wyświetlamy baner z informacją
-                                st.info(f"🏆 **NAJLEPSZY WYBÓR:** Obecnie najtaniej pojedziesz z **{najtansza['Firma']}**!")
+                                submitted = st.form_submit_button("Zapisz korektę AI")
                                 
-                                # Opcjonalnie: Obliczamy ile oszczędzasz względem najdroższej opcji
-                                najdrozsza = max(dane, key=lambda x: x['Val'])
-                                oszczednosc = najdrozsza['Val'] - najtansza['Val']
-                                
-                                if oszczednosc > 2: # Pokazuj tylko, jeśli różnica jest większa niż 2 zł
-                                    st.markdown(f"💡 Wybierając tę opcję, oszczędzasz ok. **{oszczednosc:.2f} PLN** względem najdroższego przewoźnika.")
-                                
-                                st.write("---") # Oddzielenie kreską od szczegółowej listy
-                                for item in sorted(dane, key=lambda x: x['Val']):
-                                    c1, c2 = st.columns([3, 1])
-                                    with c1:
-                                        disc = f" <span class='discount-tag'>-{item['Promo']}%</span>" if item['Promo'] > 0 else ""
-                                        st.markdown(f"**{item['Firma']}**{disc}", unsafe_allow_html=True)
-                                        st.markdown(f"### {item['Main']}")
-                                        if item['Vars']:
-                                            for v_name, v_price in item['Vars']:
-                                                st.markdown(f"<div class='variant-card'><span>{v_name}</span><b>~ {v_price:.2f} PLN</b></div>", unsafe_allow_html=True)
-                                    with c2:
-                                        st.write("")
-                                        st.link_button(item['Btn'], item['Link'])
-                                    st.write("---")
-                                st.caption("ℹ️ Ceny dojazdu są szacunkowe i mogą różnić się w oficjalnych aplikacjach.")
-                                # --- formularz korekty AI ---
-                                st.markdown("### 🧠 Pomóż ulepszyć AI (opcjonalne)")
-                                
-                                # zapisujemy aktualne wartości w session_state, żeby nie znikały po odświeżeniu
-                                if "real_uber" not in st.session_state:
-                                    st.session_state.real_uber = 0.0
-                                if "real_bolt" not in st.session_state:
-                                    st.session_state.real_bolt = 0.0
-                                if "real_fn" not in st.session_state:
-                                    st.session_state.real_fn = 0.0
-                                
-                                with st.form("correction_form"):
-                                    real_uber = st.number_input("Rzeczywista cena UberX", min_value=0.0, step=1.0)
-                                    real_bolt = st.number_input("Rzeczywista cena Bolt", min_value=0.0, step=1.0)
-                                    real_fn = st.number_input("Rzeczywista cena FreeNow", min_value=0.0, step=1.0)
-                                    
-                                    submitted = st.form_submit_button("Zapisz korektę AI")
-                                    
-                                    if submitted:
-                                        ctx = st.session_state.ai_data[context_key]
-                                
-                                        if real_uber > 0:
-                                            factor = real_uber / st.session_state.uber_x
-                                            ctx["uber"] *= (0.8 + 0.2 * factor)
-                                
-                                        if real_bolt > 0:
-                                            factor = real_bolt / st.session_state.bolt_std
-                                            ctx["bolt"] *= (0.8 + 0.2 * factor)
-                                
-                                        if real_fn > 0:
-                                            factor = real_fn / st.session_state.freenow_lite
-                                            ctx["freenow"] *= (0.8 + 0.2 * factor)
-                                
-                                        try:
-                                            with open(PATH, "w") as f:
-                                                json.dump(st.session_state.ai_data, f)
-                                            st.toast("Mózg AI zaktualizowany na Pulpicie!", icon="🧠")
-                                            st.success(f"✅ Dane zapisane w: {PATH}")
-                                        except Exception as e:
-                                            st.error(f"❌ Nie udało się zapisać pliku na Pulpicie. Błąd: {e}")
-                            else:
-                                st.warning("⚠️ Serwer map nie znalazł trasy.")
-                        except Exception as e:
-                            st.error(f"⚠️ Błąd obliczeń trasy: {e}")
-                    else:
-                        st.warning("⚠️ Nie znaleziono adresu.")
-                except Exception as e:
-                    st.error(f"⚠️ Błąd mapy: {e}")
+                                if submitted:
+                                    ctx = st.session_state.ai_data[context_key]
+                            
+                                    if real_uber > 0:
+                                        factor = real_uber / st.session_state.uber_x
+                                        ctx["uber"] *= (0.8 + 0.2 * factor)
+                            
+                                    if real_bolt > 0:
+                                        factor = real_bolt / st.session_state.bolt_std
+                                        ctx["bolt"] *= (0.8 + 0.2 * factor)
+                            
+                                    if real_fn > 0:
+                                        factor = real_fn / st.session_state.freenow_lite
+                                        ctx["freenow"] *= (0.8 + 0.2 * factor)
+                            
+                                    try:
+                                        with open(PATH, "w") as f:
+                                            json.dump(st.session_state.ai_data, f)
+                                        st.toast("Mózg AI zaktualizowany na Pulpicie!", icon="🧠")
+                                        st.success(f"✅ Dane zapisane w: {PATH}")
+                                    except Exception as e:
+                                        st.error(f"❌ Nie udało się zapisać pliku na Pulpicie. Błąd: {e}")
+                        else:
+                            st.warning("⚠️ Serwer map nie znalazł trasy.")
+                    except Exception as e:
+                        st.error(f"⚠️ Błąd obliczeń trasy: {e}")
+                else:
+                    st.warning("⚠️ Nie znaleziono adresu.")
+            except Exception as e:
+                st.error(f"⚠️ Błąd mapy: {e}")
+# --- SEKCJA EKSPORTU DANYCH (NA SAMYM DOLE PLIKU) ---
+st.markdown("---")
+st.markdown("### 💾 Zarządzanie pamięcią AI")
+
+# Konwertujemy aktualne dane AI z sesji do formatu JSON (tekstowego)
+ai_memory_json = json.dumps(st.session_state.ai_data, indent=4, ensure_ascii=False)
+
+col_dl, col_info = st.columns([1, 2])
+
+with col_dl:
+    # Przycisk do pobierania pliku
+    st.download_button(
+        label="📥 Pobierz ai_memory.json",
+        data=ai_memory_json,
+        file_name="ai_memory.json",
+        mime="application/json",
+        help="Pobierz ten plik i wrzuć go do folderu Apka/raport na swoim komputerze, aby AI 'pamiętało' ceny."
+    )
+
+with col_info:
+    st.info("💡 Po dokonaniu korekt w formularzu powyżej, pobierz ten plik, aby zachować naukę AI na swoim dysku.")
