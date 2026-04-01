@@ -8,38 +8,27 @@ import pytz
 import json
 import os
 
-# 1. Budujemy ścieżkę do konkretnego folderu
-desktop = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop')
-folder_path = os.path.join(desktop, "Apka", "raport")
-
-# --- INTELIGENTNE USTALANIE ŚCIEŻKI ---
+# --- 1. INTELIGENTNE USTALANIE ŚCIEŻKI (BEZ BŁĘDÓW) ---
+# Najpierw sprawdzamy system, potem budujemy ścieżki
 if 'USERPROFILE' in os.environ:
     # Jesteś u siebie na Windowsie
     desktop = os.path.join(os.environ['USERPROFILE'], 'Desktop')
     folder_path = os.path.join(desktop, "Apka", "raport")
 else:
     # Jesteś w chmurze (Streamlit Cloud / Linux)
-    # W chmurze zapisujemy w folderze głównym aplikacji
     folder_path = "data" 
 
-# Tworzymy folder, jeśli go nie ma
+# Tworzymy folder raz, bezpiecznie
 if not os.path.exists(folder_path):
-    os.makedirs(folder_path)
+    os.makedirs(folder_path, exist_ok=True)
 
 PATH = os.path.join(folder_path, "ai_memory.json")
 
-# 2. To kluczowe: tworzymy foldery, jeśli nie istnieją (mkdir -p)
-if not os.path.exists(folder_path):
-    os.makedirs(folder_path)
-
-# 3. Pełna ścieżka do pliku
-PATH = os.path.join(folder_path, "ai_memory.json")
-
-# --- LOAD AI MEMORY FROM FILE ---
+# --- 2. ŁADOWANIE PAMIĘCI ---
 if "ai_data" not in st.session_state:
-    if os.path.exists(PATH): # Sprawdza czy plik fizycznie leży na pulpicie
+    if os.path.exists(PATH):
         try:
-            with open(PATH, "r") as f:
+            with open(PATH, "r", encoding='utf-8') as f:
                 st.session_state.ai_data = json.load(f)
         except:
             st.session_state.ai_data = {}
