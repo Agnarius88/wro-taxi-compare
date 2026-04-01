@@ -348,29 +348,31 @@ if st.session_state.show_results:  # <--- To sprawi, że formularz nie zniknie!
                                 submitted = st.form_submit_button("Zapisz korektę AI")
                                 
                                 if submitted:
-                                    # DEBUG: Wyświetlmy co widzi "mózg" aplikacji
-                                    st.write(f"DEBUG: Kod widzi Ubera jako: {st.session_state.uber_x * st.session_state.ai_data[context_key]['uber'] * 0.86:.2f} zł")
-                                    
                                     ctx = st.session_state.ai_data[context_key]
                                     
                                     # KOREKTA UBERA
                                     if real_uber > 0:
-                                        # UWAGA: Dodajemy ctx["uber"] do obliczeń ceny widocznej!
-                                        app_visible_price = st.session_state.uber_x * ctx["uber"] * 0.86 
+                                        # Używamy dokładnie tego, co widzi użytkownik w tabelce 'dane'
+                                        # (st.session_state.uber_x już zawiera w sobie mnożnik ctx!)
+                                        app_visible_price = st.session_state.uber_x * 0.86 
+                                        
                                         factor = real_uber / app_visible_price
-                                        ctx["uber"] *= (0.3 + 0.7 * factor)
+                                        st.write(f"DEBUG: Cena w apce: {app_visible_price:.2f} zł | Realna: {real_uber:.2f} zł | Factor: {factor:.4f}")
+                                        
+                                        # Aktualizacja mnożnika
+                                        ctx["uber"] *= (0.7 + 0.3 * factor)
                                 
                                     # KOREKTA BOLTA
                                     if real_bolt > 0:
-                                        # UWAGA: Dodajemy ctx["bolt"] do obliczeń ceny widocznej!
-                                        app_visible_price_bolt = st.session_state.bolt_std * ctx["bolt"] * 0.956
+                                        # Analogicznie: Bolt w tabelce ma mnożnik 0.956
+                                        app_visible_price_bolt = st.session_state.bolt_std * 0.956
                                         factor = real_bolt / app_visible_price_bolt
                                         ctx["bolt"] *= (0.7 + 0.3 * factor)
                                         
                                     # KOREKTA FREE NOW
                                     if real_fn > 0:
-                                        # UWAGA: Dodajemy ctx["freenow"] do obliczeń ceny widocznej!
-                                        app_visible_price_fn = st.session_state.freenow_lite * ctx["freenow"]
+                                        # FreeNow w tabelce nie ma dodatkowego mnożnika
+                                        app_visible_price_fn = st.session_state.freenow_lite
                                         factor = real_fn / app_visible_price_fn
                                         ctx["freenow"] *= (0.7 + 0.3 * factor)
                             
