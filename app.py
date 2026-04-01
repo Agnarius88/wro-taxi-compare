@@ -12,6 +12,22 @@ import os
 desktop = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop')
 folder_path = os.path.join(desktop, "Apka", "raport")
 
+# --- INTELIGENTNE USTALANIE ŚCIEŻKI ---
+if 'USERPROFILE' in os.environ:
+    # Jesteś u siebie na Windowsie
+    desktop = os.path.join(os.environ['USERPROFILE'], 'Desktop')
+    folder_path = os.path.join(desktop, "Apka", "raport")
+else:
+    # Jesteś w chmurze (Streamlit Cloud / Linux)
+    # W chmurze zapisujemy w folderze głównym aplikacji
+    folder_path = "data" 
+
+# Tworzymy folder, jeśli go nie ma
+if not os.path.exists(folder_path):
+    os.makedirs(folder_path)
+
+PATH = os.path.join(folder_path, "ai_memory.json")
+
 # 2. To kluczowe: tworzymy foldery, jeśli nie istnieją (mkdir -p)
 if not os.path.exists(folder_path):
     os.makedirs(folder_path)
