@@ -220,74 +220,81 @@ if st.session_state.show_results:  # <--- To sprawi, że formularz nie zniknie!
                         )
                         
                         if 'features' in res and len(res['features']) > 0:
-                            # Tutaj zaczyna się Twoja dalsza logika (km =, dur = itd.)
+                            # 1. Wyciągnięcie współrzędnych z ORS w formacie (lon, lat)
+                            lon_a, lat_a = coords_a[0], coords_a[1]
+                            lon_b, lat_b = coords_b[0], coords_b[1]
+                            
+                            # 2. Pobranie dystansu (km) i czasu (min)
                             km = res['features'][0]['properties']['summary']['distance'] / 1000
                             dur = res['features'][0]['properties']['summary']['duration'] / 60
                             
-                            # ... reszta Twoich obliczeń cen ...
-                        
-                                u_mult = (100 - u_promo) / 100
-                                b_mult = (100 - b_promo) / 100
-                                f_mult = (100 - f_promo) / 100
+                            # POPRAWIONE WCIĘCIA DLA PONIŻSZEGO BLOKU:
+                            u_mult = (100 - u_promo) / 100
+                            b_mult = (100 - b_promo) / 100
+                            f_mult = (100 - f_promo) / 100
+                            
+                            # Obliczamy "gołą" bazę
+                            uber_raw = u_base + (km * u_km) + (dur * time_rate)
+                            bolt_raw = b_base + (km * b_km) + 3.70
+                            freenow_raw = uber_raw + fn_fix
+                            
+                            # Nakładamy surge z symulacji rynku
+                            ctx = st.session_state.ai_data[context_key]
+                            uber_x = uber_raw * surge * ctx["uber"]
+                            bolt_std = bolt_raw * surge * ctx["bolt"]
+                            freenow_lite = freenow_raw * surge * ctx["freenow"]
+                            
+                            # --- CHAOS ALGORYTMU ---
+                            noise = 1
+                            uber_x *= noise
+                            bolt_std *= noise
+                            freenow_lite *= noise
+                            
+                            # --- NAKŁADAMY ZNIŻKI UŻYTKOWNIKA ---
+                            uber_x *= u_mult
+                            bolt_std *= b_mult
+                            freenow_lite *= f_mult
+                            
+                            # --- MINIMALNE CENY ---
+                            uber_x = max(uber_x, 12)
+                            bolt_std = max(bolt_std, 11)
+                            freenow_lite = max(freenow_lite, 12)
+                            
+                            # Zapisujemy aktualne ceny do session_state
+                            st.session_state.uber_x = uber_x
+                            st.session_state.bolt_std = bolt_std
+                            st.session_state.freenow_lite = freenow_lite
+                            
+                            # --- LOKALNA TAXI ---
+                            ryba_min = 20.50 + (math.ceil(km - 4) * 2.50 if km > 4 else 0)
+                            ryba_max = (ryba_min * 1.15) + 2.00
+                            
+                            # POPRAWIONY LINK DO UBERA - używamy lat_a, lon_a, lat_b, lon_b
+                            dane = [
+                                {"Firma": "Uber 🚗", "Btn": "WYBIERZ", "Val": uber_x*0.86, "Promo": u_promo,
+                                 "Main": f"~ {uber_x*0.86:.2f} PLN",
+                                 "Link": f"https://m.uber.com/ul/?action=setPickup&pickup[latitude]={lat_a}&pickup[longitude]={lon_a}&dropoff[latitude]={lat_b}&dropoff[longitude]={lon_b}",
+                                 "Vars": [("📉 Czekaj i oszczędzaj", uber_x*0.85), 
+                                          ("🚗 UberX", uber_x),
+                                          ("🔋 Hybrid", uber_x),                                                
+                                          ("🐾 Uber Pets", uber_x+4)]},
+                                {"Firma": "Bolt ⚡", "Btn": "WYBIERZ", "Val": bolt_std * 0.956, "Promo": b_promo,
+                                 "Main": f"~ {bolt_std * 0.956:.2f} PLN", "Link": "bolt://ride",
+                                 "Vars": [("⚡ Bolt", bolt_std), 
+                                          ("🔋 Hybrid", bolt_std),
+                                          ("🐾 Pet", bolt_std+4),
+                                          ("📉 Wait and Save", bolt_std * 0.77 if (is_peak or 15.67 <= time_val < 16.0) else bolt_std * 0.956)]},
+                                {"Firma": "FREENOW 🔴", "Btn": "ZAMÓW W APCE", "Val": freenow_lite, "Promo": f_promo,
+                                 "Main": f"~ {freenow_lite:.2f} PLN",
+                                 "Link": "intent://#Intent;scheme=freenow;package=taxi.android.client;end",
+                                 "Vars": [("🚗 Lite / Green", freenow_lite), 
+                                          ("🐾 Pets", freenow_lite*1.3), 
+                                          ("🚐 Taxi XL", freenow_lite*1.6)]},
+                                {"Firma": "Ryba Taxi 🐟", "Btn": "ZADZWOŃ", "Val": ryba_min, "Promo": 0,
+                                 "Main": f"{ryba_min:.2f} - {ryba_max:.2f} PLN", "Link": "tel:713441515", "Vars": []}
+                            ]
+
                                 
-                                # Obliczamy "gołą" bazę
-                                uber_raw = u_base + (km * u_km) + (dur * time_rate)
-                                bolt_raw = b_base + (km * b_km) + 3.70
-                                freenow_raw = uber_raw + fn_fix
-                                
-                                # Nakładamy surge z symulacji rynku
-                                ctx = st.session_state.ai_data[context_key]
-                                uber_x = uber_raw * surge * ctx["uber"]
-                                bolt_std = bolt_raw * surge * ctx["bolt"]
-                                freenow_lite = freenow_raw * surge * ctx["freenow"]
-                                
-                                # --- CHAOS ALGORYTMU ---
-                                noise = 1
-                                uber_x *= noise
-                                bolt_std *= noise
-                                freenow_lite *= noise
-                                
-                                # --- NAKŁADAMY ZNIŻKI UŻYTKOWNIKA ---
-                                uber_x *= u_mult
-                                bolt_std *= b_mult
-                                freenow_lite *= f_mult
-                                
-                                # --- MINIMALNE CENY ---
-                                uber_x = max(uber_x, 12)
-                                bolt_std = max(bolt_std, 11)
-                                freenow_lite = max(freenow_lite, 12)
-                                # Zapisujemy aktualne ceny do session_state
-                                st.session_state.uber_x = uber_x
-                                st.session_state.bolt_std = bolt_std
-                                st.session_state.freenow_lite = freenow_lite
-                                
-                                # --- LOKALNA TAXI ---
-                                ryba_min = 20.50 + (math.ceil(km - 4) * 2.50 if km > 4 else 0)
-                                ryba_max = (ryba_min * 1.15) + 2.00
-        
-                                dane = [
-                                    {"Firma": "Uber 🚗", "Btn": "WYBIERZ", "Val": uber_x*0.86, "Promo": u_promo,
-                                     "Main": f"~ {uber_x*0.86:.2f} PLN",
-                                     "Link": f"https://m.uber.com/ul/?action=setPickup&pickup[latitude]={l1.latitude}&pickup[longitude]={l1.longitude}&dropoff[latitude]={l2.latitude}&dropoff[longitude]={l2.longitude}",
-                                     "Vars": [("📉 Czekaj i oszczędzaj", uber_x*0.85), 
-                                              ("🚗 UberX", uber_x),
-                                              ("🔋 Hybrid", uber_x),                                                
-                                              ("🐾 Uber Pets", uber_x+4)]},
-                                    {"Firma": "Bolt ⚡", "Btn": "WYBIERZ", "Val": bolt_std * 0.956, "Promo": b_promo,
-                                     "Main": f"~ {bolt_std * 0.956:.2f} PLN", "Link": "bolt://ride",
-                                     "Vars": [("⚡ Bolt", bolt_std), 
-                                              ("🔋 Hybrid", bolt_std),
-                                              ("🐾 Pet", bolt_std+4), # Dodałem wariant Pet, względem zwykłego Bolta, Pet był droższy ok 4 zł
-                                              ("📉 Wait and Save", bolt_std * 0.77 if (is_peak or 15.67 <= time_val < 16.0) else bolt_std * 0.956)]},
-                                    {"Firma": "FREENOW 🔴", "Btn": "ZAMÓW W APCE", "Val": freenow_lite, "Promo": f_promo,
-                                     "Main": f"~ {freenow_lite:.2f} PLN",
-                                     "Link": "intent://#Intent;scheme=freenow;package=taxi.android.client;end",
-                                     "Vars": [("🚗 Lite / Green", freenow_lite), 
-                                              ("🐾 Pets", freenow_lite*1.3), 
-                                              ("🚐 Taxi XL", freenow_lite*1.6)]},
-                                    {"Firma": "Ryba Taxi 🐟", "Btn": "ZADZWOŃ", "Val": ryba_min, "Promo": 0,
-                                     "Main": f"{ryba_min:.2f} - {ryba_max:.2f} PLN", "Link": "tel:713441515", "Vars": []}
-                                ]
                                 st.success(f"🛣️ {km:.2f} km | ⏱️ {int(dur)} min")
                                 # --- AUTOMATYCZNE PORÓWNANIE ---
                                 # Szukamy firmy z najniższą wartością 'Val'
