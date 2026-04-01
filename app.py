@@ -371,12 +371,14 @@ if st.session_state.show_results:  # <--- To sprawi, że formularz nie zniknie!
                                         st.error(f"❌ Nie udało się zapisać pliku na Pulpicie. Błąd: {e}")
                         else:
                             st.warning("⚠️ Serwer map nie znalazł trasy.")
-                    except Exception as e:
-                        st.error(f"⚠️ Błąd obliczeń trasy: {e}")
-                else:
-                    st.warning("⚠️ Nie znaleziono adresu.")
-            except Exception as e:
-                st.error(f"⚠️ Błąd mapy: {e}")
+                    
+                    # To 'else' jest parą do: if res_a['features'] and res_b['features']:
+                    else:
+                        st.warning("⚠️ Nie znaleziono adresu.")
+                
+                # To 'except' jest parą do głównego: try: (zaraz pod with st.spinner)
+                except Exception as e:
+                    st.error(f"⚠️ Błąd obliczeń trasy lub mapy: {e}")
 # --- SEKCJA EKSPORTU DANYCH (NA SAMYM DOLE PLIKU) ---
 st.markdown("---")
 st.markdown("### 💾 Zarządzanie pamięcią AI")
