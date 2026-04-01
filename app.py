@@ -170,14 +170,12 @@ ORS_KEY = 'eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6Ijc2N2YwMmI0Y2M2O
 
 def get_data():
     try:
-        return openrouteservice.Client(key=ORS_KEY), Nominatim(user_agent="wrotaxi_v55_precision")
-    except:
-        return None, None
+        return openrouteservice.Client(key=ORS_KEY)
+    except Exception as e:
+        st.error(f"Błąd klucza API: {e}")
+        return None
 
-def is_center(lat, lon):
-    return 51.105 < lat < 51.115 and 17.025 < lon < 17.045
-
-client, geolocator = get_data()
+client = get_data()
 
 start_adr = st.text_input("📍 Skąd?", placeholder="np. Wojaczka 10")
 cel_adr = st.text_input("🏁 Dokąd?", placeholder="np. Rynek")
@@ -201,27 +199,32 @@ if st.session_state.show_results:  # <--- To sprawi, że formularz nie zniknie!
         surge, drivers, requests, market_status = simulate_smart_market(is_peak, is_night)
         
         if start_adr and cel_adr:
-            with st.spinner("Przeliczanie..."):
+            with st.spinner("Szukanie adresów i trasy..."):
                 try:
-                    l1 = geolocator.geocode(f"{start_adr}, Poland")
-                    l2 = geolocator.geocode(f"{cel_adr}, Poland")
-                    
-                    if l1 and l2:
-                        #if is_center(l1.latitude, l1.longitude) or is_center(l2.latitude, l2.longitude):
-                            #surge *= 1.15
+                    # --- SZUKANIE WSPÓŁRZĘDNYCH PRZEZ ORS ---
+                    # Szukamy punktu A
+                    res_a = client.pelias_search(text=start_adr, focus_point=[17.03, 51.10], size=1)
+                    # Szukamy punktu B
+                    res_b = client.pelias_search(text=cel_adr, focus_point=[17.03, 51.10], size=1)
+        
+                    if res_a['features'] and res_b['features']:
+                        # Pobieramy współrzędne [lon, lat]
+                        coords_a = res_a['features'][0]['geometry']['coordinates']
+                        coords_b = res_b['features'][0]['geometry']['coordinates']
+        
+                        # --- LICZENIE TRASY ---
+                        res = client.directions(
+                            coordinates=(coords_a, coords_b),
+                            profile='driving-car',
+                            format='geojson'
+                        )
                         
-                        # --- GŁÓWNA FUNKCJA MAPOWA Z TRY-EXCEPT ---
-                        try:
-                            res = client.directions(
-                                coordinates=((l1.longitude, l1.latitude), (l2.longitude, l2.latitude)),
-                                profile='driving-car',
-                                format='geojson',
-                                radiuses=[3000, 3000]
-                            )
+                        if 'features' in res and len(res['features']) > 0:
+                            # Tutaj zaczyna się Twoja dalsza logika (km =, dur = itd.)
+                            km = res['features'][0]['properties']['summary']['distance'] / 1000
+                            dur = res['features'][0]['properties']['summary']['duration'] / 60
                             
-                            if 'features' in res and len(res['features']) > 0:
-                                km = res['features'][0]['properties']['summary']['distance'] / 1000
-                                dur = res['features'][0]['properties']['summary']['duration'] / 60
+                            # ... reszta Twoich obliczeń cen ...
                         
                                 u_mult = (100 - u_promo) / 100
                                 b_mult = (100 - b_promo) / 100
