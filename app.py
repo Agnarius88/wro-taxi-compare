@@ -354,7 +354,7 @@ if st.session_state.show_results:  # <--- To sprawi, że formularz nie zniknie!
                                     if real_uber > 0:
                                         # Używamy dokładnie tego, co widzi użytkownik w tabelce 'dane'
                                         # (st.session_state.uber_x już zawiera w sobie mnożnik ctx!)
-                                        app_visible_price = st.session_state.uber_x * 0.86 
+                                        app_visible_price = st.session_state.uber_x 
                                         
                                         factor = real_uber / app_visible_price
                                         st.write(f"DEBUG: Cena w apce: {app_visible_price:.2f} zł | Realna: {real_uber:.2f} zł | Factor: {factor:.4f}")
@@ -364,8 +364,8 @@ if st.session_state.show_results:  # <--- To sprawi, że formularz nie zniknie!
                                 
                                     # KOREKTA BOLTA
                                     if real_bolt > 0:
-                                        # Analogicznie: Bolt w tabelce ma mnożnik 0.956
-                                        app_visible_price_bolt = st.session_state.bolt_std * 0.956
+                                        # 
+                                        app_visible_price_bolt = st.session_state.bolt_std 
                                         factor = real_bolt / app_visible_price_bolt
                                         ctx["bolt"] *= (0.7 + 0.3 * factor)
                                         
