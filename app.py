@@ -383,6 +383,13 @@ if st.session_state.show_results:  # <--- To sprawi, że formularz nie zniknie!
                                         st.success(f"✅ Dane zapisane w: {PATH}")
                                     except Exception as e:
                                         st.error(f"❌ Nie udało się zapisać pliku na Pulpicie. Błąd: {e}")
+                                    # --- PODGLĄD PAMIĘCI AI PO ZAPISIE ---
+                                    st.markdown("#### 🔍 Aktualny stan pamięci dla tej godziny:")
+                                    # Wyświetlamy tylko dane dla obecnego kontekstu (godzina/dzień), żeby było czytelnie
+                                    st.json(st.session_state.ai_data[context_key])
+                                    
+                                    # Opcjonalnie: jeśli chcesz widzieć CAŁY plik, użyj:
+                                    # st.json(st.session_state.ai_data)    
                         else:
                             st.warning("⚠️ Serwer map nie znalazł trasy.")
                     
