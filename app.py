@@ -8,21 +8,25 @@ import pytz
 import json
 import os
 
-# --- 1. INTELIGENTNE USTALANIE ŚCIEŻKI (BEZ BŁĘDÓW) ---
-# Najpierw sprawdzamy system, potem budujemy ścieżki
-if 'USERPROFILE' in os.environ:
-    # Jesteś u siebie na Windowsie
-    desktop = os.path.join(os.environ['USERPROFILE'], 'Desktop')
+# --- 1. INTELIGENTNE USTALANIE ŚCIEŻKI (POPRAWIONE) ---
+import platform
+
+# Pobieramy ścieżkę do folderu domowego użytkownika (np. C:\Users\Piotr)
+home = os.path.expanduser("~")
+
+# Sprawdzamy czy jesteśmy na Windowsie
+if platform.system() == "Windows":
+    # Budujemy ścieżkę do Pulpitu
+    desktop = os.path.join(home, 'Desktop')
     folder_path = os.path.join(desktop, "Apka", "raport")
 else:
-    # Jesteś w chmurze (Streamlit Cloud / Linux)
+    # Jesteś w chmurze lub na Linuxie
     folder_path = "data" 
 
-# Tworzymy folder raz, bezpiecznie
-if not os.path.exists(folder_path):
-    os.makedirs(folder_path, exist_ok=True)
-
+# Tworzymy folder, jeśli nie istnieje
+os.makedirs(folder_path, exist_ok=True)
 PATH = os.path.join(folder_path, "ai_memory.json")
+
 
 # --- 2. ŁADOWANIE PAMIĘCI ---
 if "ai_data" not in st.session_state:
