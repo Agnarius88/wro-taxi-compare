@@ -350,21 +350,25 @@ if st.session_state.show_results:  # <--- To sprawi, że formularz nie zniknie!
                                 if submitted:
                                     ctx = st.session_state.ai_data[context_key]
                                     
-                                    # Korekta Ubera - porównujemy z tym, co FAKTYCZNIE widział użytkownik (z uwzględnieniem 0.86)
+                                    # KOREKTA UBERA
                                     if real_uber > 0:
-                                        # Obliczamy cenę, którą widział user na ekranie w momencie kliknięcia
-                                        app_visible_price = st.session_state.uber_x * 0.86 
+                                        # UWAGA: Dodajemy ctx["uber"] do obliczeń ceny widocznej!
+                                        app_visible_price = st.session_state.uber_x * ctx["uber"] * 0.86 
                                         factor = real_uber / app_visible_price
                                         ctx["uber"] *= (0.7 + 0.3 * factor)
                                 
-                                    # Korekta Bolta - analogicznie (u Ciebie w kodzie dla Bolta jest mnożnik 0.956)
+                                    # KOREKTA BOLTA
                                     if real_bolt > 0:
-                                        app_visible_price_bolt = st.session_state.bolt_std * 0.956
+                                        # UWAGA: Dodajemy ctx["bolt"] do obliczeń ceny widocznej!
+                                        app_visible_price_bolt = st.session_state.bolt_std * ctx["bolt"] * 0.956
                                         factor = real_bolt / app_visible_price_bolt
                                         ctx["bolt"] *= (0.7 + 0.3 * factor)
-                            
+                                        
+                                    # KOREKTA FREE NOW
                                     if real_fn > 0:
-                                        factor = real_fn / st.session_state.freenow_lite
+                                        # UWAGA: Dodajemy ctx["freenow"] do obliczeń ceny widocznej!
+                                        app_visible_price_fn = st.session_state.freenow_lite * ctx["freenow"]
+                                        factor = real_fn / app_visible_price_fn
                                         ctx["freenow"] *= (0.7 + 0.3 * factor)
                             
                                     try:
