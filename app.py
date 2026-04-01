@@ -348,6 +348,9 @@ if st.session_state.show_results:  # <--- To sprawi, że formularz nie zniknie!
                                 submitted = st.form_submit_button("Zapisz korektę AI")
                                 
                                 if submitted:
+                                    # DEBUG: Wyświetlmy co widzi "mózg" aplikacji
+                                    st.write(f"DEBUG: Kod widzi Ubera jako: {st.session_state.uber_x * st.session_state.ai_data[context_key]['uber'] * 0.86:.2f} zł")
+                                    
                                     ctx = st.session_state.ai_data[context_key]
                                     
                                     # KOREKTA UBERA
@@ -355,7 +358,7 @@ if st.session_state.show_results:  # <--- To sprawi, że formularz nie zniknie!
                                         # UWAGA: Dodajemy ctx["uber"] do obliczeń ceny widocznej!
                                         app_visible_price = st.session_state.uber_x * ctx["uber"] * 0.86 
                                         factor = real_uber / app_visible_price
-                                        ctx["uber"] *= (0.7 + 0.3 * factor)
+                                        ctx["uber"] *= (0.3 + 0.7 * factor)
                                 
                                     # KOREKTA BOLTA
                                     if real_bolt > 0:
