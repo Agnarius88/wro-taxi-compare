@@ -173,7 +173,6 @@ elif (h("17:00") <= time_val < h("18:00")):
     #b_km = 2.70  
 elif (h("18:00") <= time_val < h("19:00")):
     t_status = "🌆 WIECZORNY POWRÓT (18:00-19:00)"
-    # Uber i FreeNow: Schodzimy mocno w dół
     u_base, u_km = 6.20, 1.70   
     b_base, b_km = 3.50, 1.95
     time_rate = 0.20            # Mniejszy ruch, mniej płacimy za minuty
