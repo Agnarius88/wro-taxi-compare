@@ -203,13 +203,26 @@ if st.session_state.show_results:  # <--- To sprawi, że formularz nie zniknie!
         surge, drivers, requests, market_status = simulate_smart_market(is_peak, is_night)
         
         if start_adr and cel_adr:
-            with st.spinner("Szukanie adresów i trasy..."):
+           with st.spinner("Szukanie adresów i trasy..."):
                 try:
-                    # --- SZUKANIE WSPÓŁRZĘDNYCH PRZEZ ORS ---
-                    # Szukamy punktu A
-                    res_a = client.pelias_search(text=start_adr, focus_point=[17.03, 51.10], size=1)
-                    # Szukamy punktu B
-                    res_b = client.pelias_search(text=cel_adr, focus_point=[17.03, 51.10], size=1)
+                    # --- TŁUMACZ ADRESÓW (SZYBKI FIX) ---
+                    def fix_address(adr):
+                        adr_low = adr.lower().strip()
+                        # Jeśli wpiszesz tylko "lotnisko" lub "na lotnisko"
+                        if "lotnisko" in adr_low:
+                            return "Port Lotniczy Wrocław, Graniczna"
+                        # Możesz tu dodać inne skróty, np. dworzec
+                        if adr_low == "pkp" or adr_low == "dworzec":
+                            return "Dworzec Główny PKP Wrocław"
+                        return adr
+
+                    # Naprawiamy adresy przed wysłaniem do map
+                    search_start = fix_address(start_adr)
+                    search_cel = fix_address(cel_adr)
+
+                    # --- SZUKANIE WSPÓŁRZĘDNYCH (używamy naprawionych adresów) ---
+                    res_a = client.pelias_search(text=search_start, focus_point=[17.03, 51.10], size=1)
+                    res_b = client.pelias_search(text=search_cel, focus_point=[17.03, 51.10], size=1)
         
                     if res_a['features'] and res_b['features']:
                         # Pobieramy współrzędne [lon, lat]
