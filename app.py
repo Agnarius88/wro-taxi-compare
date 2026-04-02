@@ -310,7 +310,7 @@ if st.session_state.show_results:  # <--- To sprawi, że formularz nie zniknie!
                                           ("🐾 Pets", freenow_lite*1.3), 
                                           ("🚐 Taxi XL", freenow_lite*1.6)]},
                                 {"Firma": "Ryba Taxi 🐟", "Btn": "ZADZWOŃ", "Val": ryba_min, "Promo": 0,
-                                 "Main": f"{ryba_min:.2f} - {ryba_max:.2f} PLN", "Link": "https://play.google.com/store/apps/details?id=pl.itaxi.ryba.client;end", "Vars": []}
+                                 "Main": f"{ryba_min:.2f} - {ryba_max:.2f} PLN", "Link": "tel:713441515", "Vars": []}
                             ]
 
                                 
