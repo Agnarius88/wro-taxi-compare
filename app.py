@@ -11,6 +11,14 @@ import os
 # --- 1. INTELIGENTNE USTALANIE ŚCIEŻKI (POPRAWIONE) ---
 import platform
 
+def h(time_str): # --- Zmiana formatu czasu
+    """Zamienia '15:10' na 15.17"""
+    try:
+        hours, minutes = map(int, time_str.split(':'))
+        return round(hours + (minutes / 60), 2)
+    except:
+        return 0.0 # Zabezpieczenie przed błędami
+
 # Pobieramy ścieżkę do folderu domowego użytkownika (np. C:\Users\Piotr)
 home = os.path.expanduser("~")
 
@@ -93,7 +101,7 @@ time_val = h + now.minute/60
 day = now.weekday() 
 is_weekend = (day >= 5)
 is_night = (time_val >= 22 or time_val < 6)
-is_peak = not is_weekend and ((7.5 <= time_val <= 9.5) or (15.5 <= time_val <= 18.5))
+is_peak = not is_weekend and (h("07:30") <= time_val < h("09:30")) or (h("15:30") <= time_val < h("18:30"))
 context_key = f"{int(time_val)}_{'weekend' if is_weekend else 'weekday'}"
 
 if context_key not in st.session_state.ai_data:
@@ -119,31 +127,31 @@ elif is_weekend:  # <--- NOWY BLOK TYLKO DLA WEEKENDU (w ciągu dnia)
     b_base, b_km = 3.00, 2.70
     fn_fix = 8.00
     time_rate = 0.20
-elif (10.25 <= time_val < 10.67):
+elif (h("10:15") <= time_val < h("10:40")):
     t_status = "📉 SPOKÓJ PRZEDPOŁUDNIOWY"
     u_base, u_km = 5.00, 1.70  
     b_base, b_km = 3.50, 1.90
     fn_fix = 2.00
     time_rate = 0.15
-elif (11.0 <= time_val < 11.5):
+elif (h('11:00') <= time_val < h('11:30')):
     t_status = "📉 PRZEDPOŁUDNIOWY DOŁEK"
     u_base, u_km = 7.50, 1.90    # To Twoje "standardowe" ceny, które były o 10:00
     b_base, b_km = 4.80, 2.30
     fn_fix = 2.00
     time_rate = 0.15    
-elif (11.5 <= time_val < 12.25):
+elif (h('11:30') <= time_val < h('12:15')):
     t_status = "⚖️ STABILIZACJA PRZEDPOŁUDNIOWA (11:30-12:15)"
     u_base, u_km = 7.00, 2.00  
     b_base, b_km = 6.50, 2.35
     fn_fix = 2.00
     time_rate = 0.25            # Normalna stawka czasowa
-elif (13.5 <= time_val <= 14.5):
+elif (h('13:30') <= time_val <= h('14:30')):
     t_status = "📉 PRZEDSZCZYTOWA PROMOCJA BOLT"
     u_base, u_km = 9.00, 2.35
     b_base, b_km = 2.80, 2.70 
     fn_fix = 2.00
     time_rate = 0.15
-elif (15.67 <= time_val < 16.0):
+elif (h('15:10') <= time_val < h('16:00')):
     u_base, u_km = 4.5, 2.25 
     b_base, b_km = 5.00, 2.70
     fn_fix = -10  
@@ -288,7 +296,7 @@ if st.session_state.show_results:  # <--- To sprawi, że formularz nie zniknie!
 
                             # --- DEFINICJA NAJTAŃSZYCH OPJI DLA PORÓWNANIA ---
                             uber_cheap = uber_x * 0.85  # Czekaj i oszczędzaj
-                            bolt_cheap = bolt_std - 9 if (is_peak or 15.17 <= time_val < 16.0) else bolt_std - 3   # Wait and Save
+                            bolt_cheap = bolt_std - 9 if (is_peak or h('15:10') <= time_val < 16.0) else bolt_std - 3   # Wait and Save
                             
                             # POPRAWIONY LINK DO UBERA - używamy lat_a, lon_a, lat_b, lon_b
                             dane = [
@@ -300,7 +308,7 @@ if st.session_state.show_results:  # <--- To sprawi, że formularz nie zniknie!
                                           ("🐾 Uber Pets", uber_x+4)]},
                                 {"Firma": "Bolt ⚡", "Btn": "WYBIERZ", "Val": bolt_cheap, "Promo": b_promo,
                                  "Main": f"~ {bolt_cheap:.2f} PLN", "Link": "bolt://ride",
-                                 "Vars": [("📉 Wait and Save", bolt_std - 9 if (is_peak or 15.17 <= time_val < 16.0) else bolt_std - 3),                                           
+                                 "Vars": [("📉 Wait and Save", bolt_std - 9 if (is_peak or h('15:10') <= time_val < 16.0) else bolt_std - 3),                                           
                                           ("⚡ Bolt /🔋 Hybrid", bolt_std),
                                           ("🐾 Pet", bolt_std+4)]},                                         
                                 {"Firma": "FREENOW 🔴", "Btn": "ZAMÓW W APCE", "Val": freenow_lite, "Promo": f_promo,
