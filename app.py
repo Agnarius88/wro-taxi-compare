@@ -280,18 +280,18 @@ if st.session_state.show_results:  # <--- To sprawi, że formularz nie zniknie!
                             # POPRAWIONY LINK DO UBERA - używamy lat_a, lon_a, lat_b, lon_b
                             dane = [
                                 {"Firma": "Uber 🚗", "Btn": "WYBIERZ", "Val": uber_cheap, "Promo": u_promo,
-                                 "Main": f"~ {uber_cheap:.2f} PLN (Czekaj i oszczędzaj)",
+                                 "Main": f"~ {uber_cheap:.2f} PLN",
                                  "Link": f"https://m.uber.com/ul/?action=setPickup&pickup[latitude]={lat_a}&pickup[longitude]={lon_a}&dropoff[latitude]={lat_b}&dropoff[longitude]={lon_b}",
                                  "Vars": [("📉 Czekaj i oszczędzaj", uber_x*0.85), 
                                           ("🚗 UberX", uber_x),
                                           ("🔋 Hybrid", uber_x),                                                
                                           ("🐾 Uber Pets", uber_x+4)]},
                                 {"Firma": "Bolt ⚡", "Btn": "WYBIERZ", "Val": bolt_cheap, "Promo": b_promo,
-                                 "Main": f"~ {bolt_cheap:.2f} PLN (Wait and Save)", "Link": "bolt://ride",
-                                 "Vars": [("⚡ Bolt", bolt_std), 
+                                 "Main": f"~ {bolt_cheap:.2f} PLN", "Link": "bolt://ride",
+                                 "Vars": [("📉 Wait and Save", bolt_std - 3 if (is_peak or 15.67 <= time_val < 16.0) else bolt_std - 3),                                           
                                           ("🔋 Hybrid", bolt_std),
                                           ("🐾 Pet", bolt_std+4),
-                                          ("📉 Wait and Save", bolt_std - 3 if (is_peak or 15.67 <= time_val < 16.0) else bolt_std - 3)]},
+                                          ("⚡ Bolt", bolt_std)]},
                                 {"Firma": "FREENOW 🔴", "Btn": "ZAMÓW W APCE", "Val": freenow_lite, "Promo": f_promo,
                                  "Main": f"~ {freenow_lite:.2f} PLN",
                                  "Link": "intent://#Intent;scheme=freenow;package=taxi.android.client;end",
@@ -423,5 +423,3 @@ with col_dl:
         help="Pobierz ten plik i wrzuć go do folderu Apka/raport na swoim komputerze, aby AI 'pamiętało' ceny."
     )
 
-with col_info:
-    st.info("💡 Po dokonaniu korekt w formularzu powyżej, pobierz ten plik, aby zachować naukę AI na swoim dysku.")
