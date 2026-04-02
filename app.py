@@ -272,18 +272,22 @@ if st.session_state.show_results:  # <--- To sprawi, że formularz nie zniknie!
                             # --- LOKALNA TAXI ---
                             ryba_min = 20.50 + (math.ceil(km - 4) * 2.50 if km > 4 else 0)
                             ryba_max = (ryba_min * 1.15) + 2.00
+
+                            # --- DEFINICJA NAJTAŃSZYCH OPJI DLA PORÓWNANIA ---
+                            uber_cheap = uber_x * 0.85  # Czekaj i oszczędzaj
+                            bolt_cheap = bolt_std - 3   # Wait and Save
                             
                             # POPRAWIONY LINK DO UBERA - używamy lat_a, lon_a, lat_b, lon_b
                             dane = [
-                                {"Firma": "Uber 🚗", "Btn": "WYBIERZ", "Val": uber_x*0.85, "Promo": u_promo,
-                                 "Main": f"~ {uber_x*0.86:.2f} PLN",
+                                {"Firma": "Uber 🚗", "Btn": "WYBIERZ", "Val": uber_cheap, "Promo": u_promo,
+                                 "Main": f"~ {uber_cheap:.2f} PLN (Czekaj i oszczędzaj)",
                                  "Link": f"https://m.uber.com/ul/?action=setPickup&pickup[latitude]={lat_a}&pickup[longitude]={lon_a}&dropoff[latitude]={lat_b}&dropoff[longitude]={lon_b}",
                                  "Vars": [("📉 Czekaj i oszczędzaj", uber_x*0.85), 
                                           ("🚗 UberX", uber_x),
                                           ("🔋 Hybrid", uber_x),                                                
                                           ("🐾 Uber Pets", uber_x+4)]},
-                                {"Firma": "Bolt ⚡", "Btn": "WYBIERZ", "Val": bolt_std - 3, "Promo": b_promo,
-                                 "Main": f"~ {bolt_std * 0.956:.2f} PLN", "Link": "bolt://ride",
+                                {"Firma": "Bolt ⚡", "Btn": "WYBIERZ", "Val": bolt_cheap, "Promo": b_promo,
+                                 "Main": f"~ {bolt_cheap:.2f} PLN (Wait and Save)", "Link": "bolt://ride",
                                  "Vars": [("⚡ Bolt", bolt_std), 
                                           ("🔋 Hybrid", bolt_std),
                                           ("🐾 Pet", bolt_std+4),
