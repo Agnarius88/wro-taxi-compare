@@ -161,10 +161,10 @@ elif (h('15:10') <= time_val < h('15:30')):
     time_rate = 0.45
 elif (h("17:00") <= time_val < h("18:00")):
     t_status = "📉 POPOŁUDNIOWE ROZLUŹNIENIE (17:00-18:00)"
-    u_base, u_km = 9.50, 2.25
-    b_base, b_km = 7.50, 2.55
-    time_rate = 0.30            
-    fn_fix = 0.50               
+    u_base, u_km = 6.50, 1.60   # Znacznie niższa stawka za km (było 1.90)
+    b_base, b_km = 4.50, 2.45   # 
+    fn_fix = 1.00
+    time_rate = 0.20            # Mniejsza dopłata za korki         
 #elif (13.0 <= time_val < 14.0): <--- To jest szablon do korekty cen w zależności od godziny
    #t_status = "🕒 POŁUDNIOWY SKOK CEN"
     #u_base = 9.00  # było 8.00, więc dodajemy 1 zł
@@ -173,9 +173,9 @@ elif (h("17:00") <= time_val < h("18:00")):
     #b_km = 2.70  
 elif (h("18:00") <= time_val < h("19:00")):
     t_status = "🌆 WIECZORNY POWRÓT (18:00-19:00)"
-    u_base, u_km = 6.20, 1.70   
-    b_base, b_km = 3.50, 1.95
-    time_rate = 0.20            # Mniejszy ruch, mniej płacimy za minuty
+    u_base, u_km = 9.50, 2.25
+    b_base, b_km = 7.50, 2.55
+    time_rate = 0.30            
     fn_fix = 0.50               # FreeNow ma być blisko Ubera  
 elif is_peak: #  peak jest ustawiony 7:30 - 9:30 i 15:30 - 18:30
     # Szczyt (Twoje 15:22 - korki + wysoki popyt)
