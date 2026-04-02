@@ -171,6 +171,13 @@ elif (h("17:00") <= time_val < h("18:00")):
     #b_base = 6.00  # było 5.00, więc dodajemy 1 zł
     #u_km = 2.10    # stawka za km zostaje standardowa
     #b_km = 2.70  
+elif (h("18:00") <= time_val < h("19:00")):
+    t_status = "🌆 WIECZORNY POWRÓT (18:00-19:00)"
+    # Uber i FreeNow: Schodzimy mocno w dół
+    u_base, u_km = 6.20, 1.70   
+    b_base, b_km = 3.50, 1.95
+    time_rate = 0.20            # Mniejszy ruch, mniej płacimy za minuty
+    fn_fix = 0.50               # FreeNow ma być blisko Ubera  
 elif is_peak: #  peak jest ustawiony 7:30 - 9:30 i 15:30 - 18:30
     # Szczyt (Twoje 15:22 - korki + wysoki popyt)
     u_base, u_km = 8.0, 1.90 
