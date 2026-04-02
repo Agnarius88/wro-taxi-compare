@@ -101,7 +101,10 @@ time_val = h + now.minute/60
 day = now.weekday() 
 is_weekend = (day >= 5)
 is_night = (time_val >= 22 or time_val < 6)
-is_peak = not is_weekend and (h("07:30") <= time_val < h("09:30")) or (h("15:30") <= time_val < h("18:30"))
+is_peak = not is_weekend and (
+    (h("07:30") <= time_val < h("09:30")) or 
+    (h("15:30") <= time_val < h("18:30"))
+)
 context_key = f"{int(time_val)}_{'weekend' if is_weekend else 'weekday'}"
 
 if context_key not in st.session_state.ai_data:
