@@ -154,7 +154,7 @@ elif (h('13:30') <= time_val <= h('14:30')):
     b_base, b_km = 2.80, 2.70 
     fn_fix = 2.00
     time_rate = 0.15
-elif (h('15:10') <= time_val < h('16:00')):
+elif (h('15:10') <= time_val < h('15:30')):
     u_base, u_km = 4.5, 2.25 
     b_base, b_km = 5.00, 2.70
     fn_fix = -10  
@@ -167,10 +167,10 @@ elif (h('15:10') <= time_val < h('16:00')):
     #b_km = 2.70  
 elif is_peak: #  peak jest ustawiony 7:30 - 9:30 i 15:30 - 18:30
     # Szczyt (Twoje 15:22 - korki + wysoki popyt)
-    u_base, u_km = 10.5, 2.25 
-    b_base, b_km = 5.00, 2.70
+    u_base, u_km = 8.0, 1.90 
+    b_base, b_km = 4.00, 2.20
     fn_fix = 3.50  
-    time_rate = 0.45         # Minuta droższa, bo stoisz na światłach
+    time_rate = 0.40         # Minuta droższa, bo stoisz na światłach
 else:
     t_status = "☀️ STANDARDOWY DZIEŃ (np. 10:00)"
     u_base, u_km = 8.00, 2.10
@@ -299,7 +299,7 @@ if st.session_state.show_results:  # <--- To sprawi, że formularz nie zniknie!
 
                             # --- DEFINICJA NAJTAŃSZYCH OPJI DLA PORÓWNANIA ---
                             uber_cheap = uber_x * 0.85  # Czekaj i oszczędzaj
-                            bolt_cheap = bolt_std - 9 if (is_peak or h('15:10') <= time_val < 16.0) else bolt_std - 3   # Wait and Save
+                            bolt_cheap = bolt_std - 9 if (is_peak or h('15:10') <= time_val < 15.5) else bolt_std - 3   # Wait and Save
                             
                             # POPRAWIONY LINK DO UBERA - używamy lat_a, lon_a, lat_b, lon_b
                             dane = [
