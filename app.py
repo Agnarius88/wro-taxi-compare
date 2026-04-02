@@ -275,14 +275,14 @@ if st.session_state.show_results:  # <--- To sprawi, że formularz nie zniknie!
                             
                             # POPRAWIONY LINK DO UBERA - używamy lat_a, lon_a, lat_b, lon_b
                             dane = [
-                                {"Firma": "Uber 🚗", "Btn": "WYBIERZ", "Val": uber_x*0.86, "Promo": u_promo,
+                                {"Firma": "Uber 🚗", "Btn": "WYBIERZ", "Val": uber_x*0.85, "Promo": u_promo,
                                  "Main": f"~ {uber_x*0.86:.2f} PLN",
                                  "Link": f"https://m.uber.com/ul/?action=setPickup&pickup[latitude]={lat_a}&pickup[longitude]={lon_a}&dropoff[latitude]={lat_b}&dropoff[longitude]={lon_b}",
                                  "Vars": [("📉 Czekaj i oszczędzaj", uber_x*0.85), 
                                           ("🚗 UberX", uber_x),
                                           ("🔋 Hybrid", uber_x),                                                
                                           ("🐾 Uber Pets", uber_x+4)]},
-                                {"Firma": "Bolt ⚡", "Btn": "WYBIERZ", "Val": bolt_std * 0.956, "Promo": b_promo,
+                                {"Firma": "Bolt ⚡", "Btn": "WYBIERZ", "Val": bolt_std - 3, "Promo": b_promo,
                                  "Main": f"~ {bolt_std * 0.956:.2f} PLN", "Link": "bolt://ride",
                                  "Vars": [("⚡ Bolt", bolt_std), 
                                           ("🔋 Hybrid", bolt_std),
