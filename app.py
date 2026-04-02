@@ -95,9 +95,9 @@ st.title("🚕 WroTaxi Compare v5.5")
 
 # --- LOGIKA CZASOWA (Automatyczna dla Polski) ---
 tz_PL = pytz.timezone('Europe/Warsaw') 
-now = datetime.now(tz_PL) # Pobiera aktualny czas w Polsce, uwzględniając zmianę czasu
-h = now.hour
-time_val = h + now.minute/60
+now = datetime.now(tz_PL) 
+current_hour = now.hour  # <--- ZMIENIONA NAZWA ZMIENNEJ
+time_val = current_hour + now.minute/60
 day = now.weekday() 
 is_weekend = (day >= 5)
 is_night = (time_val >= 22 or time_val < 6)
