@@ -19,20 +19,9 @@ def h(time_str): # --- Zmiana formatu czasu
     except:
         return 0.0 # Zabezpieczenie przed błędami
 
-# Pobieramy ścieżkę do folderu domowego użytkownika (np. C:\Users\Piotr)
-home = os.path.expanduser("~")
-
-# Sprawdzamy czy jesteśmy na Windowsie
-if platform.system() == "Windows":
-    # Budujemy ścieżkę do Pulpitu
-    desktop = os.path.join(home, 'Desktop')
-    folder_path = os.path.join(desktop, "Apka", "raport")
-else:
-    # Jesteś w chmurze lub na Linuxie
-    folder_path = "data" 
-
-# Tworzymy folder, jeśli nie istnieje
-os.makedirs(folder_path, exist_ok=True)
+# --- 1. WYŁĄCZNY ODCZYT Z REPOZYTORIUM (GITHUB) ---
+# Definiujemy ścieżkę względem głównego folderu Twojej apki
+folder_path = "data"
 PATH = os.path.join(folder_path, "ai_memory.json")
 
 
