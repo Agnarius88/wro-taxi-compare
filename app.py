@@ -312,7 +312,15 @@ if st.session_state.show_results:  # <--- To sprawi, że formularz nie zniknie!
 
                             # --- DEFINICJA NAJTAŃSZYCH OPJI DLA PORÓWNANIA ---
                             uber_cheap = uber_x * 0.85  # Czekaj i oszczędzaj
-                            bolt_cheap = bolt_std - 9 if (is_peak or h('15:10') <= time_val < 15.5) else bolt_std - 3   # Wait and Save
+                            # --- LOGIKA DYNAMICZNEJ ZNIŻKI BOLT ---
+                            if (h('15:10') <= time_val < h('16:00')) or (is_peak and time_val < h('18:00')):
+                                bolt_discount = 9  # Mocna zniżka w głębokim szczycie
+                            elif (h('18:00') <= time_val < h('19:00')):
+                                bolt_discount = 5  # Twoja nowa zniżka wieczorna
+                            else:
+                                bolt_discount = 3  # Standardowa zniżka poza szczytem
+                            
+                            bolt_cheap = bolt_std - bolt_discount
                             
                             # POPRAWIONY LINK DO UBERA - używamy lat_a, lon_a, lat_b, lon_b
                             dane = [
@@ -324,7 +332,7 @@ if st.session_state.show_results:  # <--- To sprawi, że formularz nie zniknie!
                                           ("🐾 Uber Pets", uber_x+4)]},
                                 {"Firma": "Bolt ⚡", "Btn": "WYBIERZ", "Val": bolt_cheap, "Promo": b_promo,
                                  "Main": f"~ {bolt_cheap:.2f} PLN", "Link": "bolt://ride",
-                                 "Vars": [("📉 Wait and Save", bolt_std - 9 if (is_peak or h('15:10') <= time_val < 16.0) else bolt_std - 3),                                           
+                                 "Vars": [("📉 Wait and Save", bolt_cheap),  # <--- Teraz używamy gotowej zmiennej!,                                           
                                           ("⚡ Bolt /🔋 Hybrid", bolt_std),
                                           ("🐾 Pet", bolt_std+4)]},                                         
                                 {"Firma": "FREENOW 🔴", "Btn": "ZAMÓW W APCE", "Val": freenow_lite, "Promo": f_promo,
