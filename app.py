@@ -289,7 +289,7 @@ if st.session_state.show_results:  # <--- To sprawi, że formularz nie zniknie!
                                  "Main": f"~ {bolt_cheap:.2f} PLN", "Link": "bolt://ride",
                                  "Vars": [("📉 Wait and Save", bolt_std - 3 if (is_peak or 15.67 <= time_val < 16.0) else bolt_std - 3),                                           
                                           ("⚡ Bolt /🔋 Hybrid", bolt_std),
-                                          ("🐾 Pet", bolt_std+4)]},                                         },
+                                          ("🐾 Pet", bolt_std+4)]},                                         
                                 {"Firma": "FREENOW 🔴", "Btn": "ZAMÓW W APCE", "Val": freenow_lite, "Promo": f_promo,
                                  "Main": f"~ {freenow_lite:.2f} PLN",
                                  "Link": "intent://#Intent;scheme=freenow;package=taxi.android.client;end",
