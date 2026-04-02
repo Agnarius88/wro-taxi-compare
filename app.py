@@ -178,7 +178,7 @@ else:
     fn_fix = 2.50
     time_rate = 0.20
 
-st.markdown(f"<div class='tariff-info'>Aktualna godzina: {h:02d}:{now.minute:02d}</div>", unsafe_allow_html=True)
+st.markdown(f"<div class='tariff-info'>Aktualna godzina: {current_hour:02d}:{now.minute:02d}</div>", unsafe_allow_html=True)
 
 # --- USŁUGI ---
 ORS_KEY = 'eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6Ijc2N2YwMmI0Y2M2OTRkMjE5MDk5MDU4ZTg3NzMxYjYzIiwiaCI6Im11cm11cjY0In0='
