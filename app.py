@@ -300,7 +300,7 @@ if st.session_state.show_results:  # <--- To sprawi, że formularz nie zniknie!
                                           ("🐾 Uber Pets", uber_x+4)]},
                                 {"Firma": "Bolt ⚡", "Btn": "WYBIERZ", "Val": bolt_cheap, "Promo": b_promo,
                                  "Main": f"~ {bolt_cheap:.2f} PLN", "Link": "bolt://ride",
-                                 "Vars": [("📉 Wait and Save", bolt_std - 3 if (is_peak or 15.67 <= time_val < 16.0) else bolt_std - 3),                                           
+                                 "Vars": [("📉 Wait and Save", bolt_std - 9 if (is_peak or 15.17 <= time_val < 16.0) else bolt_std - 3),                                           
                                           ("⚡ Bolt /🔋 Hybrid", bolt_std),
                                           ("🐾 Pet", bolt_std+4)]},                                         
                                 {"Firma": "FREENOW 🔴", "Btn": "ZAMÓW W APCE", "Val": freenow_lite, "Promo": f_promo,
