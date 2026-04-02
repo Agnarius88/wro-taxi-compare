@@ -288,7 +288,7 @@ if st.session_state.show_results:  # <--- To sprawi, że formularz nie zniknie!
 
                             # --- DEFINICJA NAJTAŃSZYCH OPJI DLA PORÓWNANIA ---
                             uber_cheap = uber_x * 0.85  # Czekaj i oszczędzaj
-                            bolt_cheap = bolt_std - 9 if (is_peak or 15.17 <= time_val < 16.0) else bolt_std - 3)   # Wait and Save
+                            bolt_cheap = bolt_std - 9 if (is_peak or 15.17 <= time_val < 16.0) else bolt_std - 3   # Wait and Save
                             
                             # POPRAWIONY LINK DO UBERA - używamy lat_a, lon_a, lat_b, lon_b
                             dane = [
