@@ -119,7 +119,7 @@ elif is_weekend:  # <--- NOWY BLOK TYLKO DLA WEEKENDU (w ciągu dnia)
     b_base, b_km = 3.00, 2.70
     fn_fix = 8.00
     time_rate = 0.20
-elif (h("10:00") <= time_val < h("10:40")):
+elif (h("10:15") <= time_val < h("10:40")):
     t_status = "📉 SPOKÓJ PRZEDPOŁUDNIOWY"
     u_base, u_km = 5.00, 1.70  
     b_base, b_km = 3.50, 1.90
