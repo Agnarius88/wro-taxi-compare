@@ -4,9 +4,14 @@
         "bolt": 1.0279007004131173,
         "freenow": 0.9213788916333722
     },
-    "10_weekday": {
+    "9_weekday": {
         "uber": 1.1174,
         "bolt": 1.0723,
+        "freenow": 0.9487
+    },
+    "10_weekday": {
+        "uber": 1,
+        "bolt": 1.0223,
         "freenow": 0.951
     },
     "11_weekday": {
