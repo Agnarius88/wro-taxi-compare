@@ -397,7 +397,7 @@ if st.session_state.show_results:  # <--- To sprawi, że formularz nie zniknie!
                                     # KOREKTA FREE NOW
                                     if real_fn > 0:
                                         factor = real_fn / app_visible_price_fn
-                                        ctx["freenow"] = round(ctx["freenow"] * (0.6 + 0.4 * factor, 4)
+                                        ctx["freenow"] = round(ctx["freenow"] * (0.6 + 0.4 * factor), 4)
                             
                                     try:
                                         with open(PATH, "w") as f:
