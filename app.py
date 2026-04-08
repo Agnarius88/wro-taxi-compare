@@ -389,21 +389,21 @@ if st.session_state.show_results:  # <--- To sprawi, że formularz nie zniknie!
                                         st.write(f"DEBUG: Cena w apce: {app_visible_price:.2f} zł | Realna: {real_uber:.2f} zł | Factor: {factor:.4f}")
                                         
                                         # Aktualizacja mnożnika
-                                        ctx["uber"] *= (0.7 + 0.3 * factor)
+                                        ctx["uber"] *= (0.6 + 0.4 * factor)
                                 
                                     # KOREKTA BOLTA
                                     if real_bolt > 0:
                                         # 
                                         app_visible_price_bolt = st.session_state.bolt_std 
                                         factor = real_bolt / app_visible_price_bolt
-                                        ctx["bolt"] *= (0.7 + 0.3 * factor)
+                                        ctx["bolt"] *= (0.6 + 0.4 * factor)
                                         
                                     # KOREKTA FREE NOW
                                     if real_fn > 0:
                                         # FreeNow w tabelce nie ma dodatkowego mnożnika
                                         app_visible_price_fn = st.session_state.freenow_lite
                                         factor = real_fn / app_visible_price_fn
-                                        ctx["freenow"] *= (0.7 + 0.3 * factor)
+                                        ctx["freenow"] *= (0.6 + 0.4 * factor)
                             
                                     try:
                                         with open(PATH, "w") as f:
