@@ -383,29 +383,21 @@ if st.session_state.show_results:  # <--- To sprawi, że formularz nie zniknie!
                                     
                                     # KOREKTA UBERA
                                     if real_uber > 0:
-                                        # Używamy dokładnie tego, co widzi użytkownik w tabelce 'dane'
-                                        # (st.session_state.uber_x już zawiera w sobie mnożnik ctx!)
-                                        app_visible_price = st.session_state.uber_x 
+                                        factor = real_uber / st.session_state.uber_x
+                                        ctx["uber"] = round(ctx["uber"] * (0.6 + 0.4 * factor), 4)
                                         
-                                        factor = real_uber / app_visible_price
                                         st.write(f"DEBUG: Cena w apce: {app_visible_price:.2f} zł | Realna: {real_uber:.2f} zł | Factor: {factor:.4f}")
                                         
-                                        # Aktualizacja mnożnika
-                                        ctx["uber"] *= round(0.6 + 0.4 * factor, 4)
                                 
                                     # KOREKTA BOLTA
                                     if real_bolt > 0:
-                                        # 
-                                        app_visible_price_bolt = st.session_state.bolt_std 
-                                        factor = real_bolt / app_visible_price_bolt
-                                        ctx["bolt"] *= round(0.6 + 0.4 * factor, 4)
+                                        factor = real_bolt / st.session_state.bolt_std
+                                        ctx["bolt"] = round(ctx["bolt"] * (0.6 + 0.4 * factor), 4)
                                         
                                     # KOREKTA FREE NOW
                                     if real_fn > 0:
-                                        # FreeNow w tabelce nie ma dodatkowego mnożnika
-                                        app_visible_price_fn = st.session_state.freenow_lite
                                         factor = real_fn / app_visible_price_fn
-                                        ctx["freenow"] *= round(0.6 + 0.4 * factor, 4)
+                                        ctx["freenow"] = round(ctx["freenow"] * (0.6 + 0.4 * factor, 4)
                             
                                     try:
                                         with open(PATH, "w") as f:
