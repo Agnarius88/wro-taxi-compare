@@ -150,19 +150,9 @@ elif (h('15:10') <= time_val < h('15:30')):
     time_rate = 0.45
 elif (h('15:30') <= time_val < h('16:00')):
     t_status = "📉 DYNAMICZNA KOREKTA (15:30-16:00)"
-    
-    # UBER: celujemy w ~36.94 PLN
-    # Zbijamy bazę i km, bo przy surge 1.35 cena szybko rośnie
     u_base, u_km = 6.00, 1.45   
     time_rate = 0.12            # Niższa stawka za czas (korki mniejsze niż zakładał system)
-    
-    # BOLT: celujemy w ~46.78 PLN
-    # Bolt nie dolicza minuty, ale ma opłatę stałą 3.70 w Twoim kodzie
-    b_base, b_km = 4.00, 2.50   
-    
-    # FREE NOW: celujemy w ~44.19 PLN
-    # Skoro Uber (raw) wychodzi nisko, musimy podbić fn_fix, 
-    # aby Free Now był droższy od Ubera o te kilka złotych
+    b_base, b_km = 3.50, 1.85   
     fn_fix = 6.50              
     
     # --- DODATKOWA LOGIKA ZNIŻEK DLA TEGO OKNA ---
