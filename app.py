@@ -148,6 +148,13 @@ elif (h('15:10') <= time_val < h('15:30')):
     b_base, b_km = 5.00, 2.70
     fn_fix = -10  
     time_rate = 0.45
+elif (h('15:30') <= time_val < h('16:00')):
+    t_status = "📉 OKIENKO CENOWE (15:30-16:00)"
+    # Obniżamy bazy i kilometry, żeby zbić cenę z 55 zł na ok. 37 zł
+    u_base, u_km = 4.00, 1.40   # Znacznie taniej niż w standardzie
+    b_base, b_km = 3.00, 1.80
+    fn_fix = -2.00              # FreeNow dostaje ujemny fix, żeby go dociągnąć do dołu
+    time_rate = 0.10            # Minimalna stawka za czas
 elif (h("17:00") <= time_val < h("18:00")):
     t_status = "📉 POPOŁUDNIOWE ROZLUŹNIENIE (17:00-18:00)"
     u_base, u_km = 6.50, 1.60   # Znacznie niższa stawka za km (było 1.90)
