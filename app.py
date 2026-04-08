@@ -125,7 +125,7 @@ elif is_weekend:  # <--- NOWY BLOK TYLKO DLA WEEKENDU (w ciągu dnia)
     #b_base, b_km = 3.50, 1.90
     #fn_fix = 2.00
     #time_rate = 0.15
-elif (h('11:10') <= time_val < h('11:30')):
+elif (h('11:15') <= time_val < h('11:30')):
     t_status = "📉 PRZEDPOŁUDNIOWY DOŁEK"
     u_base, u_km = 7.50, 1.90    # To Twoje "standardowe" ceny, które były o 10:00
     b_base, b_km = 4.80, 2.30
