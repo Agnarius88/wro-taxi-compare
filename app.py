@@ -305,22 +305,36 @@ if st.session_state.show_results:  # <--- To sprawi, że formularz nie zniknie!
                                 bolt_discount = 3  # Standardowa zniżka poza szczytem
                             
                             bolt_cheap = bolt_std - bolt_discount
+
+                            # --- TWORZENIE WIDEŁEK CENOWYCH (ZAKRESÓW) ---
+                            # Uber: dość dokładny, odchylenie -5% do +10%
+                            uber_min = uber_cheap * 0.95
+                            uber_max = uber_cheap * 1.10
+                            
+                            # Bolt: lubi rzucać losowymi zniżkami, odchylenie -5% do +15%
+                            bolt_min = bolt_cheap * 0.95
+                            bolt_max = bolt_cheap * 1.15
+                            
+                            # Free Now: "ucieka", więc dajemy najszerszy zakres: -10% do +25%
+                            freenow_min = freenow_lite * 0.90
+                            freenow_max = freenow_lite * 1.25
                             
                             # POPRAWIONY LINK DO UBERA - używamy lat_a, lon_a, lat_b, lon_b
                             dane = [
                                 {"Firma": "Uber 🚗", "Btn": "WYBIERZ", "Val": uber_cheap, "Promo": u_promo,
-                                 "Main": f"~ {uber_cheap:.2f} PLN",
+                                 "Main": f"{uber_min:.2f} - {uber_max:.2f} PLN", # <--- ZMIANA
                                  "Link": f"https://m.uber.com/ul/?action=setPickup&pickup[latitude]={lat_a}&pickup[longitude]={lon_a}&dropoff[latitude]={lat_b}&dropoff[longitude]={lon_b}",
                                  "Vars": [("📉 Czekaj i oszczędzaj", uber_x*0.85), 
                                           ("🚗 UberX / 🔋 Hybrid", uber_x),                                                                                          
                                           ("🐾 Uber Pets", uber_x+4)]},
                                 {"Firma": "Bolt ⚡", "Btn": "WYBIERZ", "Val": bolt_cheap, "Promo": b_promo,
-                                 "Main": f"~ {bolt_cheap:.2f} PLN", "Link": "bolt://ride",
+                                 "Main": f"{bolt_min:.2f} - {bolt_max:.2f} PLN", # <--- ZMIANA 
+                                 "Link": "bolt://ride",
                                  "Vars": [("📉 Wait and Save", bolt_cheap),  # <--- Teraz używamy gotowej zmiennej!,                                           
                                           ("⚡ Bolt /🔋 Hybrid", bolt_std),
                                           ("🐾 Pet", bolt_std+4)]},                                         
                                 {"Firma": "FREENOW 🔴", "Btn": "ZAMÓW W APCE", "Val": freenow_lite, "Promo": f_promo,
-                                 "Main": f"~ {freenow_lite:.2f} PLN",
+                                 "Main": f"{freenow_min:.2f} - {freenow_max:.2f} PLN", # <--- ZMIANA
                                  "Link": "intent://#Intent;scheme=freenow;package=taxi.android.client;end",
                                  "Vars": [("🚗 Lite / Green", freenow_lite), 
                                           ("🐾 Pets", freenow_lite*1.3), 
