@@ -299,7 +299,7 @@ if st.session_state.show_results:  # <--- To sprawi, że formularz nie zniknie!
                                 bolt_discount = 9  # Mocna zniżka w głębokim szczycie
                             elif (h('18:00') <= time_val < h('19:00')):
                                 bolt_discount = 5  # Twoja nowa zniżka wieczorna
-                            elif (h('12:00') <= time_val < h('12:30')):
+                            elif (h('12:00') <= time_val < h('13:30')):
                                 bolt_discount = 5  
                             else:
                                 bolt_discount = 3  # Standardowa zniżka poza szczytem
