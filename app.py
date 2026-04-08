@@ -383,36 +383,39 @@ if st.session_state.show_results:  # <--- To sprawi, że formularz nie zniknie!
                                     
                                     # KOREKTA UBERA
                                     if real_uber > 0:
-                                        factor = real_uber / st.session_state.uber_x
-                                        ctx["uber"] = round(ctx["uber"] * (0.6 + 0.4 * factor), 4)
-                                        
+                                        app_visible_price = st.session_state.uber_x 
+                                        factor = real_uber / app_visible_price
                                         st.write(f"DEBUG: Cena w apce: {app_visible_price:.2f} zł | Realna: {real_uber:.2f} zł | Factor: {factor:.4f}")
                                         
+                                        # ZMIANA: Zaokrąglamy CAŁY ostateczny wynik
+                                        ctx["uber"] = round(ctx["uber"] * (0.6 + 0.4 * factor), 4)
                                 
                                     # KOREKTA BOLTA
                                     if real_bolt > 0:
-                                        factor = real_bolt / st.session_state.bolt_std
+                                        app_visible_price_bolt = st.session_state.bolt_std 
+                                        factor = real_bolt / app_visible_price_bolt
+                                        # ZMIANA: Zaokrąglamy CAŁY ostateczny wynik
                                         ctx["bolt"] = round(ctx["bolt"] * (0.6 + 0.4 * factor), 4)
                                         
                                     # KOREKTA FREE NOW
                                     if real_fn > 0:
+                                        app_visible_price_fn = st.session_state.freenow_lite
                                         factor = real_fn / app_visible_price_fn
+                                        # ZMIANA: Zaokrąglamy CAŁY ostateczny wynik
                                         ctx["freenow"] = round(ctx["freenow"] * (0.6 + 0.4 * factor), 4)
                             
                                     try:
-                                        with open(PATH, "w") as f:
-                                            json.dump(st.session_state.ai_data, f)
+                                        # ZMIANA: Dodano encoding, indent=4 i ensure_ascii
+                                        with open(PATH, "w", encoding='utf-8') as f:
+                                            json.dump(st.session_state.ai_data, f, indent=4, ensure_ascii=False)
                                         st.toast("Mózg AI zaktualizowany na Pulpicie!", icon="🧠")
                                         st.success(f"✅ Dane zapisane w: {PATH}")
                                     except Exception as e:
                                         st.error(f"❌ Nie udało się zapisać pliku na Pulpicie. Błąd: {e}")
+                                        
                                     # --- PODGLĄD PAMIĘCI AI PO ZAPISIE ---
                                     st.markdown("#### 🔍 Aktualny stan pamięci dla tej godziny:")
-                                    # Wyświetlamy tylko dane dla obecnego kontekstu (godzina/dzień), żeby było czytelnie
-                                    st.json(st.session_state.ai_data[context_key])
-                                    
-                                    # Opcjonalnie: jeśli chcesz widzieć CAŁY plik, użyj:
-                                    # st.json(st.session_state.ai_data)    
+                                    st.json(st.session_state.ai_data[context_key])   
                         else:
                             st.warning("⚠️ Serwer map nie znalazł trasy.")
                     
@@ -441,4 +444,3 @@ with col_dl:
         mime="application/json",
         help="Pobierz ten plik i wrzuć go do folderu Apka/raport na swoim komputerze, aby AI 'pamiętało' ceny."
     )
-
