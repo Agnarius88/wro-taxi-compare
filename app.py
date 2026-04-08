@@ -295,8 +295,10 @@ if st.session_state.show_results:  # <--- To sprawi, że formularz nie zniknie!
                             # --- DEFINICJA NAJTAŃSZYCH OPJI DLA PORÓWNANIA ---
                             uber_cheap = uber_x * 0.85  # Czekaj i oszczędzaj
                             # --- LOGIKA DYNAMICZNEJ ZNIŻKI BOLT ---
-                            if (h('15:00') <= time_val < h('16:00')) or (is_peak and time_val < h('18:00')):
+                            if (h('15:00') <= time_val < h('15:25')) or (is_peak and time_val < h('18:00')):
                                 bolt_discount = 9  # Mocna zniżka w głębokim szczycie
+                            elif (h('15:25') <= time_val < h('16:00')):
+                                bolt_discount = 13  # Twoja nowa zniżka wieczorna
                             elif (h('18:00') <= time_val < h('19:00')):
                                 bolt_discount = 5  # Twoja nowa zniżka wieczorna
                             elif (h('12:00') <= time_val < h('13:30')):
