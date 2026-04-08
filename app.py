@@ -62,7 +62,7 @@ def simulate_smart_market(is_peak, is_night):
     return surge, 20, 10, status
 
 # --- KONFIGURACJA STREAMLIT ---
-st.set_page_config(page_title="WroTaxi Compare Pro", page_icon="🚕", layout="centered")
+st.set_page_config(page_title="BestWay Wro", page_icon="🚕", layout="centered")
 st.markdown("""
     <style>
     .stButton>button { width: 100%; border-radius: 10px; height: 3.5em; font-weight: bold; background-color: #2e3136; color: white; }
@@ -80,7 +80,7 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-st.title("🚕 WroTaxi Compare v5.5")
+st.title("🚕 BestWay Wro")
 
 # --- LOGIKA CZASOWA (Automatyczna dla Polski) ---
 tz_PL = pytz.timezone('Europe/Warsaw') 
