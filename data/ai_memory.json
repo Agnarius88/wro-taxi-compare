@@ -15,9 +15,9 @@
         "freenow": 0.893
     },
     "11_weekday": {
-        "uber": 0.9660,
-        "bolt": 0.9603,
-        "freenow": 1.0067
+        "uber": 0.9560,
+        "bolt": 1.025,
+        "freenow": 1.0211
     },
     "12_weekday": {
         "uber": 1.019142323320746,
