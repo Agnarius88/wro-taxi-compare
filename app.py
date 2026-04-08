@@ -149,12 +149,24 @@ elif (h('15:10') <= time_val < h('15:30')):
     fn_fix = -10  
     time_rate = 0.45
 elif (h('15:30') <= time_val < h('16:00')):
-    t_status = "📉 OKIENKO CENOWE (15:30-16:00)"
-    # Obniżamy bazy i kilometry, żeby zbić cenę z 55 zł na ok. 37 zł
-    u_base, u_km = 4.00, 1.40   # Znacznie taniej niż w standardzie
-    b_base, b_km = 0, 1.80
-    fn_fix = -2.00              # FreeNow dostaje ujemny fix, żeby go dociągnąć do dołu
-    time_rate = 0.10            # Minimalna stawka za czas
+    t_status = "📉 DYNAMICZNA KOREKTA (15:30-16:00)"
+    
+    # UBER: celujemy w ~36.94 PLN
+    # Zbijamy bazę i km, bo przy surge 1.35 cena szybko rośnie
+    u_base, u_km = 6.00, 1.45   
+    time_rate = 0.12            # Niższa stawka za czas (korki mniejsze niż zakładał system)
+    
+    # BOLT: celujemy w ~46.78 PLN
+    # Bolt nie dolicza minuty, ale ma opłatę stałą 3.70 w Twoim kodzie
+    b_base, b_km = 4.00, 2.50   
+    
+    # FREE NOW: celujemy w ~44.19 PLN
+    # Skoro Uber (raw) wychodzi nisko, musimy podbić fn_fix, 
+    # aby Free Now był droższy od Ubera o te kilka złotych
+    fn_fix = 6.50              
+    
+    # --- DODATKOWA LOGIKA ZNIŻEK DLA TEGO OKNA ---
+    bolt_discount = 0  # Zerujemy, bo przy stawce 2.50 i surge 1.35 wyjdzie idealnie
 elif (h("17:00") <= time_val < h("18:00")):
     t_status = "📉 POPOŁUDNIOWE ROZLUŹNIENIE (17:00-18:00)"
     u_base, u_km = 6.50, 1.60   # Znacznie niższa stawka za km (było 1.90)
