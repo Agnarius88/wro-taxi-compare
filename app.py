@@ -92,7 +92,7 @@ is_weekend = (day >= 5)
 is_night = (time_val >= 22 or time_val < 6)
 is_peak = not is_weekend and (
     (h("07:30") <= time_val < h("09:30")) or 
-    (h("16:30") <= time_val < h("18:30"))
+    (h("16:10") <= time_val < h("18:30"))
 )
 context_key = f"{int(time_val)}_{'weekend' if is_weekend else 'weekday'}"
 
