@@ -172,7 +172,7 @@ elif (h("18:00") <= time_val < h("19:00")):
 elif is_peak: #  peak jest ustawiony 7:30 - 9:30 i 15:30 - 18:30
     # Szczyt (Twoje 15:22 - korki + wysoki popyt)
     u_base, u_km = 8.0, 1.90 
-    b_base, b_km = 4.00, 2.20
+    b_base, b_km = 8.00, 2.20
     fn_fix = 3.50  
     time_rate = 0.40         # Minuta droższa, bo stoisz na światłach
 else:
