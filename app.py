@@ -164,11 +164,11 @@ elif (h("17:00") <= time_val < h("18:00")):
     fn_fix = 1.00
     time_rate = 0.20            # Mniejsza dopłata za korki         
 elif (h("18:00") <= time_val < h("19:00")):
-    t_status = "🌆 WIECZORNY POWRÓT (18:00-19:00)"
-    u_base, u_km = 9.50, 2.25
-    b_base, b_km = 7.50, 2.55
-    time_rate = 0.30            
-    fn_fix = 0.50               # FreeNow ma być blisko Ubera  
+    t_status = "🌆 WIECZORNY POWRÓT (Korekta)"
+    u_base, u_km = 6.50, 1.40   # Było 9.50 i 2.25 - to był główny błąd
+    b_base, b_km = 5.00, 1.70   # Było 7.50 i 2.55
+    time_rate = 0.15            # Było 0.30 - zbyt mocno karało za czas przejazdu
+    fn_fix = -2.00              # FreeNow często daje teraz rabaty, żeby walczyć z Uberem
 elif is_peak: #  peak jest ustawiony 7:30 - 9:30 i 15:30 - 18:30
     # Szczyt (Twoje 15:22 - korki + wysoki popyt)
     u_base, u_km = 8.0, 1.90 
