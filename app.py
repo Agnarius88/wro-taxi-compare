@@ -169,6 +169,12 @@ elif (h("18:00") <= time_val < h("19:00")):
     b_base, b_km = 4.50, 2.55   # b base było 7.50
     time_rate = 0.15            # Było 0.30 - zbyt mocno karało za czas przejazdu
     fn_fix = -2.00              # FreeNow często daje teraz rabaty, żeby walczyć z Uberem
+elif (h("19:00") <= time_val < h("20:00")):
+    t_status = "Wczesny Wieczór"
+    u_base, u_km = 8.00, 2.10
+    b_base, b_km = 7.50, 2.65
+    fn_fix = 2.50
+    time_rate = 0.20
 elif is_peak: #  peak jest ustawiony 7:30 - 9:30 i 15:30 - 18:30
     # Szczyt (Twoje 15:22 - korki + wysoki popyt)
     u_base, u_km = 8.0, 1.90 
