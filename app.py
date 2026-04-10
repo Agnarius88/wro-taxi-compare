@@ -169,7 +169,7 @@ elif (h("18:00") <= time_val < h("19:00")):
     b_base, b_km = 4.50, 2.55   # b base było 7.50
     time_rate = 0.15            # Było 0.30 - zbyt mocno karało za czas przejazdu
     fn_fix = -2.00              # FreeNow często daje teraz rabaty, żeby walczyć z Uberem
-elif (h("19:00") <= time_val < h("20:00")):
+elif (h("19:00") <= time_val < h("20:30")):
     t_status = "Wczesny Wieczór"
     u_base, u_km = 8.00, 2.10
     b_base, b_km = 7.50, 2.65
@@ -319,7 +319,7 @@ if st.session_state.show_results:  # <--- To sprawi, że formularz nie zniknie!
                             elif (h('18:00') <= time_val < h('19:00')):
                                 bolt_discount = 5  # Twoja nowa zniżka wieczorna
                             elif (h('19:00') <= time_val < h('20:30')):
-                                bolt_discount = 9  
+                                bolt_discount = 10  
                             elif (h('12:00') <= time_val < h('13:30')):
                                 bolt_discount = 5  
                             else:
